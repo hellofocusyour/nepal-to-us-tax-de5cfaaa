@@ -2,7 +2,7 @@ import { CalendarDays, BookOpen, Clock, GraduationCap } from "lucide-react";
 import SectionWrapper from "./SectionWrapper";
 
 const stats = [
-  { icon: CalendarDays, label: "Duration", value: "1 Month" },
+  { icon: CalendarDays, label: "Duration", value: "30 Days" },
   { icon: BookOpen, label: "Classes", value: "22 Core + 4 Bonus" },
   { icon: Clock, label: "Schedule", value: "4 Days a Week" },
   { icon: GraduationCap, label: "Format", value: "Live + Hands-on" },

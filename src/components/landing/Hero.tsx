@@ -28,7 +28,7 @@ const Hero = () => (
         </span>
         <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary-foreground leading-tight mb-6">
           Become a Job-Ready US Tax Preparer{" "}
-          <span className="text-gradient-gold">in Just 1 Month</span>
+          <span className="text-gradient-gold">in Just 30 Days</span>
         </h1>
         <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl font-body leading-relaxed">
           Nepal's only IRS Enrolled Agent-led training program — taught in Neplish, designed for your global career.
