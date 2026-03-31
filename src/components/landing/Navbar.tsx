@@ -3,7 +3,7 @@ import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
-  { label: "Outcomes", href: "#outcomes" },
+  { label: "Career Breakthroughs", href: "#outcomes" },
   { label: "Curriculum", href: "#curriculum" },
   { label: "Mentors", href: "#mentors" },
   { label: "Pricing", href: "#pricing" },
