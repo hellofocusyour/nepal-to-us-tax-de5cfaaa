@@ -6,7 +6,7 @@ const Footer = () => (
       <div className="grid md:grid-cols-3 gap-8 mb-8">
         <div>
           <p className="font-display text-xl font-bold text-primary-foreground mb-3">
-            Focus<span className="text-gold">Academy</span>
+            Focus <span className="text-gold">Academy</span>
           </p>
           <p className="text-sm leading-relaxed">
             Nepal's premier US Tax training institute. From Nepal to the Global Tax Market.
