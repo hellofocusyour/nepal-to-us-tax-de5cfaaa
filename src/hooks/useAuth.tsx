@@ -6,8 +6,10 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isAdmin: boolean;
+  isStudent: boolean;
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, fullName: string, phone?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
 
@@ -15,8 +17,10 @@ const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   isAdmin: false,
+  isStudent: false,
   isLoading: true,
   signIn: async () => ({ error: null }),
+  signUp: async () => ({ error: null }),
   signOut: async () => {},
 });
 
@@ -24,16 +28,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isStudent, setIsStudent] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const checkAdminRole = async (userId: string) => {
+  const checkRoles = async (userId: string) => {
     const { data } = await supabase
       .from("user_roles")
       .select("role")
-      .eq("user_id", userId)
-      .eq("role", "admin")
-      .maybeSingle();
-    setIsAdmin(!!data);
+      .eq("user_id", userId);
+    setIsAdmin(data?.some(r => r.role === "admin") ?? false);
+    setIsStudent(data?.some(r => r.role === "student") ?? false);
   };
 
   useEffect(() => {
@@ -42,9 +46,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => checkAdminRole(session.user.id), 0);
+          setTimeout(() => checkRoles(session.user.id), 0);
         } else {
           setIsAdmin(false);
+          setIsStudent(false);
         }
         setIsLoading(false);
       }
@@ -54,7 +59,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        checkAdminRole(session.user.id);
+        checkRoles(session.user.id);
       }
       setIsLoading(false);
     });
@@ -67,13 +72,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return { error: error as Error | null };
   };
 
+  const signUp = async (email: string, password: string, fullName: string, phone?: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { full_name: fullName, phone } },
+    });
+    if (error) return { error: error as Error | null };
+
+    // Create profile if signup succeeded
+    if (data.user) {
+      await supabase.from("profiles").insert({
+        user_id: data.user.id,
+        full_name: fullName,
+        email,
+        phone: phone || null,
+      });
+    }
+
+    return { error: null };
+  };
+
   const signOut = async () => {
     await supabase.auth.signOut();
     setIsAdmin(false);
+    setIsStudent(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, isAdmin, isLoading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, session, isAdmin, isStudent, isLoading, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );
