@@ -15,6 +15,13 @@ import Payments from "./pages/admin/Payments.tsx";
 import Batches from "./pages/admin/Batches.tsx";
 import Announcements from "./pages/admin/Announcements.tsx";
 import Reports from "./pages/admin/Reports.tsx";
+import StudentLogin from "./pages/StudentLogin.tsx";
+import StudentLayout from "./components/student/StudentLayout.tsx";
+import StudentDashboard from "./pages/portal/StudentDashboard.tsx";
+import StudentCourses from "./pages/portal/StudentCourses.tsx";
+import StudentPayments from "./pages/portal/StudentPayments.tsx";
+import StudentCertificates from "./pages/portal/StudentCertificates.tsx";
+import StudentProfile from "./pages/portal/StudentProfile.tsx";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +43,14 @@ const App = () => (
               <Route path="batches" element={<Batches />} />
               <Route path="announcements" element={<Announcements />} />
               <Route path="reports" element={<Reports />} />
+            </Route>
+            <Route path="/portal/login" element={<StudentLogin />} />
+            <Route path="/portal" element={<StudentLayout />}>
+              <Route index element={<StudentDashboard />} />
+              <Route path="courses" element={<StudentCourses />} />
+              <Route path="payments" element={<StudentPayments />} />
+              <Route path="certificates" element={<StudentCertificates />} />
+              <Route path="profile" element={<StudentProfile />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
