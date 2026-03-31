@@ -13,7 +13,7 @@ const Hero = () => (
   <section className="relative min-h-[90vh] flex items-center overflow-hidden pt-16">
     <div className="absolute inset-0 bg-hero-gradient" />
     <div
-      className="absolute inset-0 opacity-15 bg-cover bg-center"
+      className="absolute inset-0 opacity-30 bg-cover bg-center"
       style={{ backgroundImage: `url(${heroBg})` }}
     />
     <div className="relative container mx-auto px-4 py-20 md:py-32">

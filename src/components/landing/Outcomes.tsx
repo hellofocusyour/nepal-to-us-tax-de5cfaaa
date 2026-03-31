@@ -15,7 +15,7 @@ const Outcomes = () => (
   <SectionWrapper id="outcomes">
     <div className="text-center mb-12">
       <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">Your Career Breakthroughs</h2>
-      <p className="text-muted-foreground max-w-2xl mx-auto">Real outcomes, not just certificates. Here's what awaits you after completing this program.</p>
+      <p className="text-muted-foreground max-w-2xl mx-auto">Real results, not just certificates. Here's what awaits you after completing this program.</p>
     </div>
     <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {items.map((item, i) => (
