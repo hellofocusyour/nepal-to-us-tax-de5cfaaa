@@ -56,7 +56,7 @@ const Payments = () => {
   );
 
   const updatePaymentStatus = async (paymentId: string, status: string) => {
-    const { error } = await supabase.from("payments").update({ status: status as any }).eq("id", paymentId);
+    const { error } = await supabase.from("payments").update({ status: status as "pending_verification" | "verified" | "rejected" | "overdue" }).eq("id", paymentId);
     if (error) { toast.error("Failed to update"); return; }
     toast.success(`Payment ${status === "verified" ? "verified" : "rejected"}`);
     fetchPayments();
