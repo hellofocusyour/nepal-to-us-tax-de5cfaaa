@@ -114,7 +114,7 @@ const StudentCourses = () => {
                       <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary/10">
                         {isPast ? (
                           session.attended ? (
-                            <CheckCircle className="w-5 h-5 text-green-600" />
+                            <CheckCircle className="w-5 h-5 text-primary" />
                           ) : session.attended === false ? (
                             <XCircle className="w-5 h-5 text-destructive" />
                           ) : (
