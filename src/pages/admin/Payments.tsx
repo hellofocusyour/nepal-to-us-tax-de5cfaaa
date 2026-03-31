@@ -126,10 +126,10 @@ const Payments = () => {
                           </Button>
                           {payment.status === "pending_verification" && (
                             <>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-green-600" onClick={() => updatePaymentStatus(payment.id, "verified")}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-emerald-600" onClick={() => updatePaymentStatus(payment.id, "verified")}>
                                 <CheckCircle className="w-4 h-4" />
                               </Button>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 text-red-600" onClick={() => updatePaymentStatus(payment.id, "rejected")}>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => updatePaymentStatus(payment.id, "rejected")}>
                                 <XCircle className="w-4 h-4" />
                               </Button>
                             </>

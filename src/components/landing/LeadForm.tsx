@@ -1,12 +1,29 @@
 import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import SectionWrapper from "./SectionWrapper";
+import { toast } from "sonner";
 
 const LeadForm = () => {
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({ full_name: "", email: "", phone: "", background: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    const { error } = await supabase.from("inquiries").insert({
+      full_name: form.full_name,
+      email: form.email,
+      phone: form.phone || null,
+      background: form.background || null,
+    });
+    if (error) {
+      toast.error("Something went wrong. Please try again.");
+      setLoading(false);
+      return;
+    }
     setSubmitted(true);
+    setLoading(false);
   };
 
   return (
@@ -27,39 +44,47 @@ const LeadForm = () => {
               required
               type="text"
               placeholder="Full Name"
+              value={form.full_name}
+              onChange={e => setForm(p => ({ ...p, full_name: e.target.value }))}
               className="w-full rounded-lg border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <input
               required
               type="email"
               placeholder="Email Address"
+              value={form.email}
+              onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
               className="w-full rounded-lg border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <input
               required
               type="tel"
               placeholder="Phone Number"
+              value={form.phone}
+              onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
               className="w-full rounded-lg border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
             <select
               required
+              value={form.background}
+              onChange={e => setForm(p => ({ ...p, background: e.target.value }))}
               className="w-full rounded-lg border border-border bg-card px-4 py-3 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              defaultValue=""
             >
               <option value="" disabled>Your Background</option>
-              <option>Fresher / Student</option>
-              <option>Working Professional</option>
-              <option>CA / ACCA Student</option>
-              <option>Freelancer</option>
-              <option>Entrepreneur</option>
-              <option>Other</option>
+              <option value="fresher">Fresher / Student</option>
+              <option value="professional">Working Professional</option>
+              <option value="ca">CA / ACCA Student</option>
+              <option value="freelancer">Freelancer</option>
+              <option value="entrepreneur">Entrepreneur</option>
+              <option value="other">Other</option>
             </select>
             <button
               type="submit"
-              className="w-full rounded-lg px-6 py-3.5 text-base font-bold text-gold-foreground transition-opacity hover:opacity-90"
+              disabled={loading}
+              className="w-full rounded-lg px-6 py-3.5 text-base font-bold text-gold-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
               style={{ background: "var(--gold-gradient)" }}
             >
-              Submit Enquiry
+              {loading ? "Submitting..." : "Submit Enquiry"}
             </button>
           </form>
         )}
