@@ -15,7 +15,7 @@ const Footer = () => (
         <div>
           <p className="font-bold text-primary-foreground text-sm mb-3">Quick Links</p>
           <ul className="space-y-2 text-sm">
-            <li><a href="#outcomes" className="hover:text-primary-foreground transition-colors">Outcomes</a></li>
+            <li><a href="#outcomes" className="hover:text-primary-foreground transition-colors">Career Breakthroughs</a></li>
             <li><a href="#curriculum" className="hover:text-primary-foreground transition-colors">Curriculum</a></li>
             <li><a href="#mentors" className="hover:text-primary-foreground transition-colors">Mentors</a></li>
             <li><a href="#pricing" className="hover:text-primary-foreground transition-colors">Pricing</a></li>
