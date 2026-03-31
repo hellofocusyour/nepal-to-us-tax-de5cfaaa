@@ -42,7 +42,7 @@ const Payments = () => {
       .from("payments")
       .select("*, students(full_name, email)")
       .order("created_at", { ascending: false });
-    if (statusFilter !== "all") query = query.eq("status", statusFilter);
+    if (statusFilter !== "all") query = query.eq("status", statusFilter as "pending_verification" | "verified" | "rejected" | "overdue");
     const { data } = await query;
     setPayments((data as unknown as PaymentWithStudent[]) || []);
     setLoading(false);
