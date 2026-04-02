@@ -1,4 +1,4 @@
-import { MessageCircle } from "lucide-react";
+import WhatsAppIcon from "@/components/icons/WhatsAppIcon";
 import SectionWrapper from "./SectionWrapper";
 
 const FinalCTA = () => (
