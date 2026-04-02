@@ -24,7 +24,7 @@ const FinalCTA = () => (
           rel="noopener noreferrer"
           className="inline-flex items-center justify-center gap-2 rounded-lg border-2 border-primary-foreground/30 px-8 py-3.5 text-base font-bold text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
         >
-          <MessageCircle size={20} />
+          <WhatsAppIcon size={20} />
           WhatsApp Us
         </a>
       </div>
