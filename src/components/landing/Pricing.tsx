@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { LeadCaptureForm } from "./LeadForm";
+import LeadCaptureForm from "./LeadForm";
 
 const includes = [
   "Live Interactive Classes",
