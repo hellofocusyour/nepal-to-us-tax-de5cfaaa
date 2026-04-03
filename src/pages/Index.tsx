@@ -23,9 +23,9 @@ const Index = () => (
     <CourseStats />
     <LearningObjectives />
     <Pricing />
-    <Curriculum />
     <TargetAudience />
     <Mentors />
+    <Curriculum />
     <SocialProof />
     <AfterCourse />
     <FAQ />
