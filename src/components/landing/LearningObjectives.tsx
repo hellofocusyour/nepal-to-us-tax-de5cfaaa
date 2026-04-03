@@ -16,25 +16,66 @@ const objectives = [
   "Understand audit risks, IRS notices, and basic tax planning strategies",
 ];
 
+const cardVariants = [
+  {
+    wrapper:
+      "border-[#3aa3c8]/45 bg-[#16779b] shadow-[0_14px_30px_-16px_rgba(0,0,0,0.45)] hover:bg-[#1a86ae] hover:border-[#67c5e6]",
+    icon: "text-secondary",
+    number: "bg-secondary text-navy",
+    text: "text-white",
+  },
+  {
+    wrapper:
+      "border-[#1d85ac]/40 bg-[#116b8c] shadow-[0_14px_30px_-16px_rgba(0,0,0,0.45)] hover:bg-[#1590be] hover:border-[#58c1e5]",
+    icon: "text-[#f2c14d]",
+    number: "bg-[#1487b4] text-white",
+    text: "text-white",
+  },
+];
+
 const LearningObjectives = () => (
-  <div className="bg-accent">
-    <SectionWrapper id="learning-objectives">
-      <div className="text-center mb-12">
-        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">Learning Objectives</h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
+  <SectionWrapper id="learning-objectives" dark className="relative overflow-hidden">
+    <div className="pointer-events-none absolute inset-0">
+      <div className="absolute left-1/2 top-0 h-64 w-64 -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
+      <div className="absolute left-10 bottom-0 h-40 w-40 rounded-full border border-primary-foreground/10" />
+      <div className="absolute right-10 top-16 h-32 w-32 rounded-full border border-primary-foreground/10" />
+    </div>
+
+    <div className="relative">
+      <div className="mb-10 text-center">
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
+          Learning <span className="text-gradient-gold">Objectives</span>
+        </h2>
+        <p className="max-w-2xl mx-auto text-primary-foreground/80">
           Upon completing this course, you will be able to:
         </p>
       </div>
-      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-x-8 gap-y-4">
-        {objectives.map((obj) => (
-          <div key={obj} className="flex gap-3 items-start">
-            <CheckCircle2 size={20} className="text-primary shrink-0 mt-0.5" />
-            <p className="text-sm text-foreground leading-relaxed">{obj}</p>
-          </div>
-        ))}
+
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        {objectives.map((obj, index) => {
+          const variant = cardVariants[index % cardVariants.length];
+
+          return (
+            <div
+              key={obj}
+              className={`group relative h-full rounded-[24px] border px-5 pb-5 pt-9 transition-all duration-300 hover:-translate-y-1 ${variant.wrapper}`}
+            >
+              <div
+                className={`absolute left-5 top-[-16px] flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold ${variant.number}`}
+              >
+                {String(index + 1).padStart(2, "0")}
+              </div>
+
+              <div className="flex items-start gap-3">
+                <CheckCircle2 size={18} className={`shrink-0 mt-0.5 ${variant.icon}`} />
+                <p className={`text-sm leading-7 ${variant.text}`}>{obj}</p>
+              </div>
+            </div>
+          );
+        })}
       </div>
-    </SectionWrapper>
-  </div>
+    </div>
+  </SectionWrapper>
 );
 
 export default LearningObjectives;
