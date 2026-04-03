@@ -10,10 +10,10 @@ const badges = [
 ];
 
 const Hero = () => (
-  <section className="relative min-h-[90vh] flex items-center overflow-hidden pt-16">
+  <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-16">
     <div className="absolute inset-0 bg-hero-gradient" />
     <div className="absolute inset-0 opacity-30 bg-cover bg-center" style={{ backgroundImage: `url(${heroBg})` }} />
-    <div className="relative container mx-auto flex justify-center px-4 py-20 md:py-32">
+    <div className="relative container mx-auto flex justify-center px-4 py-12 md:py-16">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
