@@ -12,28 +12,24 @@ const badges = [
 const Hero = () => (
   <section className="relative min-h-[90vh] flex items-center overflow-hidden pt-16">
     <div className="absolute inset-0 bg-hero-gradient" />
-    <div
-      className="absolute inset-0 opacity-30 bg-cover bg-center"
-      style={{ backgroundImage: `url(${heroBg})` }}
-    />
-    <div className="relative container mx-auto px-4 py-20 md:py-32">
+    <div className="absolute inset-0 opacity-30 bg-cover bg-center" style={{ backgroundImage: `url(${heroBg})` }} />
+    <div className="relative container mx-auto flex justify-center px-4 py-20 md:py-32">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
-        className="max-w-3xl"
+        className="max-w-3xl text-center"
       >
         <span className="inline-block rounded-full bg-gold/20 px-4 py-1.5 text-sm font-semibold text-gold mb-6">
           From Nepal to the Global Tax Market
         </span>
         <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-extrabold text-primary-foreground leading-tight mb-6">
-          Become a Job-Ready US Tax Preparer{" "}
-          <span className="text-gradient-gold">in Just 30 Days</span>
+          Become a Job-Ready US Tax Preparer <span className="text-gradient-gold">in Just 30 Days</span>
         </h1>
-        <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl font-body leading-relaxed">
+        <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto font-body leading-relaxed">
           Nepal's only IRS Enrolled Agent-led training program — taught in Neplish, designed for your global career.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 mb-12">
+        <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:justify-center">
           <a
             href="#pricing"
             className="inline-flex items-center justify-center rounded-lg px-8 py-3.5 text-base font-bold text-gold-foreground transition-opacity hover:opacity-90"
@@ -50,7 +46,7 @@ const Hero = () => (
             Talk to Us
           </a>
         </div>
-        <div className="flex flex-wrap gap-4">
+        <div className="flex flex-wrap justify-center gap-4">
           {badges.map((b, i) => (
             <motion.div
               key={b.label}
