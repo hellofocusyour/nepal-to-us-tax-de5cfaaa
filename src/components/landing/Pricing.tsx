@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { LeadCaptureForm } from "./LeadForm";
+import LeadCaptureForm from "./LeadForm";
 
 const includes = [
   "Live Interactive Classes",
@@ -94,7 +94,7 @@ const Pricing = () => (
               </div>
 
               <div className="bg-background p-6 md:p-8">
-                <LeadCaptureForm compact showIntro={false} />
+                <LeadCaptureForm />
               </div>
             </div>
           </DialogContent>
