@@ -27,7 +27,6 @@ const Index = () => (
     <TargetAudience />
     <Mentors />
     <SocialProof />
-    <LeadForm />
     <AfterCourse />
     <FAQ />
     <FinalCTA />
