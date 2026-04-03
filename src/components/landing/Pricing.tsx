@@ -94,7 +94,7 @@ const Pricing = () => (
               </div>
 
               <div className="bg-background p-6 md:p-8">
-                <LeadCaptureForm compact showIntro={false} />
+                <LeadCaptureForm />
               </div>
             </div>
           </DialogContent>
