@@ -22,11 +22,11 @@ const Index = () => (
     <Outcomes />
     <CourseStats />
     <LearningObjectives />
+    <Pricing />
     <Curriculum />
     <TargetAudience />
     <Mentors />
     <SocialProof />
-    <Pricing />
     <LeadForm />
     <AfterCourse />
     <FAQ />
