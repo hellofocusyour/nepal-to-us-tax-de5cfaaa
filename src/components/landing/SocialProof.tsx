@@ -64,21 +64,21 @@ const reviews = [
     title: "Clear and beginner-friendly",
     feedback:
       "The course made US tax easy to understand. Learning in Nepali + English helped me confidently work through W-2, 1099, and 1040 practice files.",
-    reviewer: "Aspiring Tax Preparer",
+    reviewer: "Bikash Pokhrel",
     location: "Kathmandu",
   },
   {
     title: "Actually practical, not just theory",
     feedback:
       "I liked that the training focused on real workflow, documentation, and return preparation. It felt directly connected to the kind of work clients expect.",
-    reviewer: "Accounts Graduate",
+    reviewer: "Kalpana Bhandari",
     location: "Pokhara",
   },
   {
     title: "Great for a global career start",
     feedback:
       "The mentorship and career guidance gave me a much clearer path into bookkeeping and US tax support roles. It feels like a skill I can grow with.",
-    reviewer: "Career Switcher",
+    reviewer: "Sabin Nepal",
     location: "Lalitpur",
   },
 ];
