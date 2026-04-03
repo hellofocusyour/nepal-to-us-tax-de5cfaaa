@@ -1,5 +1,14 @@
-import { Check, MessageCircle } from "lucide-react";
+import { Check, MessageCircle, Clock3, ShieldCheck, Sparkles } from "lucide-react";
 import SectionWrapper from "./SectionWrapper";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { LeadCaptureForm } from "./LeadForm";
 
 const includes = [
   "Live Interactive Classes",
@@ -39,13 +48,58 @@ const Pricing = () => (
             </li>
           ))}
         </ul>
-        <a
-          href="#enroll"
-          className="flex items-center justify-center w-full rounded-lg px-6 py-3.5 text-base font-bold text-gold-foreground transition-opacity hover:opacity-90"
-          style={{ background: "var(--gold-gradient)" }}
-        >
-          Secure Your Seat
-        </a>
+
+        <Dialog>
+          <DialogTrigger asChild>
+            <button
+              type="button"
+              className="flex items-center justify-center w-full rounded-lg px-6 py-3.5 text-base font-bold text-gold-foreground transition-opacity hover:opacity-90"
+              style={{ background: "var(--gold-gradient)" }}
+            >
+              Secure Your Seat
+            </button>
+          </DialogTrigger>
+
+          <DialogContent className="overflow-hidden border-0 p-0 sm:max-w-4xl">
+            <div className="grid md:grid-cols-[0.95fr_1.05fr]">
+              <div className="bg-hero-gradient p-6 md:p-8 text-primary-foreground">
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]">
+                  <Sparkles size={14} className="text-gold" />
+                  Limited Seats
+                </div>
+
+                <DialogHeader className="mt-4 text-left">
+                  <DialogTitle className="font-display text-3xl text-primary-foreground">Reserve Your Spot</DialogTitle>
+                  <DialogDescription className="text-sm leading-relaxed text-primary-foreground/75">
+                    Fill in your details and our team will guide you through the next step within 24 hours.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <div className="mt-6 space-y-3">
+                  <div className="flex gap-3 rounded-xl border border-primary-foreground/10 bg-primary-foreground/5 p-3">
+                    <ShieldCheck size={18} className="text-gold shrink-0 mt-0.5" />
+                    <p className="text-sm text-primary-foreground/85">Personal guidance from the Focus Academy team.</p>
+                  </div>
+                  <div className="flex gap-3 rounded-xl border border-primary-foreground/10 bg-primary-foreground/5 p-3">
+                    <Clock3 size={18} className="text-gold shrink-0 mt-0.5" />
+                    <p className="text-sm text-primary-foreground/85">
+                      Fast response, clear next steps, and installment help if needed.
+                    </p>
+                  </div>
+                  <div className="flex gap-3 rounded-xl border border-primary-foreground/10 bg-primary-foreground/5 p-3">
+                    <Check size={18} className="text-gold shrink-0 mt-0.5" />
+                    <p className="text-sm text-primary-foreground/85">A smooth and focused enrollment experience.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-background p-6 md:p-8">
+                <LeadCaptureForm compact showIntro={false} />
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         <a
           href="https://wa.me/9779800000000"
           target="_blank"
