@@ -112,7 +112,7 @@ const SocialProof = () => (
           Why learners recommend Focus Academy
         </h2>
         <p className="text-base text-muted-foreground md:text-lg">
-          A relevant, career-focused program for Nepal-based students and professionals who want real US tax skills —
+          A relevant, career-focused program for Nepal-based students and professionals who want real US tax skills -
           not just theory.
         </p>
       </div>
