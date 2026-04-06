@@ -25,7 +25,7 @@ const Pricing = () => (
     <div className="text-center mb-12">
       <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">Invest in Your Future</h2>
       <p className="text-muted-foreground max-w-xl mx-auto">
-        Your first month's salary covers the course fee — and then some.
+        Your first month's salary covers the course fee - and then some.
       </p>
     </div>
     <div className="max-w-lg mx-auto rounded-2xl border-2 border-secondary bg-card card-shadow overflow-hidden">
