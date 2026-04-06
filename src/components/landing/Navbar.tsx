@@ -18,16 +18,23 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <a href="#" className="flex items-center gap-2 font-display text-xl font-bold text-primary">
-          <img src={logoImg} alt="Focus Academy Logo" className="h-10 w-10 object-contain" />
+          <img src={logoImg} alt="Focus Academy Logo" className="h-10 w-20 object-contain" />
           Focus <span className="text-secondary">Academy</span>
         </a>
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((l) => (
-            <a key={l.href} href={l.href} className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            <a
+              key={l.href}
+              href={l.href}
+              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+            >
               {l.label}
             </a>
           ))}
-          <a href="#pricing" className="inline-flex items-center justify-center rounded-lg bg-secondary px-5 py-2 text-sm font-semibold text-secondary-foreground hover:opacity-90 transition-opacity">
+          <a
+            href="#pricing"
+            className="inline-flex items-center justify-center rounded-lg bg-secondary px-5 py-2 text-sm font-semibold text-secondary-foreground hover:opacity-90 transition-opacity"
+          >
             Enroll Now
           </a>
         </div>
@@ -45,11 +52,20 @@ const Navbar = () => {
           >
             <div className="flex flex-col gap-3 p-4">
               {navLinks.map((l) => (
-                <a key={l.href} href={l.href} onClick={() => setOpen(false)} className="text-sm font-medium text-muted-foreground hover:text-primary py-2">
+                <a
+                  key={l.href}
+                  href={l.href}
+                  onClick={() => setOpen(false)}
+                  className="text-sm font-medium text-muted-foreground hover:text-primary py-2"
+                >
                   {l.label}
                 </a>
               ))}
-              <a href="#pricing" onClick={() => setOpen(false)} className="inline-flex items-center justify-center rounded-lg bg-secondary px-5 py-2.5 text-sm font-semibold text-secondary-foreground">
+              <a
+                href="#pricing"
+                onClick={() => setOpen(false)}
+                className="inline-flex items-center justify-center rounded-lg bg-secondary px-5 py-2.5 text-sm font-semibold text-secondary-foreground"
+              >
                 Enroll Now
               </a>
             </div>
