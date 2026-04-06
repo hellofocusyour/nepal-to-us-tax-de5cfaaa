@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import logoImg from "@/assets/logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
@@ -16,7 +17,8 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
-        <a href="#" className="font-display text-xl font-bold text-primary">
+        <a href="#" className="flex items-center gap-2 font-display text-xl font-bold text-primary">
+          <img src={logoImg} alt="Focus Academy Logo" className="h-10 w-10 object-contain" />
           Focus <span className="text-secondary">Academy</span>
         </a>
         <div className="hidden md:flex items-center gap-8">
