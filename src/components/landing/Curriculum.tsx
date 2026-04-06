@@ -102,7 +102,7 @@ const Curriculum = () => {
       </div>
       <p className="text-center text-sm text-muted-foreground mt-6">
         <span className="font-semibold text-secondary">Bonus:</span> Company formation, monthly compliance, annual
-        filings, dissolution — start to finish.
+        filings, dissolution - start to finish.
       </p>
     </SectionWrapper>
   );
