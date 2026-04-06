@@ -9,8 +9,8 @@ const levels = [
     label: "Beginner",
     tag: "Modules 1–2",
     modules: [
-      "Module 1: Foundations of US Taxation — Tax overview, Individual Tax Formula, Form 1040 Review",
-      "Module 2: Filing Fundamentals — Tax IDs, Filing Status, Dependents",
+      "Module 1: Foundations of US Taxation - Tax overview, Individual Tax Formula, Form 1040 Review",
+      "Module 2: Filing Fundamentals - Tax IDs, Filing Status, Dependents",
     ],
   },
   {
@@ -18,9 +18,9 @@ const levels = [
     label: "Intermediate",
     tag: "Modules 3–5",
     modules: [
-      "Module 3: Gross Income Deep Dive — W-2, Interest, Dividends, Capital Gains, Retirement Income",
-      "Module 4: Adjustments, Deductions & QBI — Above-the-line, Standard vs Itemized, Section 199A",
-      "Module 5: Tax Calculation & Credits — Tax Brackets, Refundable vs Non-Refundable Credits, Other Taxes",
+      "Module 3: Gross Income Deep Dive - W-2, Interest, Dividends, Capital Gains, Retirement Income",
+      "Module 4: Adjustments, Deductions & QBI - Above-the-line, Standard vs Itemized, Section 199A",
+      "Module 5: Tax Calculation & Credits - Tax Brackets, Refundable vs Non-Refundable Credits, Other Taxes",
     ],
   },
   {
@@ -28,9 +28,9 @@ const levels = [
     label: "Advanced",
     tag: "Modules 6–8",
     modules: [
-      "Module 6: Capital Gains & Depreciation — Schedule D, MACRS, Section 179, Bonus Depreciation",
-      "Module 7: Practical Tax Preparation — Software alignment, Real-time returns, Financial Statements",
-      "Module 8: Business Tax Returns — Entity types, S-Corp & C-Corp, Forms 1120/1120S/1065, K-1",
+      "Module 6: Capital Gains & Depreciation - Schedule D, MACRS, Section 179, Bonus Depreciation",
+      "Module 7: Practical Tax Preparation - Software alignment, Real-time returns, Financial Statements",
+      "Module 8: Business Tax Returns - Entity types, S-Corp & C-Corp, Forms 1120/1120S/1065, K-1",
     ],
   },
   {
@@ -38,9 +38,9 @@ const levels = [
     label: "Expert",
     tag: "Module 9 + Bonus",
     modules: [
-      "Module 9: Advanced & Real-World — Client prep, Entity Compliance, US CPA Guest Lecture",
-      "Bonus 1: IRS Notices — CP2000, CP12, CP14 & How to Respond",
-      "Bonus 2: Amended Returns — Form 1040-X",
+      "Module 9: Advanced & Real-World - Client prep, Entity Compliance, US CPA Guest Lecture",
+      "Bonus 1: IRS Notices - CP2000, CP12, CP14 & How to Respond",
+      "Bonus 2: Amended Returns - Form 1040-X",
       "Bonus 3: Introduction to Tax Planning Strategies",
     ],
   },
@@ -71,7 +71,10 @@ const Curriculum = () => {
                   <span className="font-display text-lg font-bold text-foreground">{lvl.label}</span>
                   <span className="ml-2 text-xs font-medium text-muted-foreground">{lvl.tag}</span>
                 </div>
-                <ChevronDown size={20} className={`text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  size={20}
+                  className={`text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
+                />
               </button>
               <AnimatePresence>
                 {isOpen && (
@@ -98,7 +101,8 @@ const Curriculum = () => {
         })}
       </div>
       <p className="text-center text-sm text-muted-foreground mt-6">
-        <span className="font-semibold text-secondary">Bonus:</span> Company formation, monthly compliance, annual filings, dissolution — start to finish.
+        <span className="font-semibold text-secondary">Bonus:</span> Company formation, monthly compliance, annual
+        filings, dissolution — start to finish.
       </p>
     </SectionWrapper>
   );
