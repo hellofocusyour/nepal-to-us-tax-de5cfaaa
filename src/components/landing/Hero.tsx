@@ -27,7 +27,7 @@ const Hero = () => (
           Become a Job-Ready US Tax Preparer <span className="text-gradient-gold">in Just 30 Days</span>
         </h1>
         <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 max-w-2xl mx-auto font-body leading-relaxed">
-          Nepal's only IRS Enrolled Agent-led training program — taught in Neplish, designed for your global career.
+          Nepal's only IRS Enrolled Agent-led training program - taught in Neplish, designed for your global career.
         </p>
         <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:justify-center">
           <a
