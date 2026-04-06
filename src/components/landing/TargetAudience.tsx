@@ -7,7 +7,7 @@ const audiences = [
   { icon: Laptop, title: "Freelancers", desc: "Work remotely for US firms and earn in USD from home." },
   { icon: Building, title: "Entrepreneurs", desc: "Tap into the massive US tax outsourcing market." },
   { icon: GraduationCap, title: "CA/ACCA Students", desc: "Outpace your peers with a globally-relevant skillset." },
-  { icon: BookOpen, title: "Freshers", desc: "No degree required — we start from scratch." },
+  { icon: BookOpen, title: "Freshers", desc: "No degree required - we start from scratch." },
   { icon: Rocket, title: "Promotion Seekers", desc: "Add a powerful global skill to your resume." },
 ];
 
