@@ -20,12 +20,12 @@ const Index = () => (
     <Navbar />
     <Hero />
     <Outcomes />
+    <Curriculum />
     <CourseStats />
     <LearningObjectives />
     <Pricing />
     <TargetAudience />
     <Mentors />
-    <Curriculum />
     <SocialProof />
     <AfterCourse />
     <FAQ />
