@@ -1,7 +1,18 @@
-import { useState } from "react";
-import { ChevronDown } from "lucide-react";
 import SectionWrapper from "./SectionWrapper";
-import { motion, AnimatePresence } from "framer-motion";
+import {
+  BookOpen,
+  FileText,
+  DollarSign,
+  SlidersHorizontal,
+  Calculator,
+  BarChart3,
+  Wrench,
+  Building2,
+  Users,
+  CheckCircle2,
+  Star,
+  Gift,
+} from "lucide-react";
 
 const levels = [
   {
@@ -46,61 +57,185 @@ const levels = [
   },
 ];
 
-const Curriculum = () => {
-  const [openIdx, setOpenIdx] = useState<number | null>(0);
+const level1Icons = [BookOpen, FileText];
+const level2Icons = [DollarSign, SlidersHorizontal, Calculator];
+const level3Icons = [BarChart3, Wrench, Building2];
 
+const Curriculum = () => {
   return (
     <SectionWrapper id="curriculum">
-      <div className="text-center mb-12">
-        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">Comprehensive Curriculum</h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto">
+      {/* Header */}
+      <div className="text-center mb-10">
+        <span className="inline-block text-xs font-bold tracking-widest uppercase text-primary bg-primary/10 px-4 py-1.5 rounded-full mb-3">
+          Education Roadmap
+        </span>
+        <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">Comprehensive Curriculum</h2>
+        <p className="text-muted-foreground max-w-xl mx-auto text-base">
           From zero to job-ready. 4 progressive levels covering everything you need.
         </p>
       </div>
-      <div className="max-w-3xl mx-auto space-y-4">
-        {levels.map((lvl, i) => {
-          const isOpen = openIdx === i;
-          return (
-            <div key={lvl.label} className="rounded-xl border border-border bg-card card-shadow overflow-hidden">
-              <button
-                onClick={() => setOpenIdx(isOpen ? null : i)}
-                className="w-full flex items-center gap-4 p-5 text-left hover:bg-accent/50 transition-colors"
-              >
-                <span className={`w-3 h-3 rounded-full shrink-0 ${lvl.color}`} />
-                <div className="flex-1">
-                  <span className="font-display text-lg font-bold text-foreground">{lvl.label}</span>
-                  <span className="ml-2 text-xs font-medium text-muted-foreground">{lvl.tag}</span>
-                </div>
-                <ChevronDown
-                  size={20}
-                  className={`text-muted-foreground transition-transform ${isOpen ? "rotate-180" : ""}`}
-                />
-              </button>
-              <AnimatePresence>
-                {isOpen && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <ul className="px-5 pb-5 space-y-2">
-                      {lvl.modules.map((m) => (
-                        <li key={m} className="flex gap-3 text-sm text-muted-foreground">
-                          <span className={`w-1.5 h-1.5 rounded-full mt-2 shrink-0 ${lvl.color}`} />
-                          {m}
-                        </li>
-                      ))}
-                    </ul>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+
+      {/* Grid wrapper — all levels */}
+      <div className="space-y-4">
+        {/* Row 1: Level 1 + Level 2 */}
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* Level 1 */}
+          <div className="rounded-xl border border-emerald-100 bg-white shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2.5 px-4 py-3 bg-emerald-50 border-b border-emerald-100">
+              <span className="bg-emerald-500 text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-widest">
+                Level 1
+              </span>
+              <span className="text-sm font-bold text-emerald-700">{levels[0].label}</span>
+              <span className="ml-auto text-xs text-emerald-600/70 font-medium">{levels[0].tag}</span>
             </div>
-          );
-        })}
+            <div className="p-4 space-y-2">
+              {levels[0].modules.map((m, i) => {
+                const Icon = level1Icons[i];
+                return (
+                  <div key={m} className="flex items-start gap-3">
+                    <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 mt-0.5">
+                      <Icon className="w-3.5 h-3.5 text-emerald-600" />
+                    </div>
+                    <span className="text-sm text-muted-foreground leading-relaxed">{m}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Level 2 */}
+          <div className="rounded-xl border border-primary/15 bg-white shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2.5 px-4 py-3 bg-primary/5 border-b border-primary/10">
+              <span className="bg-primary text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-widest">
+                Level 2
+              </span>
+              <span className="text-sm font-bold text-primary">{levels[1].label}</span>
+              <span className="ml-auto text-xs text-primary/60 font-medium">{levels[1].tag}</span>
+            </div>
+            <div className="p-4 space-y-2">
+              {levels[1].modules.map((m, i) => {
+                const Icon = level2Icons[i];
+                return (
+                  <div key={m} className="flex items-start gap-3">
+                    <div className="w-7 h-7 rounded-lg bg-primary/5 border border-primary/15 flex items-center justify-center shrink-0 mt-0.5">
+                      <Icon className="w-3.5 h-3.5 text-primary" />
+                    </div>
+                    <span className="text-sm text-muted-foreground leading-relaxed">{m}</span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Row 2: Level 3 — full width 3-col */}
+        <div className="rounded-xl border border-orange-100 bg-white shadow-sm overflow-hidden">
+          <div className="flex flex-wrap items-center gap-2.5 px-4 py-3 bg-orange-50 border-b border-orange-100">
+            <span className="bg-orange-500 text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-widest">
+              Level 3
+            </span>
+            <span className="text-sm font-bold text-orange-700">{levels[2].label}</span>
+            <span className="ml-auto text-xs text-orange-600/70 font-medium">{levels[2].tag}</span>
+          </div>
+          <div className="p-4 grid md:grid-cols-3 gap-3">
+            {levels[2].modules.map((m, i) => {
+              const Icon = level3Icons[i];
+              const labels = ["Capital & Depreciation", "Tax Preparation", "Business Returns"];
+              return (
+                <div
+                  key={m}
+                  className="flex flex-col gap-2.5 p-3.5 rounded-lg bg-orange-50/70 border border-orange-100"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 rounded-lg bg-orange-100 border border-orange-200 flex items-center justify-center shrink-0">
+                      <Icon className="w-3.5 h-3.5 text-orange-600" />
+                    </div>
+                    <span className="text-[11px] font-bold text-orange-700 uppercase tracking-wide">{labels[i]}</span>
+                  </div>
+                  <span className="text-sm text-muted-foreground leading-relaxed">{m}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Row 3: Level 4 — Expert left + Bonus right, true 50/50 with matching content density */}
+        <div className="rounded-xl border border-primary/20 bg-white shadow-sm overflow-hidden">
+          <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
+            {/* Expert — teal */}
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2.5 px-4 py-3 bg-primary border-b border-primary/80">
+                <span className="bg-secondary text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-widest">
+                  Level 4
+                </span>
+                <span className="text-sm font-bold text-white">{levels[3].label}</span>
+                <span className="ml-auto text-xs text-white/50 font-medium">{levels[3].tag}</span>
+              </div>
+              <div className="p-4 flex flex-col gap-3 bg-primary/3">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-primary/8 border border-primary/12">
+                  <div className="w-7 h-7 rounded-lg bg-primary/15 border border-primary/20 flex items-center justify-center shrink-0 mt-0.5">
+                    <Users className="w-3.5 h-3.5 text-primary" />
+                  </div>
+                  <span className="text-sm text-foreground/80 leading-relaxed">{levels[3].modules[0]}</span>
+                </div>
+                <div className="flex items-center gap-2 px-1">
+                  <Star className="w-3.5 h-3.5 text-secondary shrink-0" />
+                  <span className="text-xs text-muted-foreground">Includes live US CPA Guest Lecture session</span>
+                </div>
+                <div className="flex items-center gap-2 px-1">
+                  <Star className="w-3.5 h-3.5 text-secondary shrink-0" />
+                  <span className="text-xs text-muted-foreground">Real client scenarios & entity compliance</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bonus — accent */}
+            <div className="flex flex-col">
+              <div className="flex items-center gap-2.5 px-4 py-3 bg-accent border-b border-primary/10">
+                <span className="bg-secondary text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-widest">
+                  Bonus
+                </span>
+                <Gift className="w-4 h-4 text-primary" />
+                <span className="text-sm font-bold text-primary">Exclusive Add-ons</span>
+              </div>
+              <div className="p-4 flex flex-col gap-2 bg-accent/60">
+                {levels[3].modules.slice(1).map((m) => (
+                  <div key={m} className="flex items-start gap-3 p-3 rounded-lg bg-white border border-primary/10">
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                    <span className="text-sm text-foreground/80 leading-relaxed">{m}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <p className="text-center text-sm text-muted-foreground mt-6">
+
+      {/* CTA */}
+      <div className="rounded-xl bg-muted/50 border border-border p-8 text-center mt-6">
+        <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2">
+          Ready to reach Expert Mastery?
+        </h3>
+        <p className="text-muted-foreground mb-6 max-w-lg mx-auto text-sm">
+          From zero to job-ready. 4 progressive levels covering everything you need.
+        </p>
+        <div className="flex flex-wrap justify-center gap-3">
+          <a
+            href="#pricing"
+            className="inline-flex items-center px-7 py-3 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary/90 transition-colors"
+          >
+            Enroll in Curriculum
+          </a>
+          <a
+            href="#curriculum"
+            className="inline-flex items-center px-7 py-3 rounded-full border-2 border-red-500 text-red-500 font-semibold text-sm hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
+          >
+            Download PDF Syllabus
+          </a>
+        </div>
+      </div>
+
+      <p className="text-center text-sm text-muted-foreground mt-5">
         <span className="font-semibold text-secondary">Bonus:</span> Company formation, monthly compliance, annual
         filings, dissolution - start to finish.
       </p>
