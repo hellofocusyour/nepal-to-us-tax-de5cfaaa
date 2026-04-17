@@ -20,11 +20,11 @@ const Index = () => (
     <Navbar />
     <Hero />
     <Outcomes />
-    <Curriculum />
     <CourseStats />
     <LearningObjectives />
     <Pricing />
     <TargetAudience />
+    <Curriculum />
     <Mentors />
     <SocialProof />
     <AfterCourse />
