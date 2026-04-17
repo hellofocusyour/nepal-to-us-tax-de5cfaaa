@@ -226,12 +226,12 @@ const Curriculum = () => {
           >
             Enroll in Curriculum
           </a>
-          <a
+          {/* <a
             href="#curriculum"
             className="inline-flex items-center px-7 py-3 rounded-full border-2 border-red-500 text-red-500 font-semibold text-sm hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
           >
             Download PDF Syllabus
-          </a>
+          </a> */}
         </div>
       </div>
 
