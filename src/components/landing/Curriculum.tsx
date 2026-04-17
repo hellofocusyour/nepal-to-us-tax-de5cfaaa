@@ -63,7 +63,7 @@ const level3Icons = [BarChart3, Wrench, Building2];
 
 const Curriculum = () => {
   return (
-    <SectionWrapper id="curriculum">
+    <SectionWrapper id="curriculum" className="!pt-4 md:!pt-6">
       {/* Header */}
       <div className="text-center mb-10">
         <span className="inline-block text-xs font-bold tracking-widest uppercase text-primary bg-primary/10 px-4 py-1.5 rounded-full mb-3">
