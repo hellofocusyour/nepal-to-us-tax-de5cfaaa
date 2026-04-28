@@ -62,20 +62,20 @@ const Pricing = () => (
 
           <DialogContent className="overflow-hidden border-0 p-0 sm:max-w-4xl max-h-[92vh] w-[calc(100%-1rem)] sm:w-full rounded-xl [&>button]:z-20 [&>button]:bg-background/90 [&>button]:text-foreground [&>button]:rounded-full [&>button]:p-1.5 [&>button]:opacity-100 [&>button]:shadow-md">
             <div className="grid md:grid-cols-[0.95fr_1.05fr] max-h-[92vh] overflow-y-auto">
-              <div className="hidden md:block bg-hero-gradient p-6 md:p-8 text-primary-foreground">
+              <div className="bg-hero-gradient p-5 md:p-8 text-primary-foreground">
                 <div className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.2em]">
                   <Sparkles size={14} className="text-gold" />
                   Limited Seats
                 </div>
 
-                <DialogHeader className="mt-4 text-left">
-                  <DialogTitle className="font-display text-3xl text-primary-foreground">Reserve Your Spot</DialogTitle>
+                <DialogHeader className="mt-3 md:mt-4 text-left">
+                  <DialogTitle className="font-display text-2xl md:text-3xl text-primary-foreground">Reserve Your Spot</DialogTitle>
                   <DialogDescription className="text-sm leading-relaxed text-primary-foreground/75">
                     Fill in your details and our team will guide you through the next step within 24 hours.
                   </DialogDescription>
                 </DialogHeader>
 
-                <div className="mt-6 space-y-3">
+                <div className="mt-4 md:mt-6 space-y-3 hidden md:block">
                   <div className="flex gap-3 rounded-xl border border-primary-foreground/10 bg-primary-foreground/5 p-3">
                     <ShieldCheck size={18} className="text-gold shrink-0 mt-0.5" />
                     <p className="text-sm text-primary-foreground/85">Personal guidance from the Focus Academy team.</p>
@@ -93,7 +93,7 @@ const Pricing = () => (
                 </div>
               </div>
 
-              <div className="bg-background p-6 md:p-8">
+              <div className="bg-background p-5 md:p-8">
                 <LeadCaptureForm />
               </div>
             </div>
