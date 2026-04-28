@@ -1,14 +1,10 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
+Disallow: /admin
+Disallow: /admin/
+Disallow: /portal
+Disallow: /portal/
+Disallow: /student-login
+Disallow: /admin-login
+
+Sitemap: https://academy.focusyourfinance.com/sitemap.xml
