@@ -22,6 +22,9 @@ import StudentCourses from "./pages/portal/StudentCourses.tsx";
 import StudentPayments from "./pages/portal/StudentPayments.tsx";
 import StudentCertificates from "./pages/portal/StudentCertificates.tsx";
 import StudentProfile from "./pages/portal/StudentProfile.tsx";
+import StudentSyllabus from "./pages/portal/StudentSyllabus.tsx";
+import StudentAnnouncements from "./pages/portal/StudentAnnouncements.tsx";
+import StudentBatch from "./pages/portal/StudentBatch.tsx";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +50,9 @@ const App = () => (
             <Route path="/portal/login" element={<StudentLogin />} />
             <Route path="/portal" element={<StudentLayout />}>
               <Route index element={<StudentDashboard />} />
+              <Route path="batch" element={<StudentBatch />} />
+              <Route path="syllabus" element={<StudentSyllabus />} />
+              <Route path="announcements" element={<StudentAnnouncements />} />
               <Route path="courses" element={<StudentCourses />} />
               <Route path="payments" element={<StudentPayments />} />
               <Route path="certificates" element={<StudentCertificates />} />
