@@ -1,24 +1,48 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation, Outlet, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import {
-  LayoutDashboard, CreditCard, Award, BookOpen, LogOut, Menu, X, GraduationCap, User
+  LayoutDashboard, CreditCard, Award, BookOpen, LogOut, Menu, X,
+  GraduationCap, User, Megaphone, Users, FileText
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Dashboard", href: "/portal", icon: LayoutDashboard },
+  { label: "My Batch", href: "/portal/batch", icon: Users },
+  { label: "Syllabus", href: "/portal/syllabus", icon: FileText },
+  { label: "Announcements", href: "/portal/announcements", icon: Megaphone, badgeKey: "announcements" },
   { label: "My Courses", href: "/portal/courses", icon: BookOpen },
   { label: "Payments", href: "/portal/payments", icon: CreditCard },
   { label: "Certificates", href: "/portal/certificates", icon: Award },
   { label: "Profile", href: "/portal/profile", icon: User },
 ];
 
+const READ_KEY = "fa_read_announcements";
+
 const StudentLayout = () => {
   const { user, isLoading, signOut } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (!user) return;
+    const fetchUnread = async () => {
+      const { data } = await supabase
+        .from("announcements")
+        .select("id")
+        .order("created_at", { ascending: false });
+      const readIds: string[] = JSON.parse(localStorage.getItem(READ_KEY) || "[]");
+      const unread = (data || []).filter(a => !readIds.includes(a.id));
+      setUnreadCount(unread.length);
+    };
+    fetchUnread();
+    // refresh on route change
+  }, [user, location.pathname]);
 
   if (isLoading) {
     return (
@@ -37,7 +61,7 @@ const StudentLayout = () => {
       )}
 
       <aside className={cn(
-        "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform lg:translate-x-0",
+        "fixed lg:static inset-y-0 left-0 z-50 w-64 bg-card border-r border-border flex flex-col transform transition-transform lg:translate-x-0",
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="flex items-center gap-3 p-6 border-b border-border">
@@ -52,10 +76,11 @@ const StudentLayout = () => {
             <X className="w-5 h-5" />
           </Button>
         </div>
-        <nav className="p-4 space-y-1">
+        <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
           {navItems.map((item) => {
             const isActive = location.pathname === item.href ||
               (item.href !== "/portal" && location.pathname.startsWith(item.href));
+            const showBadge = item.badgeKey === "announcements" && unreadCount > 0;
             return (
               <Link
                 key={item.href}
@@ -69,12 +94,17 @@ const StudentLayout = () => {
                 )}
               >
                 <item.icon className="w-5 h-5" />
-                {item.label}
+                <span className="flex-1">{item.label}</span>
+                {showBadge && (
+                  <Badge className="bg-destructive text-destructive-foreground h-5 px-1.5 text-xs">
+                    {unreadCount}
+                  </Badge>
+                )}
               </Link>
             );
           })}
         </nav>
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
+        <div className="p-4 border-t border-border">
           <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground" onClick={signOut}>
             <LogOut className="w-5 h-5" />
             Sign Out
