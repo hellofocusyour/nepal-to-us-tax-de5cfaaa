@@ -18,46 +18,40 @@ interface MentorCardProps {
 }
 
 const MentorCard = ({ image, role, title, intro, highlights }: MentorCardProps) => (
-  <div className="group rounded-2xl bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 hover:border-gold/40 transition-colors duration-300 flex flex-col overflow-hidden">
-    {/* Header: image + identity side by side */}
-    <div className="p-5 sm:p-6 flex items-start gap-5 sm:gap-6 border-b border-primary-foreground/10">
-      {/* Clean portrait, no overlay */}
-      <div className="relative flex-shrink-0">
-        <div className="w-28 h-36 sm:w-32 sm:h-40 rounded-xl overflow-hidden ring-2 ring-gold/30 group-hover:ring-gold/60 transition-colors bg-primary/40">
-          <img src={image} alt={title} className="w-full h-full object-cover object-center" />
-        </div>
-        {/* Subtle gold accent under photo */}
-        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-12 h-1 rounded-full bg-gold/60" />
-      </div>
+  <div className="group rounded-2xl bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 hover:border-gold/40 transition-colors duration-300 overflow-hidden flex flex-col">
+    {/* Clean image — no overlay, no text on top */}
+    <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary/30 to-primary/10 border-b border-primary-foreground/10">
+      <img
+        src={image}
+        alt={title}
+        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+      />
+    </div>
 
-      {/* Identity block */}
-      <div className="flex-1 min-w-0 pt-1">
-        <span className="inline-block text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-gold mb-2 px-2 py-1 rounded-md bg-gold/10 border border-gold/20">
+    {/* All content stacked below with consistent rhythm */}
+    <div className="p-5 sm:p-6 space-y-4 sm:space-y-5 flex-1 flex flex-col">
+      {/* Identity */}
+      <div className="space-y-2">
+        <span className="inline-block text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-gold px-2.5 py-1 rounded-md bg-gold/10 border border-gold/20">
           {role}
         </span>
-        <h3 className="font-display text-lg sm:text-xl lg:text-2xl font-bold text-primary-foreground leading-tight mb-2">
-          {title}
-        </h3>
+        <h3 className="font-display text-xl sm:text-2xl font-bold text-primary-foreground leading-tight">{title}</h3>
       </div>
-    </div>
 
-    {/* Intro */}
-    <div className="px-5 sm:px-6 pt-5">
+      {/* Intro — sits right under title */}
       <p className="text-sm sm:text-base text-primary-foreground/75 leading-relaxed">{intro}</p>
-    </div>
 
-    {/* Highlights */}
-    <div className="p-5 sm:p-6 flex-1 flex flex-col">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-auto">
+      {/* Highlights */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 mt-auto">
         {highlights.map(({ icon: Icon, title: t, desc }) => (
           <div
             key={t}
-            className="rounded-xl bg-primary-foreground/5 border border-primary-foreground/10 p-4 hover:bg-gold/5 hover:border-gold/30 transition-colors"
+            className="rounded-xl bg-primary-foreground/5 border border-primary-foreground/10 p-3.5 hover:bg-gold/5 hover:border-gold/30 transition-colors"
           >
-            <div className="w-9 h-9 rounded-lg bg-gold/15 flex items-center justify-center mb-3">
-              <Icon size={18} className="text-gold" />
+            <div className="w-8 h-8 rounded-lg bg-gold/15 flex items-center justify-center mb-2.5">
+              <Icon size={16} className="text-gold" />
             </div>
-            <h4 className="font-semibold text-sm text-primary-foreground mb-1">{t}</h4>
+            <h4 className="font-semibold text-sm text-primary-foreground mb-1 leading-tight">{t}</h4>
             <p className="text-xs text-primary-foreground/65 leading-relaxed">{desc}</p>
           </div>
         ))}
@@ -68,7 +62,7 @@ const MentorCard = ({ image, role, title, intro, highlights }: MentorCardProps) 
 
 const Mentors = () => (
   <SectionWrapper id="mentors" dark>
-    <div className="text-center mb-12 max-w-3xl mx-auto">
+    <div className="text-center mb-10 sm:mb-12 max-w-3xl mx-auto">
       <h2 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
         Your Mentors: Learn from practitioners, not just professors.
       </h2>
