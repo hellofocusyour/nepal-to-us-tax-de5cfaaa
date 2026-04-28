@@ -101,7 +101,7 @@ const Pricing = () => (
         </Dialog>
 
         <a
-          href="https://wa.me/9779800000000"
+          href="https://wa.me/+9779709139754"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-2 w-full mt-3 rounded-lg border border-border px-6 py-3 text-sm font-semibold text-foreground hover:bg-accent transition-colors"
