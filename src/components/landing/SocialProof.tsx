@@ -1,6 +1,10 @@
-import { Quote, Star } from "lucide-react";
+import { Quote, Star, ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import SectionWrapper from "./SectionWrapper";
+import avatar1 from "@/assets/avatar-1.png";
+import avatar2 from "@/assets/avatar-2.png";
+import avatar3 from "@/assets/avatar-3.png";
+import avatar4 from "@/assets/avatar-4.png";
 
 const stats = [
   { value: 1000, suffix: "+", label: "Tax Returns Filed" },
@@ -66,6 +70,7 @@ const reviews = [
       "The course made US tax easy to understand. Learning in Nepali + English helped me confidently work through W-2, 1099, and 1040 practice files.",
     reviewer: "Bikash Pokhrel",
     location: "Kathmandu",
+    avatar: avatar2,
   },
   {
     title: "Actually practical, not just theory",
@@ -73,6 +78,7 @@ const reviews = [
       "I liked that the training focused on real workflow, documentation, and return preparation. It felt directly connected to the kind of work clients expect.",
     reviewer: "Kalpana Bhandari",
     location: "Pokhara",
+    avatar: avatar1,
   },
   {
     title: "Great for a global career start",
@@ -80,6 +86,15 @@ const reviews = [
       "The mentorship and career guidance gave me a much clearer path into bookkeeping and US tax support roles. It feels like a skill I can grow with.",
     reviewer: "Sabin Nepal",
     location: "Lalitpur",
+    avatar: avatar3,
+  },
+  {
+    title: "Built my confidence for client work",
+    feedback:
+      "Working through real return scenarios and edge cases gave me the confidence to handle actual US tax preparation. The structured practice made all the difference.",
+    reviewer: "Anil Tamang",
+    location: "Bhaktapur",
+    avatar: avatar4,
   },
 ];
 
@@ -88,6 +103,79 @@ const highlights = [
   "IRS Enrolled Agent-led mentorship",
   "Career-focused support for global tax roles",
 ];
+
+const ReviewsCarousel = () => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (dir: "prev" | "next") => {
+    if (!scrollRef.current) return;
+    const card = scrollRef.current.querySelector("article");
+    const cardW = (card as HTMLElement | null)?.offsetWidth ?? 320;
+    const gap = 24;
+    scrollRef.current.scrollBy({
+      left: dir === "next" ? cardW + gap : -(cardW + gap),
+      behavior: "smooth",
+    });
+  };
+
+  return (
+    <div className="relative">
+      <div
+        ref={scrollRef}
+        className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 -mx-4 px-4 sm:mx-0 sm:px-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {reviews.map((review) => (
+          <article
+            key={`${review.reviewer}-${review.location}`}
+            className="snap-start shrink-0 w-[85%] sm:w-[calc(50%-12px)] lg:w-[calc(33.333%-16px)] rounded-2xl border border-border/60 bg-background p-6 shadow-sm transition-transform duration-200 hover:-translate-y-1"
+          >
+            <div className="mb-4 flex items-center justify-between">
+              <Quote className="h-8 w-8 text-gold" />
+              <div className="flex gap-1">
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <Star key={index} className="h-4 w-4 fill-gold text-gold" />
+                ))}
+              </div>
+            </div>
+
+            <h3 className="mb-3 text-lg font-semibold text-foreground">{review.title}</h3>
+            <p className="text-sm leading-7 text-muted-foreground">"{review.feedback}"</p>
+
+            <div className="mt-5 flex items-center gap-3 border-t border-border/60 pt-4">
+              <img
+                src={review.avatar}
+                alt={review.reviewer}
+                loading="lazy"
+                className="h-12 w-12 rounded-full object-cover border border-border/60"
+              />
+              <div>
+                <p className="font-semibold text-foreground">{review.reviewer}</p>
+                <p className="text-sm text-muted-foreground">{review.location}</p>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <button
+        type="button"
+        onClick={() => scroll("prev")}
+        aria-label="Previous review"
+        className="absolute left-1 sm:-left-5 top-[40%] -translate-y-1/2 z-10 grid place-items-center w-10 h-10 rounded-full bg-background border border-border/60 shadow-md hover:bg-gold/10 hover:border-gold/40 transition-colors"
+      >
+        <ChevronLeft className="h-5 w-5 text-foreground" />
+      </button>
+      <button
+        type="button"
+        onClick={() => scroll("next")}
+        aria-label="Next review"
+        className="absolute right-1 sm:-right-5 top-[40%] -translate-y-1/2 z-10 grid place-items-center w-10 h-10 rounded-full bg-background border border-border/60 shadow-md hover:bg-gold/10 hover:border-gold/40 transition-colors"
+      >
+        <ChevronRight className="h-5 w-5 text-foreground" />
+      </button>
+    </div>
+  );
+};
 
 const SocialProof = () => (
   <div className="bg-accent/40">
@@ -117,31 +205,7 @@ const SocialProof = () => (
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        {reviews.map((review) => (
-          <div
-            key={`${review.reviewer}-${review.location}`}
-            className="rounded-2xl border border-border/60 bg-background p-6 shadow-sm transition-transform duration-200 hover:-translate-y-1"
-          >
-            <div className="mb-4 flex items-center justify-between">
-              <Quote className="h-8 w-8 text-gold" />
-              <div className="flex gap-1">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <Star key={index} className="h-4 w-4 fill-gold text-gold" />
-                ))}
-              </div>
-            </div>
-
-            <h3 className="mb-3 text-lg font-semibold text-foreground">{review.title}</h3>
-            <p className="text-sm leading-7 text-muted-foreground">“{review.feedback}”</p>
-
-            <div className="mt-5 border-t border-border/60 pt-4">
-              <p className="font-semibold text-foreground">{review.reviewer}</p>
-              <p className="text-sm text-muted-foreground">{review.location}</p>
-            </div>
-          </div>
-        ))}
-      </div>
+      <ReviewsCarousel />
 
       <div className="mt-10 flex flex-wrap justify-center gap-3">
         {highlights.map((item) => (
