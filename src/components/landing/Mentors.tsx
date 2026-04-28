@@ -18,28 +18,37 @@ interface MentorCardProps {
 }
 
 const MentorCard = ({ image, role, title, intro, highlights }: MentorCardProps) => (
-  <div className="rounded-2xl bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 overflow-hidden hover:border-gold/40 transition-colors duration-300 flex flex-col">
-    {/* Image header */}
-    <div className="relative aspect-[4/3] sm:aspect-[16/10] overflow-hidden bg-gradient-to-br from-primary/40 to-primary">
-      <img src={image} alt={role} className="w-full h-full object-cover object-top" />
-      <div className="absolute inset-0 bg-gradient-to-t from-primary via-primary/30 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-6">
-        <span className="inline-block text-xs font-semibold tracking-wider uppercase text-gold mb-2">
+  <div className="group rounded-2xl bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 hover:border-gold/40 transition-colors duration-300 flex flex-col overflow-hidden">
+    {/* Header: image + identity side by side */}
+    <div className="p-5 sm:p-6 flex items-start gap-5 sm:gap-6 border-b border-primary-foreground/10">
+      {/* Clean portrait, no overlay */}
+      <div className="relative flex-shrink-0">
+        <div className="w-28 h-36 sm:w-32 sm:h-40 rounded-xl overflow-hidden ring-2 ring-gold/30 group-hover:ring-gold/60 transition-colors bg-primary/40">
+          <img src={image} alt={title} className="w-full h-full object-cover object-center" />
+        </div>
+        {/* Subtle gold accent under photo */}
+        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-12 h-1 rounded-full bg-gold/60" />
+      </div>
+
+      {/* Identity block */}
+      <div className="flex-1 min-w-0 pt-1">
+        <span className="inline-block text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-gold mb-2 px-2 py-1 rounded-md bg-gold/10 border border-gold/20">
           {role}
         </span>
-        <h3 className="font-display text-xl sm:text-2xl font-bold text-primary-foreground leading-tight">
+        <h3 className="font-display text-lg sm:text-xl lg:text-2xl font-bold text-primary-foreground leading-tight mb-2">
           {title}
         </h3>
       </div>
     </div>
 
-    {/* Body */}
-    <div className="p-5 sm:p-6 flex-1 flex flex-col">
-      <p className="text-sm sm:text-base text-primary-foreground/75 leading-relaxed mb-6">
-        {intro}
-      </p>
+    {/* Intro */}
+    <div className="px-5 sm:px-6 pt-5">
+      <p className="text-sm sm:text-base text-primary-foreground/75 leading-relaxed">{intro}</p>
+    </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mt-auto">
+    {/* Highlights */}
+    <div className="p-5 sm:p-6 flex-1 flex flex-col">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-auto">
         {highlights.map(({ icon: Icon, title: t, desc }) => (
           <div
             key={t}
@@ -64,7 +73,8 @@ const Mentors = () => (
         Your Mentors: Learn from practitioners, not just professors.
       </h2>
       <p className="text-primary-foreground/70 text-base md:text-lg">
-        Real-world expertise brought directly to your screen. Our mentors have built careers in the global market and are here to share their exact methodologies.
+        Real-world expertise brought directly to your screen. Our mentors have built careers in the global market and
+        are here to share their exact methodologies.
       </p>
     </div>
 
@@ -75,8 +85,16 @@ const Mentors = () => (
         title="Nepal's Only IRS Enrolled Agent"
         intro="Bridging the gap between theoretical knowledge and practical execution in US Taxation."
         highlights={[
-          { icon: GraduationCap, title: "IRS Certified", desc: "Enrolled Agent credentialed to practice before the IRS." },
-          { icon: Briefcase, title: "8+ Years Exp.", desc: "Deep US Tax experience and 1,000+ tax returns successfully filed." },
+          {
+            icon: GraduationCap,
+            title: "IRS Certified",
+            desc: "Enrolled Agent credentialed to practice before the IRS.",
+          },
+          {
+            icon: Briefcase,
+            title: "8+ Years Exp.",
+            desc: "Deep US Tax experience and 1,000+ tax returns successfully filed.",
+          },
           { icon: BadgeCheck, title: "Certified Expert", desc: "QuickBooks Advisor and Certified Payroll Expert." },
         ]}
       />
@@ -88,7 +106,11 @@ const Mentors = () => (
         highlights={[
           { icon: Globe, title: "Global Experience", desc: "8+ years working in California, USA." },
           { icon: Cog, title: "Industry Insights", desc: "Hands-on US industry experience and workflow optimization." },
-          { icon: Plane, title: "Mission Driven", desc: "Dedicated to elevating local talent to international standards." },
+          {
+            icon: Plane,
+            title: "Mission Driven",
+            desc: "Dedicated to elevating local talent to international standards.",
+          },
         ]}
       />
     </div>
