@@ -187,6 +187,42 @@ export type Database = {
           },
         ]
       }
+      course_documents: {
+        Row: {
+          description: string
+          file_name: string
+          file_size: number
+          file_url: string
+          id: string
+          tab: string
+          title: string
+          uploaded_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          description: string
+          file_name: string
+          file_size: number
+          file_url: string
+          id?: string
+          tab: string
+          title: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          description?: string
+          file_name?: string
+          file_size?: number
+          file_url?: string
+          id?: string
+          tab?: string
+          title?: string
+          uploaded_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
       inquiries: {
         Row: {
           background: string | null
