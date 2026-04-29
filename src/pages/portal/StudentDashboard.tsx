@@ -303,10 +303,13 @@ const StudentDashboard = () => {
             <Button variant="outline" className="w-full justify-start" onClick={() => setPayOpen(true)}>
               <CreditCard className="w-4 h-4 mr-2" /> Make a payment
             </Button>
-            <Button variant="outline" className="w-full justify-start" asChild>
-              <a href="mailto:hello@focusyourfinance.com">
-                <Mail className="w-4 h-4 mr-2" />
-                For any inquiry, mail us at hello@focusyourfinance.com
+            <Button variant="outline" className="w-full h-auto min-h-10 justify-start px-3 py-3 text-left" asChild>
+              <a href="mailto:hello@focusyourfinance.com" className="flex items-start gap-2">
+                <Mail className="w-4 h-4 mt-0.5 shrink-0" />
+
+                <span className="text-sm leading-snug break-words">
+                  For any inquiry, mail us at hello@focusyourfinance.com
+                </span>
               </a>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
