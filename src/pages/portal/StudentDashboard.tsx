@@ -301,11 +301,11 @@ const StudentDashboard = () => {
           <CardContent className="pt-6 space-y-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Quick actions</p>
             <Button variant="outline" className="w-full justify-start" onClick={() => setPayOpen(true)}>
-              <CreditCard className="w-4 h-4 mr-2" /> For any inquiry Mail at "hello@focusyourfinance.com"
+              <CreditCard className="w-4 h-4 mr-2" /> Make a payment
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <a href="mailto:focusyourfinanceofficial@gmail.com">
-                <Mail className="w-4 h-4 mr-2" /> Message instructor
+                <Mail className="w-4 h-4 mr-2" /> For any inquiry Mail at "hello@focusyourfinance.com"
               </a>
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
