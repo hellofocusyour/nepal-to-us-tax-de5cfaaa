@@ -6,8 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
-  BookOpen, CreditCard, Calendar, CheckCircle, X,
-  Megaphone, Mail, Download, PlayCircle, Sparkles
+  BookOpen,
+  CreditCard,
+  Calendar,
+  CheckCircle,
+  X,
+  Megaphone,
+  Mail,
+  Download,
+  PlayCircle,
+  Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import PaymentModal from "@/components/student/PaymentModal";
@@ -57,9 +65,11 @@ const StudentDashboard = () => {
       if (!studentData && user.email) {
         const metadata = user.user_metadata ?? {};
         const fullName =
-          typeof metadata.full_name === "string" ? metadata.full_name :
-          typeof metadata.name === "string" ? metadata.name :
-          user.email.split("@")[0];
+          typeof metadata.full_name === "string"
+            ? metadata.full_name
+            : typeof metadata.name === "string"
+              ? metadata.name
+              : user.email.split("@")[0];
         const phone = typeof metadata.phone === "string" ? metadata.phone : null;
 
         await supabase.functions.invoke("enroll-and-invite", {
@@ -83,12 +93,17 @@ const StudentDashboard = () => {
         studentData = createdStudent;
       }
 
-      if (!studentData) { setLoading(false); return; }
+      if (!studentData) {
+        setLoading(false);
+        return;
+      }
 
       if (studentData.batch_id) {
         const { data: batch } = await supabase
-          .from("batches").select("name, start_date, end_date")
-          .eq("id", studentData.batch_id).single();
+          .from("batches")
+          .select("name, start_date, end_date")
+          .eq("id", studentData.batch_id)
+          .single();
         if (batch) (studentData as StudentData).batch = batch;
 
         const { data: nxt } = await supabase
@@ -96,14 +111,17 @@ const StudentDashboard = () => {
           .select("topic, session_date")
           .eq("batch_id", studentData.batch_id)
           .gte("session_date", new Date().toISOString().split("T")[0])
-          .order("session_date").limit(1).maybeSingle();
+          .order("session_date")
+          .limit(1)
+          .maybeSingle();
         if (nxt) setNextSession(nxt);
 
         const { data: allSessions } = await supabase
-          .from("class_sessions").select("session_date")
+          .from("class_sessions")
+          .select("session_date")
           .eq("batch_id", studentData.batch_id);
         if (allSessions && allSessions.length > 0) {
-          const past = allSessions.filter(s => new Date(s.session_date) <= new Date()).length;
+          const past = allSessions.filter((s) => new Date(s.session_date) <= new Date()).length;
           setProgress(Math.round((past / allSessions.length) * 100));
         }
       }
@@ -111,21 +129,23 @@ const StudentDashboard = () => {
       setStudent(studentData as StudentData);
 
       const { data: payments } = await supabase
-        .from("payments").select("amount, status")
+        .from("payments")
+        .select("amount, status")
         .eq("student_id", studentData.id);
       if (payments) {
-        setPaid(payments.filter(p => p.status === "verified").reduce((s, p) => s + Number(p.amount), 0));
-        setPendingCount(payments.filter(p => p.status === "pending_verification").length);
+        setPaid(payments.filter((p) => p.status === "verified").reduce((s, p) => s + Number(p.amount), 0));
+        setPendingCount(payments.filter((p) => p.status === "pending_verification").length);
       }
 
       // Latest unread announcement
       const { data: ann } = await supabase
         .from("announcements")
         .select("id, title, content")
-        .order("created_at", { ascending: false }).limit(5);
+        .order("created_at", { ascending: false })
+        .limit(5);
       const readIds: string[] = JSON.parse(localStorage.getItem(READ_KEY) || "[]");
       const dismissed: string[] = JSON.parse(sessionStorage.getItem(DISMISS_KEY) || "[]");
-      const unread = (ann || []).find(a => !readIds.includes(a.id) && !dismissed.includes(a.id));
+      const unread = (ann || []).find((a) => !readIds.includes(a.id) && !dismissed.includes(a.id));
       if (unread) setBanner(unread);
 
       setLoading(false);
@@ -140,7 +160,11 @@ const StudentDashboard = () => {
   };
 
   if (loading) {
-    return <div className="flex items-center justify-center h-64"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" />
+      </div>
+    );
   }
 
   if (!student) {
@@ -173,7 +197,12 @@ const StudentDashboard = () => {
           <Button asChild size="sm" variant="secondary" className="shrink-0">
             <Link to="/portal/announcements">View</Link>
           </Button>
-          <Button size="icon" variant="ghost" className="shrink-0 hover:bg-primary-foreground/10 text-primary-foreground" onClick={dismissBanner}>
+          <Button
+            size="icon"
+            variant="ghost"
+            className="shrink-0 hover:bg-primary-foreground/10 text-primary-foreground"
+            onClick={dismissBanner}
+          >
             <X className="w-4 h-4" />
           </Button>
         </div>
@@ -181,9 +210,7 @@ const StudentDashboard = () => {
 
       {/* Greeting */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground">
-          Welcome back, {firstName}
-        </h1>
+        <h1 className="text-2xl sm:text-3xl font-display font-bold text-foreground">Welcome back, {firstName}</h1>
         <p className="text-muted-foreground">Here's what's happening with you today</p>
       </div>
 
@@ -203,7 +230,15 @@ const StudentDashboard = () => {
             icon={Calendar}
             label="Next class"
             value={nextSession?.topic || "—"}
-            sub={nextSession ? new Date(nextSession.session_date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) : "No class scheduled"}
+            sub={
+              nextSession
+                ? new Date(nextSession.session_date).toLocaleDateString("en-US", {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                  })
+                : "No class scheduled"
+            }
           />
           <Card>
             <CardContent className="pt-6 space-y-2">
@@ -266,7 +301,7 @@ const StudentDashboard = () => {
           <CardContent className="pt-6 space-y-3">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Quick actions</p>
             <Button variant="outline" className="w-full justify-start" onClick={() => setPayOpen(true)}>
-              <CreditCard className="w-4 h-4 mr-2" /> Make a payment
+              <CreditCard className="w-4 h-4 mr-2" /> For any inquiry Mail at "hello@focusyourfinance.com"
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
               <a href="mailto:focusyourfinanceofficial@gmail.com">
@@ -300,7 +335,17 @@ const StudentDashboard = () => {
   );
 };
 
-const MetricCard = ({ icon: Icon, label, value, sub }: { icon: typeof BookOpen; label: string; value: string; sub: string }) => (
+const MetricCard = ({
+  icon: Icon,
+  label,
+  value,
+  sub,
+}: {
+  icon: typeof BookOpen;
+  label: string;
+  value: string;
+  sub: string;
+}) => (
   <Card>
     <CardContent className="pt-6 space-y-2">
       <div className="flex items-center gap-2">
