@@ -12,6 +12,7 @@ interface Payload {
   background?: string;
   redirect_to?: string;
   send_invite?: boolean;
+  record_inquiry?: boolean;
 }
 
 Deno.serve(async (req) => {
@@ -35,14 +36,16 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // 1) Record inquiry (existing flow)
-    const { error: inqErr } = await admin.from("inquiries").insert({
-      full_name,
-      email,
-      phone: phone || null,
-      background: background || null,
-    });
-    if (inqErr) console.error("inquiry insert", inqErr);
+    // 1) Record inquiry (existing Secure Your Seat flow)
+    if (body.record_inquiry !== false) {
+      const { error: inqErr } = await admin.from("inquiries").insert({
+        full_name,
+        email,
+        phone: phone || null,
+        background: background || null,
+      });
+      if (inqErr) console.error("inquiry insert", inqErr);
+    }
 
     // 2) Upsert student record (status = 'inquired')
     const { data: existingStudent } = await admin
