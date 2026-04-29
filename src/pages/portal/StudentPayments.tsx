@@ -104,6 +104,7 @@ const StudentPayments = () => {
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Total course fee</p>
             <p className="text-2xl font-display font-bold text-foreground">Rs. {totalFee.toLocaleString()}</p>
             <p className="text-xs text-muted-foreground">{plan === "installment" ? "2-installment plan" : "Full payment"}</p>
+            <p className="text-xs text-primary/80">Incl. 13% VAT</p>
           </CardContent>
         </Card>
         <Card>
