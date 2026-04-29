@@ -106,9 +106,8 @@ Deno.serve(async (req) => {
       // Link student row to user_id
       await admin
         .from("students")
-        .update({ user_id: authUser.id })
-        .eq("email", email)
-        .is("user_id", null);
+        .update({ user_id: authUser.id, full_name, phone: phone || null, background: background || null })
+        .ilike("email", email);
       // Assign student role
       await admin
         .from("user_roles")
