@@ -81,7 +81,7 @@ const Mentors = () => (
         highlights={[
           {
             icon: GraduationCap,
-            title: "IRS Certified",
+            title: "EA, Permitted To Practice Before the IRS",
             desc: "Enrolled Agent credentialed to practice before the IRS.",
           },
           {
