@@ -11,11 +11,14 @@ const LeadForm = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.from("inquiries").insert({
-      full_name: form.full_name,
-      email: form.email,
-      phone: form.phone || null,
-      background: form.background || null,
+    const { error } = await supabase.functions.invoke("enroll-and-invite", {
+      body: {
+        full_name: form.full_name,
+        email: form.email,
+        phone: form.phone || null,
+        background: form.background || null,
+        redirect_to: `${window.location.origin}/portal?onboarding=1`,
+      },
     });
     if (error) {
       toast.error("Something went wrong. Please try again.");
@@ -35,8 +38,8 @@ const LeadForm = () => {
         </div>
         {submitted ? (
           <div className="rounded-xl bg-accent p-8 text-center">
-            <p className="font-display text-xl font-bold text-foreground mb-2">🎉 Thank you!</p>
-            <p className="text-sm text-muted-foreground">We've received your enquiry. Our team will contact you soon.</p>
+            <p className="font-display text-xl font-bold text-foreground mb-2">🎉 Check your email!</p>
+            <p className="text-sm text-muted-foreground">We've sent you a magic sign-in link. Click it to access your portal and complete your booking.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-4">

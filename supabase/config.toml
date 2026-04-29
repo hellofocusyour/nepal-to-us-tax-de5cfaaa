@@ -1,1 +1,4 @@
 project_id = "heupdkfdjdrbdwvzlywf"
+
+[functions.enroll-and-invite]
+verify_jwt = false
