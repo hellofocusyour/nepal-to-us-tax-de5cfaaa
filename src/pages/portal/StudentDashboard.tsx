@@ -304,7 +304,7 @@ const StudentDashboard = () => {
               <CreditCard className="w-4 h-4 mr-2" /> Make a payment
             </Button>
             <Button variant="outline" className="w-full justify-start" asChild>
-              <a href="mailto:focusyourfinanceofficial@gmail.com">
+              <a href="hello@focusyourfinance.com">
                 <Mail className="w-4 h-4 mr-2" /> For any inquiry Mail at "hello@focusyourfinance.com"
               </a>
             </Button>
