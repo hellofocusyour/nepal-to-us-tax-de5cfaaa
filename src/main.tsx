@@ -3,13 +3,33 @@ import App from "./App.tsx";
 import "./index.css";
 
 // App version — bump this whenever a deploy needs to invalidate stale client caches/sessions.
-const APP_VERSION = "2026-04-29-2";
+const APP_VERSION = "2026-04-29-3";
 const VERSION_KEY = "fa_app_version";
 
 (async () => {
   try {
     const stored = localStorage.getItem(VERSION_KEY);
     if (stored !== APP_VERSION) {
+      // Preserve Supabase auth tokens so users stay signed in after the reload.
+      const preserved: Record<string, string> = {};
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key) continue;
+        if (key.startsWith("sb-") || key.includes("supabase.auth")) {
+          const val = localStorage.getItem(key);
+          if (val !== null) preserved[key] = val;
+        }
+      }
+
+      // Clear all client-side storage
+      try { localStorage.clear(); } catch {}
+      try { sessionStorage.clear(); } catch {}
+
+      // Restore auth tokens
+      for (const [k, v] of Object.entries(preserved)) {
+        try { localStorage.setItem(k, v); } catch {}
+      }
+
       // Unregister any service workers from previous deploys
       if ("serviceWorker" in navigator) {
         const regs = await navigator.serviceWorker.getRegistrations();
@@ -20,6 +40,7 @@ const VERSION_KEY = "fa_app_version";
         const keys = await caches.keys();
         await Promise.all(keys.map((k) => caches.delete(k)));
       }
+
       localStorage.setItem(VERSION_KEY, APP_VERSION);
 
       // Force every existing visitor to fetch the new build once.
