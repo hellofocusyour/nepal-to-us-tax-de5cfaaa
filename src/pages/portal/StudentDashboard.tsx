@@ -309,7 +309,7 @@ const StudentDashboard = () => {
 
                 <span className="text-sm leading-snug break-words">
                   For any inquiry, mail us at
-                  <br>hello@focusyourfinance.com</br>
+                  <br />hello@focusyourfinance.com
                 </span>
               </a>
             </Button>
