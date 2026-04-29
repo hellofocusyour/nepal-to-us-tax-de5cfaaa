@@ -11,13 +11,14 @@ interface Highlight {
 
 interface MentorCardProps {
   image: string;
+  name: string;
   role: string;
   title: string;
   intro: string;
   highlights: Highlight[];
 }
 
-const MentorCard = ({ image, role, title, intro, highlights }: MentorCardProps) => (
+const MentorCard = ({ image, name, role, title, intro, highlights }: MentorCardProps) => (
   <div className="group rounded-2xl bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 hover:border-gold/40 transition-colors duration-300 overflow-hidden flex flex-col">
     {/* Clean image — no overlay, no text on top */}
     <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary/30 to-primary/10 border-b border-primary-foreground/10">
@@ -32,9 +33,14 @@ const MentorCard = ({ image, role, title, intro, highlights }: MentorCardProps) 
     <div className="p-5 sm:p-6 space-y-4 sm:space-y-5 flex-1 flex flex-col">
       {/* Identity */}
       <div className="space-y-2">
-        <span className="inline-block text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-gold px-2.5 py-1 rounded-md bg-gold/10 border border-gold/20">
-          {role}
-        </span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="inline-block text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-gold px-2.5 py-1 rounded-md bg-gold/10 border border-gold/20">
+            {role}
+          </span>
+          <span className="text-sm sm:text-base font-semibold text-primary-foreground/90">
+            {name}
+          </span>
+        </div>
         <h3 className="font-display text-xl sm:text-2xl font-bold text-primary-foreground leading-tight">{title}</h3>
       </div>
 
@@ -75,6 +81,7 @@ const Mentors = () => (
     <div className="grid lg:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto">
       <MentorCard
         image={ganeshImg}
+        name="Ganesh Dahal"
         role="Lead Mentor"
         title="Nepal's Only IRS Enrolled Agent"
         intro="Bridging the gap between theoretical knowledge and practical execution in US Taxation."
@@ -94,6 +101,7 @@ const Mentors = () => (
       />
       <MentorCard
         image={kalashImg}
+        name="Kalash Shrestha"
         role="Co-Mentor"
         title="Returned from USA to Empower Nepal"
         intro="Bringing Silicon Valley standards back home to build global-ready professionals."
