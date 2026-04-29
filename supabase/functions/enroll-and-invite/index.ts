@@ -13,6 +13,7 @@ interface Payload {
   redirect_to?: string;
   send_invite?: boolean;
   record_inquiry?: boolean;
+  preserve_existing_details?: boolean;
 }
 
 Deno.serve(async (req) => {
@@ -67,7 +68,7 @@ Deno.serve(async (req) => {
         background: background || null,
         status: "inquired",
       });
-    } else {
+    } else if (!body.preserve_existing_details) {
       await admin.from("students").update({
         full_name,
         phone: phone || null,
@@ -116,9 +117,12 @@ Deno.serve(async (req) => {
         { onConflict: "user_id" }
       );
       // Link student row to user_id
+      const studentUpdate = body.preserve_existing_details
+        ? { user_id: authUser.id }
+        : { user_id: authUser.id, full_name, phone: phone || null, background: background || null };
       await admin
         .from("students")
-        .update({ user_id: authUser.id, full_name, phone: phone || null, background: background || null })
+        .update(studentUpdate)
         .ilike("email", email);
       // Assign student role
       await admin
