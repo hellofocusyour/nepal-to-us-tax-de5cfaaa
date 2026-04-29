@@ -32,9 +32,14 @@ const MentorCard = ({ image, role, title, intro, highlights }: MentorCardProps) 
     <div className="p-5 sm:p-6 space-y-4 sm:space-y-5 flex-1 flex flex-col">
       {/* Identity */}
       <div className="space-y-2">
-        <span className="inline-block text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-gold px-2.5 py-1 rounded-md bg-gold/10 border border-gold/20">
-          {role}
-        </span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="inline-block text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-gold px-2.5 py-1 rounded-md bg-gold/10 border border-gold/20">
+            {role}
+          </span>
+          <span className="text-sm sm:text-base font-semibold text-primary-foreground/90">
+            {name}
+          </span>
+        </div>
         <h3 className="font-display text-xl sm:text-2xl font-bold text-primary-foreground leading-tight">{title}</h3>
       </div>
 
