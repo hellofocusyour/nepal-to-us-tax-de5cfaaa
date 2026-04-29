@@ -22,9 +22,10 @@ import StudentCourses from "./pages/portal/StudentCourses.tsx";
 import StudentPayments from "./pages/portal/StudentPayments.tsx";
 import StudentCertificates from "./pages/portal/StudentCertificates.tsx";
 import StudentProfile from "./pages/portal/StudentProfile.tsx";
-import StudentSyllabus from "./pages/portal/StudentSyllabus.tsx";
+import StudentMyCourses from "./pages/portal/StudentMyCourses.tsx";
 import StudentAnnouncements from "./pages/portal/StudentAnnouncements.tsx";
 import StudentBatch from "./pages/portal/StudentBatch.tsx";
+import AdminMyCourses from "./pages/admin/MyCourses.tsx";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="inquiries" element={<Inquiries />} />
               <Route path="payments" element={<Payments />} />
               <Route path="batches" element={<Batches />} />
+              <Route path="my-courses" element={<AdminMyCourses />} />
               <Route path="announcements" element={<Announcements />} />
               <Route path="reports" element={<Reports />} />
             </Route>
@@ -53,9 +55,10 @@ const App = () => (
             <Route path="/portal" element={<StudentLayout />}>
               <Route index element={<StudentDashboard />} />
               <Route path="batch" element={<StudentBatch />} />
-              <Route path="syllabus" element={<StudentSyllabus />} />
+              <Route path="my-courses" element={<StudentMyCourses />} />
+              <Route path="syllabus" element={<StudentMyCourses />} />
+              <Route path="courses" element={<StudentMyCourses />} />
               <Route path="announcements" element={<StudentAnnouncements />} />
-              <Route path="courses" element={<StudentCourses />} />
               <Route path="payments" element={<StudentPayments />} />
               <Route path="certificates" element={<StudentCertificates />} />
               <Route path="profile" element={<StudentProfile />} />

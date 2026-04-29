@@ -3,7 +3,7 @@ import { Link, useLocation, Outlet, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Users, CreditCard, MessageSquare, Calendar,
-  Megaphone, BarChart3, LogOut, Menu, X, GraduationCap
+  Megaphone, BarChart3, LogOut, Menu, X, GraduationCap, BookOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -14,6 +14,7 @@ const navItems = [
   { label: "Inquiries", href: "/admin/inquiries", icon: MessageSquare },
   { label: "Payments", href: "/admin/payments", icon: CreditCard },
   { label: "Batches", href: "/admin/batches", icon: Calendar },
+  { label: "My Courses", href: "/admin/my-courses", icon: BookOpen },
   { label: "Announcements", href: "/admin/announcements", icon: Megaphone },
   { label: "Reports", href: "/admin/reports", icon: BarChart3 },
 ];
