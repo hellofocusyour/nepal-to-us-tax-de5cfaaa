@@ -10,10 +10,9 @@ import { CreditCard, Plus, Search, FileText, Eye, Download } from "lucide-react"
 import PaymentModal from "@/components/student/PaymentModal";
 import type { Database } from "@/integrations/supabase/types";
 import { cn } from "@/lib/utils";
+import { FULL_PRICE, INSTALLMENT_TOTAL, INSTALLMENT_AMOUNT, type PaymentPlan } from "@/lib/pricing";
 
 type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
-
-const TOTAL_FEE = 45000;
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   pending_verification: { label: "Pending", className: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100" },
