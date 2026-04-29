@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { CheckCircle2, Lock, PlayCircle, Clock, Download, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import PaidAccessGate from "@/components/student/PaidAccessGate";
 
 interface Lesson { title: string; duration: string; status: "done" | "current" | "upcoming"; }
 interface Module { title: string; lessons: Lesson[]; state: "completed" | "in_progress" | "locked"; unlock?: string; }
