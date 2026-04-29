@@ -38,6 +38,7 @@ const StudentLogin = () => {
   const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const { signIn, signUp, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -64,11 +65,31 @@ const StudentLogin = () => {
         setLoading(false);
         return;
       }
+
+      // Pre-check uniqueness across inquiries and students
+      const normalizedEmail = email.trim().toLowerCase();
+      const [{ data: existingInquiry }, { data: existingStudent }] = await Promise.all([
+        supabase.from("inquiries").select("id").eq("email", normalizedEmail).maybeSingle(),
+        supabase.from("students").select("id, user_id").eq("email", normalizedEmail).maybeSingle(),
+      ]);
+      // Allow signup if record exists only as an inquiry without a linked user, or no record at all.
+      // Block if a student already has a user account linked.
+      if (existingStudent?.user_id) {
+        setEmailError("This email is already registered — please sign in instead.");
+        setLoading(false);
+        return;
+      }
+
       const { error } = await signUp(email, password, fullName, phone || undefined);
       if (error) {
-        toast({ title: "Signup failed", description: error.message, variant: "destructive" });
+        const msg = error.message?.toLowerCase() || "";
+        if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
+          setEmailError("This email is already registered — please sign in instead.");
+        } else {
+          toast({ title: "Signup failed", description: error.message, variant: "destructive" });
+        }
       } else {
-        await syncStudentRecord(email, fullName, phone, true);
+        await syncStudentRecord(email, fullName, phone, !existingInquiry);
         toast({ title: "Account created!", description: "Please check your email to verify your account before logging in." });
         setIsLogin(true);
       }
@@ -126,7 +147,24 @@ const StudentLogin = () => {
             )}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => { setEmail(e.target.value); if (emailError) setEmailError(null); }}
+                placeholder="you@example.com"
+                required
+                aria-invalid={!!emailError}
+                className={emailError ? "border-destructive" : ""}
+              />
+              {emailError && !isLogin && (
+                <p className="text-xs text-destructive">
+                  {emailError}{" "}
+                  <button type="button" onClick={() => { setIsLogin(true); setEmailError(null); }} className="underline font-semibold">
+                    Sign in
+                  </button>
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
