@@ -69,6 +69,7 @@ const StudentDashboard = () => {
             redirect_to: `${window.location.origin}/portal?onboarding=1`,
             send_invite: false,
             record_inquiry: true,
+            preserve_existing_details: false,
           },
         });
 
