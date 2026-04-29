@@ -102,7 +102,8 @@ const StudentPayments = () => {
         <Card>
           <CardContent className="pt-6 space-y-1">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Total course fee</p>
-            <p className="text-2xl font-display font-bold text-foreground">Rs. {TOTAL_FEE.toLocaleString()}</p>
+            <p className="text-2xl font-display font-bold text-foreground">Rs. {totalFee.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground">{plan === "installment" ? "2-installment plan" : "Full payment"}</p>
           </CardContent>
         </Card>
         <Card>
@@ -124,8 +125,8 @@ const StudentPayments = () => {
           <Card className="border-destructive/40">
             <CardContent className="pt-6 space-y-1">
               <p className="text-xs text-destructive uppercase tracking-wide">Next due</p>
-              <p className="text-2xl font-display font-bold text-destructive">Rs. {remaining.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Due soon</p>
+              <p className="text-2xl font-display font-bold text-destructive">Rs. {nextDue.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">{firstApproved ? "Final installment" : "Due soon"}</p>
             </CardContent>
           </Card>
         )}
