@@ -11,6 +11,7 @@ interface Payload {
   phone?: string;
   background?: string;
   redirect_to?: string;
+  send_invite?: boolean;
 }
 
 Deno.serve(async (req) => {
@@ -18,7 +19,8 @@ Deno.serve(async (req) => {
 
   try {
     const body = (await req.json()) as Payload;
-    const { full_name, email, phone, background, redirect_to } = body;
+    const { full_name, phone, background, redirect_to } = body;
+    const email = body.email?.trim().toLowerCase();
 
     if (!full_name?.trim() || !email?.trim()) {
       return new Response(JSON.stringify({ error: "full_name and email required" }), {
@@ -45,8 +47,8 @@ Deno.serve(async (req) => {
     // 2) Upsert student record (status = 'inquired')
     const { data: existingStudent } = await admin
       .from("students")
-      .select("id")
-      .eq("email", email)
+      .select("id, user_id")
+      .ilike("email", email)
       .maybeSingle();
 
     if (!existingStudent) {
@@ -57,26 +59,34 @@ Deno.serve(async (req) => {
         background: background || null,
         status: "inquired",
       });
+    } else {
+      await admin.from("students").update({
+        full_name,
+        phone: phone || null,
+        background: background || null,
+      }).eq("id", existingStudent.id);
     }
 
     // 3) Send magic link (creates the auth user automatically if missing,
     //    so the email/phone they entered become their login credentials)
     const redirect = redirect_to || `${new URL(req.url).origin}`;
-    const { error: otpErr } = await admin.auth.signInWithOtp({
-      email,
-      options: {
-        shouldCreateUser: true,
-        emailRedirectTo: redirect,
-        data: { full_name, phone: phone || null },
-      },
-    });
-
-    if (otpErr) {
-      console.error("magic link error", otpErr);
-      return new Response(JSON.stringify({ error: otpErr.message }), {
-        status: 500,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+    if (body.send_invite !== false) {
+      const { error: otpErr } = await admin.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: true,
+          emailRedirectTo: redirect,
+          data: { full_name, phone: phone || null },
+        },
       });
+
+      if (otpErr) {
+        console.error("magic link error", otpErr);
+        return new Response(JSON.stringify({ error: otpErr.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     // 4) Ensure profile + student role exist for the user (best-effort)
