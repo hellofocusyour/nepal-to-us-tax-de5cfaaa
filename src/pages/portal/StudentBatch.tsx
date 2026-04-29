@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Users, Mail, Video, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
+import PaidAccessGate from "@/components/student/PaidAccessGate";
 
 interface BatchInfo {
   name: string;
@@ -74,6 +75,7 @@ const StudentBatch = () => {
   const classTime = "7:00 PM";
 
   return (
+    <PaidAccessGate>
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-display font-bold text-foreground">{batch.name}</h1>
