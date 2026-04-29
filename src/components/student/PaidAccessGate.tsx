@@ -15,19 +15,32 @@ const PaidAccessGate = ({ children }: Props) => {
   const [studentId, setStudentId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
 
+  const checkAccess = async (uid: string) => {
+    const { data: student } = await supabase.from("students")
+      .select("id").eq("user_id", uid).maybeSingle();
+    if (!student) { setLoading(false); return null; }
+    setStudentId(student.id);
+    const { data: pays } = await supabase.from("payments")
+      .select("installment_number, status")
+      .eq("student_id", student.id).eq("status", "verified");
+    setHasAccess((pays || []).some(p => p.installment_number === 1));
+    setLoading(false);
+    return student.id;
+  };
+
   useEffect(() => {
     if (!user) return;
+    let channel: ReturnType<typeof supabase.channel> | null = null;
     (async () => {
-      const { data: student } = await supabase.from("students")
-        .select("id").eq("user_id", user.id).maybeSingle();
-      if (!student) { setLoading(false); return; }
-      setStudentId(student.id);
-      const { data: pays } = await supabase.from("payments")
-        .select("installment_number, status")
-        .eq("student_id", student.id).eq("status", "verified");
-      setHasAccess((pays || []).some(p => p.installment_number === 1));
-      setLoading(false);
+      const sid = await checkAccess(user.id);
+      if (sid) {
+        channel = supabase.channel(`paid-gate-${sid}`)
+          .on("postgres_changes", { event: "*", schema: "public", table: "payments", filter: `student_id=eq.${sid}` },
+            () => checkAccess(user.id))
+          .subscribe();
+      }
     })();
+    return () => { if (channel) supabase.removeChannel(channel); };
   }, [user]);
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
