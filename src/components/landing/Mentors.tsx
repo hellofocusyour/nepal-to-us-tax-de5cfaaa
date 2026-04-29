@@ -81,7 +81,7 @@ const Mentors = () => (
         highlights={[
           {
             icon: GraduationCap,
-            title: "EA, Permitted To Practice Before the IRS",
+            title: "IRS Certified",
             desc: "Enrolled Agent credentialed to practice before the IRS.",
           },
           {
@@ -89,7 +89,7 @@ const Mentors = () => (
             title: "8+ Years Exp.",
             desc: "Deep US Tax experience and 1,000+ tax returns successfully filed.",
           },
-          { icon: BadgeCheck, title: "Certified Expert", desc: "QuickBooks Advisor and Certified Payroll Expert." },
+          // { icon: BadgeCheck, title: "Certified Expert", desc: "QuickBooks Advisor and Certified Payroll Expert." },
         ]}
       />
       <MentorCard
