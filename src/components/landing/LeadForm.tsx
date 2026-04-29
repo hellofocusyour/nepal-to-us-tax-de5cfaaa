@@ -17,7 +17,7 @@ const LeadForm = () => {
         email: form.email,
         phone: form.phone || null,
         background: form.background || null,
-        redirect_to: `${window.location.origin}/portal?onboarding=1`,
+        redirect_to: `https://academy.focusyourfinance.com/portal?onboarding=1`,
       },
     });
     if (error) {
