@@ -41,8 +41,15 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    // 1) Record inquiry (existing Secure Your Seat flow)
-    if (body.record_inquiry !== false) {
+    // 1) Upsert student record (status = 'inquired')
+    const { data: existingStudent } = await admin
+      .from("students")
+      .select("id, user_id")
+      .ilike("email", email)
+      .maybeSingle();
+
+    // Record inquiry for Secure Your Seat, and once for direct Sign Up / first Sign In.
+    if (body.record_inquiry !== false && (body.send_invite !== false || !existingStudent)) {
       const { error: inqErr } = await admin.from("inquiries").insert({
         full_name,
         email,
@@ -51,13 +58,6 @@ Deno.serve(async (req) => {
       });
       if (inqErr) console.error("inquiry insert", inqErr);
     }
-
-    // 2) Upsert student record (status = 'inquired')
-    const { data: existingStudent } = await admin
-      .from("students")
-      .select("id, user_id")
-      .ilike("email", email)
-      .maybeSingle();
 
     if (!existingStudent) {
       await admin.from("students").insert({
