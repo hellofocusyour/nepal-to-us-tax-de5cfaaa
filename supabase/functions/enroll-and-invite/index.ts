@@ -31,8 +31,13 @@ Deno.serve(async (req) => {
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const admin = createClient(supabaseUrl, serviceRole, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+    const authedClient = createClient(supabaseUrl, anonKey, {
+      global: { headers: { Authorization: req.headers.get("Authorization") || "" } },
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
@@ -93,8 +98,12 @@ Deno.serve(async (req) => {
     }
 
     // 4) Ensure profile + student role exist for the user (best-effort)
-    const { data: usersList } = await admin.auth.admin.listUsers();
-    const authUser = usersList?.users?.find((u) => u.email?.toLowerCase() === email.toLowerCase());
+    const { data: requester } = await authedClient.auth.getUser();
+    let authUser = requester.user?.email?.toLowerCase() === email.toLowerCase() ? requester.user : null;
+    if (!authUser) {
+      const { data: usersList } = await admin.auth.admin.listUsers();
+      authUser = usersList?.users?.find((u) => u.email?.toLowerCase() === email.toLowerCase()) ?? null;
+    }
     if (authUser) {
       await admin.from("profiles").upsert(
         {
