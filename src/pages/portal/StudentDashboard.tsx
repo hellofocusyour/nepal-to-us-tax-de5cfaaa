@@ -50,7 +50,7 @@ const StudentDashboard = () => {
     (async () => {
       let { data: studentData } = await supabase
         .from("students")
-        .select("id, full_name, status, batch_id")
+        .select("id, full_name, status, batch_id, payment_plan")
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -77,7 +77,7 @@ const StudentDashboard = () => {
 
         const { data: createdStudent } = await supabase
           .from("students")
-          .select("id, full_name, status, batch_id")
+          .select("id, full_name, status, batch_id, payment_plan")
           .eq("user_id", user.id)
           .maybeSingle();
         studentData = createdStudent;
