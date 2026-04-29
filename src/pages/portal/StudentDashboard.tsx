@@ -156,6 +156,7 @@ const StudentDashboard = () => {
   }
 
   const firstName = student.full_name.split(" ")[0];
+  const totalDue = student.payment_plan === "installment" ? INSTALLMENT_TOTAL : FULL_PRICE;
   const remaining = Math.max(totalDue - paid, 0);
   const isFirstTime = paid === 0 && pendingCount === 0;
 
