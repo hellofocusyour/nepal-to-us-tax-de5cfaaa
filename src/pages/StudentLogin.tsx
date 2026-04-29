@@ -23,6 +23,7 @@ const syncStudentRecord = async (email: string, fullName?: string, phone?: strin
       redirect_to: `${window.location.origin}/portal?onboarding=1`,
       send_invite: false,
       record_inquiry: recordInquiry,
+      preserve_existing_details: !fullName?.trim(),
     },
   });
 };
