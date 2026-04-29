@@ -76,7 +76,7 @@ const StudentLogin = () => {
             className="w-full mb-4 gap-2"
             onClick={async () => {
               const result = await lovable.auth.signInWithOAuth("google", {
-                redirect_uri: `${window.location.origin}/portal`,
+                redirect_uri: `${window.location.origin}/portal?onboarding=1`,
               });
               if (result.error) {
                 toast({ title: "Google sign-in failed", description: result.error.message, variant: "destructive" });
