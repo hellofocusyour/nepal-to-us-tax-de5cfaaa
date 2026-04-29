@@ -24,7 +24,7 @@ const StudentLogin = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) navigate("/portal", { replace: true });
+    if (user) navigate("/portal?onboarding=1", { replace: true });
   }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,7 +36,7 @@ const StudentLogin = () => {
       if (error) {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
       } else {
-        navigate("/portal");
+        navigate("/portal?onboarding=1");
       }
     } else {
       if (!fullName.trim()) {
@@ -76,7 +76,7 @@ const StudentLogin = () => {
             className="w-full mb-4 gap-2"
             onClick={async () => {
               const result = await lovable.auth.signInWithOAuth("google", {
-                redirect_uri: `${window.location.origin}/portal`,
+                redirect_uri: `${window.location.origin}/portal?onboarding=1`,
               });
               if (result.error) {
                 toast({ title: "Google sign-in failed", description: result.error.message, variant: "destructive" });
