@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import logoImg from "@/assets/logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -31,12 +32,20 @@ const Navbar = () => {
               {l.label}
             </a>
           ))}
-          <a
-            href="#pricing"
-            className="inline-flex items-center justify-center rounded-lg bg-secondary px-5 py-2 text-sm font-semibold text-secondary-foreground hover:opacity-90 transition-opacity"
+          <Link
+            to="/login"
+            className="inline-flex items-center justify-center rounded-md border border-primary bg-transparent px-4 py-2 text-[13px] font-semibold text-primary hover:bg-primary/5 transition-colors"
+            style={{ borderRadius: "6px" }}
           >
-            Enroll Now
-          </a>
+            Sign In
+          </Link>
+          <Link
+            to="/signup"
+            className="inline-flex items-center justify-center bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+            style={{ borderRadius: "6px", marginLeft: "8px" }}
+          >
+            Sign Up
+          </Link>
         </div>
         <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
           {open ? <X size={24} /> : <Menu size={24} />}
@@ -51,6 +60,24 @@ const Navbar = () => {
             className="md:hidden overflow-hidden bg-background border-b border-border"
           >
             <div className="flex flex-col gap-3 p-4">
+              <div className="flex gap-2 pb-3 border-b border-border">
+                <Link
+                  to="/login"
+                  onClick={() => setOpen(false)}
+                  className="flex-1 inline-flex items-center justify-center border border-primary bg-transparent px-4 py-2 text-[13px] font-semibold text-primary"
+                  style={{ borderRadius: "6px" }}
+                >
+                  Sign In
+                </Link>
+                <Link
+                  to="/signup"
+                  onClick={() => setOpen(false)}
+                  className="flex-1 inline-flex items-center justify-center bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground"
+                  style={{ borderRadius: "6px" }}
+                >
+                  Sign Up
+                </Link>
+              </div>
               {navLinks.map((l) => (
                 <a
                   key={l.href}
