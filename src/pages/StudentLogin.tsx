@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
 import { supabase } from "@/integrations/supabase/client";
 
-const syncStudentRecord = async (email: string, fullName?: string, phone?: string) => {
+const syncStudentRecord = async (email: string, fullName?: string, phone?: string, recordInquiry = false) => {
   const normalizedEmail = email.trim().toLowerCase();
   if (!normalizedEmail) return;
 
@@ -22,7 +22,7 @@ const syncStudentRecord = async (email: string, fullName?: string, phone?: strin
       background: null,
       redirect_to: `${window.location.origin}/portal?onboarding=1`,
       send_invite: false,
-      record_inquiry: false,
+      record_inquiry: recordInquiry,
     },
   });
 };
@@ -67,7 +67,7 @@ const StudentLogin = () => {
       if (error) {
         toast({ title: "Signup failed", description: error.message, variant: "destructive" });
       } else {
-        await syncStudentRecord(email, fullName, phone);
+        await syncStudentRecord(email, fullName, phone, true);
         toast({ title: "Account created!", description: "Please check your email to verify your account before logging in." });
         setIsLogin(true);
       }
