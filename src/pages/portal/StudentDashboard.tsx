@@ -36,6 +36,14 @@ const StudentDashboard = () => {
   const [payOpen, setPayOpen] = useState(false);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("onboarding") === "1") {
+      setPayOpen(true);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!user) return;
     (async () => {
       const { data: studentData } = await supabase
