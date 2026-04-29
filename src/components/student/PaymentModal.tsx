@@ -100,8 +100,10 @@ const PaymentModal = ({ open, onOpenChange, studentId, onSubmitted }: Props) => 
       // Persist plan choice on student (so /payments page shows correct total)
       await supabase.from("students").update({ payment_plan: plan }).eq("id", studentId);
 
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("You must be signed in to submit payment.");
       const ext = proofFile.name.split(".").pop();
-      const path = `${studentId}/${Date.now()}.${ext}`;
+      const path = `${user.id}/${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage
         .from("payment-proofs").upload(path, proofFile);
       if (upErr) throw upErr;
