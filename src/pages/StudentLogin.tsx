@@ -22,6 +22,7 @@ const syncStudentRecord = async (email: string, fullName?: string, phone?: strin
       background: null,
       redirect_to: `${window.location.origin}/portal?onboarding=1`,
       send_invite: false,
+      record_inquiry: false,
     },
   });
 };
