@@ -10,10 +10,9 @@ import { CreditCard, Plus, Search, FileText, Eye, Download } from "lucide-react"
 import PaymentModal from "@/components/student/PaymentModal";
 import type { Database } from "@/integrations/supabase/types";
 import { cn } from "@/lib/utils";
+import { FULL_PRICE, INSTALLMENT_TOTAL, INSTALLMENT_AMOUNT, type PaymentPlan } from "@/lib/pricing";
 
 type PaymentRow = Database["public"]["Tables"]["payments"]["Row"];
-
-const TOTAL_FEE = 45000;
 
 const statusConfig: Record<string, { label: string; className: string }> = {
   pending_verification: { label: "Pending", className: "bg-yellow-100 text-yellow-700 hover:bg-yellow-100" },
@@ -32,6 +31,7 @@ const methodLabel = (m: string | null) => {
 const StudentPayments = () => {
   const { user } = useAuth();
   const [studentId, setStudentId] = useState<string | null>(null);
+  const [plan, setPlan] = useState<PaymentPlan>("full");
   const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
@@ -48,19 +48,25 @@ const StudentPayments = () => {
     if (!user) return;
     (async () => {
       const { data: student } = await supabase.from("students")
-        .select("id").eq("user_id", user.id).maybeSingle();
+        .select("id, payment_plan").eq("user_id", user.id).maybeSingle();
       if (student) {
         setStudentId(student.id);
+        setPlan((student.payment_plan as PaymentPlan) || "full");
         await fetchPayments(student.id);
       }
       setLoading(false);
     })();
   }, [user]);
 
+  const totalFee = plan === "installment" ? INSTALLMENT_TOTAL : FULL_PRICE;
   const verified = payments.filter(p => p.status === "verified")
     .reduce((s, p) => s + Number(p.amount), 0);
-  const remaining = Math.max(TOTAL_FEE - verified, 0);
-  const paidPct = Math.min(Math.round((verified / TOTAL_FEE) * 100), 100);
+  const remaining = Math.max(totalFee - verified, 0);
+  const paidPct = Math.min(Math.round((verified / totalFee) * 100), 100);
+
+  // First installment approved? compute next-due display
+  const firstApproved = payments.some(p => p.status === "verified" && p.installment_number === 1);
+  const nextDue = plan === "installment" && firstApproved && remaining > 0 ? INSTALLMENT_AMOUNT : remaining;
 
   const filtered = payments.filter(p => {
     if (filter === "pending" && p.status !== "pending_verification") return false;
@@ -96,7 +102,8 @@ const StudentPayments = () => {
         <Card>
           <CardContent className="pt-6 space-y-1">
             <p className="text-xs text-muted-foreground uppercase tracking-wide">Total course fee</p>
-            <p className="text-2xl font-display font-bold text-foreground">Rs. {TOTAL_FEE.toLocaleString()}</p>
+            <p className="text-2xl font-display font-bold text-foreground">Rs. {totalFee.toLocaleString()}</p>
+            <p className="text-xs text-muted-foreground">{plan === "installment" ? "2-installment plan" : "Full payment"}</p>
           </CardContent>
         </Card>
         <Card>
@@ -118,8 +125,8 @@ const StudentPayments = () => {
           <Card className="border-destructive/40">
             <CardContent className="pt-6 space-y-1">
               <p className="text-xs text-destructive uppercase tracking-wide">Next due</p>
-              <p className="text-2xl font-display font-bold text-destructive">Rs. {remaining.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">Due soon</p>
+              <p className="text-2xl font-display font-bold text-destructive">Rs. {nextDue.toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">{firstApproved ? "Final installment" : "Due soon"}</p>
             </CardContent>
           </Card>
         )}

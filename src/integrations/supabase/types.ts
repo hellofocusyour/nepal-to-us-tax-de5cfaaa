@@ -245,6 +245,7 @@ export type Database = {
           payment_method: Database["public"]["Enums"]["payment_method"] | null
           proof_url: string | null
           receipt_url: string | null
+          rejection_reason: string | null
           status: Database["public"]["Enums"]["payment_status"]
           student_id: string
           transaction_reference: string | null
@@ -260,6 +261,7 @@ export type Database = {
           payment_method?: Database["public"]["Enums"]["payment_method"] | null
           proof_url?: string | null
           receipt_url?: string | null
+          rejection_reason?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           student_id: string
           transaction_reference?: string | null
@@ -275,6 +277,7 @@ export type Database = {
           payment_method?: Database["public"]["Enums"]["payment_method"] | null
           proof_url?: string | null
           receipt_url?: string | null
+          rejection_reason?: string | null
           status?: Database["public"]["Enums"]["payment_status"]
           student_id?: string
           transaction_reference?: string | null
@@ -332,6 +335,7 @@ export type Database = {
           full_name: string
           id: string
           notes: string | null
+          payment_plan: string
           phone: string | null
           profile_id: string | null
           status: Database["public"]["Enums"]["student_status"]
@@ -346,6 +350,7 @@ export type Database = {
           full_name: string
           id?: string
           notes?: string | null
+          payment_plan?: string
           phone?: string | null
           profile_id?: string | null
           status?: Database["public"]["Enums"]["student_status"]
@@ -360,6 +365,7 @@ export type Database = {
           full_name?: string
           id?: string
           notes?: string | null
+          payment_plan?: string
           phone?: string | null
           profile_id?: string | null
           status?: Database["public"]["Enums"]["student_status"]

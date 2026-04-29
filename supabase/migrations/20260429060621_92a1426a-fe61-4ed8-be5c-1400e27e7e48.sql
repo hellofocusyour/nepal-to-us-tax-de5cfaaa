@@ -1,0 +1,2 @@
+ALTER TABLE public.students ADD COLUMN IF NOT EXISTS payment_plan TEXT NOT NULL DEFAULT 'full' CHECK (payment_plan IN ('full', 'installment'));
+ALTER TABLE public.payments ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
