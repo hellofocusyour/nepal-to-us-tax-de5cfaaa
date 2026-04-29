@@ -18,7 +18,7 @@ import Reports from "./pages/admin/Reports.tsx";
 import StudentLogin from "./pages/StudentLogin.tsx";
 import StudentLayout from "./components/student/StudentLayout.tsx";
 import StudentDashboard from "./pages/portal/StudentDashboard.tsx";
-import StudentCourses from "./pages/portal/StudentCourses.tsx";
+
 import StudentPayments from "./pages/portal/StudentPayments.tsx";
 import StudentCertificates from "./pages/portal/StudentCertificates.tsx";
 import StudentProfile from "./pages/portal/StudentProfile.tsx";
