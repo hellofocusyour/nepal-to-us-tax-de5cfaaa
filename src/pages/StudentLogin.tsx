@@ -24,7 +24,7 @@ const StudentLogin = () => {
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) navigate("/portal", { replace: true });
+    if (user) navigate("/portal?onboarding=1", { replace: true });
   }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
