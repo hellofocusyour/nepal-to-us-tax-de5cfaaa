@@ -81,6 +81,7 @@ const Mentors = () => (
     <div className="grid lg:grid-cols-2 gap-6 md:gap-8 max-w-6xl mx-auto">
       <MentorCard
         image={ganeshImg}
+        name="Ganesh Dahal"
         role="Lead Mentor"
         title="Nepal's Only IRS Enrolled Agent"
         intro="Bridging the gap between theoretical knowledge and practical execution in US Taxation."
@@ -100,6 +101,7 @@ const Mentors = () => (
       />
       <MentorCard
         image={kalashImg}
+        name="Kalash Shrestha"
         role="Co-Mentor"
         title="Returned from USA to Empower Nepal"
         intro="Bringing Silicon Valley standards back home to build global-ready professionals."
