@@ -31,6 +31,7 @@ const methodLabel = (m: string | null) => {
 const StudentPayments = () => {
   const { user } = useAuth();
   const [studentId, setStudentId] = useState<string | null>(null);
+  const [plan, setPlan] = useState<PaymentPlan>("full");
   const [payments, setPayments] = useState<PaymentRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "pending" | "approved" | "rejected">("all");
@@ -47,19 +48,25 @@ const StudentPayments = () => {
     if (!user) return;
     (async () => {
       const { data: student } = await supabase.from("students")
-        .select("id").eq("user_id", user.id).maybeSingle();
+        .select("id, payment_plan").eq("user_id", user.id).maybeSingle();
       if (student) {
         setStudentId(student.id);
+        setPlan((student.payment_plan as PaymentPlan) || "full");
         await fetchPayments(student.id);
       }
       setLoading(false);
     })();
   }, [user]);
 
+  const totalFee = plan === "installment" ? INSTALLMENT_TOTAL : FULL_PRICE;
   const verified = payments.filter(p => p.status === "verified")
     .reduce((s, p) => s + Number(p.amount), 0);
-  const remaining = Math.max(TOTAL_FEE - verified, 0);
-  const paidPct = Math.min(Math.round((verified / TOTAL_FEE) * 100), 100);
+  const remaining = Math.max(totalFee - verified, 0);
+  const paidPct = Math.min(Math.round((verified / totalFee) * 100), 100);
+
+  // First installment approved? compute next-due display
+  const firstApproved = payments.some(p => p.status === "verified" && p.installment_number === 1);
+  const nextDue = plan === "installment" && firstApproved && remaining > 0 ? INSTALLMENT_AMOUNT : remaining;
 
   const filtered = payments.filter(p => {
     if (filter === "pending" && p.status !== "pending_verification") return false;
