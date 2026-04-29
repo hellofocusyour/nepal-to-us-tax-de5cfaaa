@@ -308,7 +308,8 @@ const StudentDashboard = () => {
                 <Mail className="w-4 h-4 mt-0.5 shrink-0" />
 
                 <span className="text-sm leading-snug break-words">
-                  For any inquiry, mail us at hello@focusyourfinance.com
+                  For any inquiry, mail us at
+                  <br>hello@focusyourfinance.com</br>
                 </span>
               </a>
             </Button>
