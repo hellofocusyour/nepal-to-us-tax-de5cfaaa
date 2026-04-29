@@ -173,6 +173,7 @@ const StudentBatch = () => {
         </CardContent>
       </Card>
     </div>
+    </PaidAccessGate>
   );
 };
 
