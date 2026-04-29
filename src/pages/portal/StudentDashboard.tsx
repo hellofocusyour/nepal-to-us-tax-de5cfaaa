@@ -46,11 +46,40 @@ const StudentDashboard = () => {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data: studentData } = await supabase
+      let { data: studentData } = await supabase
         .from("students")
         .select("id, full_name, status, batch_id")
         .eq("user_id", user.id)
         .maybeSingle();
+
+      if (!studentData && user.email) {
+        const metadata = user.user_metadata ?? {};
+        const fullName =
+          typeof metadata.full_name === "string" ? metadata.full_name :
+          typeof metadata.name === "string" ? metadata.name :
+          user.email.split("@")[0];
+        const phone = typeof metadata.phone === "string" ? metadata.phone : null;
+
+        await supabase.functions.invoke("enroll-and-invite", {
+          body: {
+            full_name: fullName,
+            email: user.email,
+            phone,
+            background: null,
+            redirect_to: `${window.location.origin}/portal?onboarding=1`,
+            send_invite: false,
+            record_inquiry: true,
+            preserve_existing_details: false,
+          },
+        });
+
+        const { data: createdStudent } = await supabase
+          .from("students")
+          .select("id, full_name, status, batch_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        studentData = createdStudent;
+      }
 
       if (!studentData) { setLoading(false); return; }
 

@@ -8,6 +8,25 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { GraduationCap, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
+import { supabase } from "@/integrations/supabase/client";
+
+const syncStudentRecord = async (email: string, fullName?: string, phone?: string, recordInquiry = false) => {
+  const normalizedEmail = email.trim().toLowerCase();
+  if (!normalizedEmail) return;
+
+  await supabase.functions.invoke("enroll-and-invite", {
+    body: {
+      full_name: fullName?.trim() || normalizedEmail.split("@")[0],
+      email: normalizedEmail,
+      phone: phone?.trim() || null,
+      background: null,
+      redirect_to: `${window.location.origin}/portal?onboarding=1`,
+      send_invite: false,
+      record_inquiry: recordInquiry,
+      preserve_existing_details: !fullName?.trim(),
+    },
+  });
+};
 
 const StudentLogin = () => {
   const location = useLocation();
@@ -36,6 +55,7 @@ const StudentLogin = () => {
       if (error) {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
       } else {
+        await syncStudentRecord(email);
         navigate("/portal?onboarding=1");
       }
     } else {
@@ -48,6 +68,7 @@ const StudentLogin = () => {
       if (error) {
         toast({ title: "Signup failed", description: error.message, variant: "destructive" });
       } else {
+        await syncStudentRecord(email, fullName, phone, true);
         toast({ title: "Account created!", description: "Please check your email to verify your account before logging in." });
         setIsLogin(true);
       }

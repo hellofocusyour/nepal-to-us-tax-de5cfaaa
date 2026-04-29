@@ -3,7 +3,7 @@ import App from "./App.tsx";
 import "./index.css";
 
 // App version — bump this whenever a deploy needs to invalidate stale client caches/sessions.
-const APP_VERSION = "2026-04-29-3";
+const APP_VERSION = "2026-04-29-4";
 const VERSION_KEY = "fa_app_version";
 
 (async () => {
