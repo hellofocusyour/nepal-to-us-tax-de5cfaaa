@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
@@ -9,13 +8,15 @@ import { CheckCircle2, Upload, Copy, ArrowLeft, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import {
+  COURSE_NAME, FULL_PRICE, INSTALLMENT_TOTAL, INSTALLMENT_AMOUNT,
+  INSTALLMENT_SURCHARGE, type PaymentPlan,
+} from "@/lib/pricing";
 
 interface Props {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   studentId: string | null;
-  defaultAmount?: number;
-  defaultInstallment?: number;
   onSubmitted?: () => void;
 }
 
@@ -51,26 +52,39 @@ const QR_PLACEHOLDER =
 const generateRefId = () =>
   `FA-${new Date().getFullYear()}-${Math.floor(10000 + Math.random() * 89999)}`;
 
-const PaymentModal = ({ open, onOpenChange, studentId, defaultAmount, defaultInstallment, onSubmitted }: Props) => {
+const PaymentModal = ({ open, onOpenChange, studentId, onSubmitted }: Props) => {
   const { toast } = useToast();
   const [step, setStep] = useState(1);
-  const [amount, setAmount] = useState(defaultAmount?.toString() || "8000");
-  const [installment, setInstallment] = useState(defaultInstallment?.toString() || "1");
-  const [plan, setPlan] = useState("3_installments");
+  const [plan, setPlan] = useState<PaymentPlan>("full");
+  const [verifiedPayments, setVerifiedPayments] = useState<{ amount: number; installment_number: number }[]>([]);
   const [method, setMethod] = useState<"bank_transfer" | "fonepay" | "ips">("fonepay");
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [refId, setRefId] = useState("");
 
+  // Determine which installment is due (1 or 2). Locked to plan stored on student.
+  const installmentNumber =
+    plan === "installment"
+      ? (verifiedPayments.some(p => p.installment_number === 1) ? 2 : 1)
+      : 0;
+
+  const amountDue = plan === "full" ? FULL_PRICE : INSTALLMENT_AMOUNT;
+
   useEffect(() => {
-    if (open) {
-      setStep(1);
-      setAmount(defaultAmount?.toString() || "8000");
-      setInstallment(defaultInstallment?.toString() || "1");
-      setProofFile(null);
-      setRefId("");
-    }
-  }, [open, defaultAmount, defaultInstallment]);
+    if (!open || !studentId) return;
+    setStep(1);
+    setProofFile(null);
+    setRefId("");
+    (async () => {
+      const { data: s } = await supabase.from("students")
+        .select("payment_plan").eq("id", studentId).maybeSingle();
+      if (s?.payment_plan) setPlan(s.payment_plan as PaymentPlan);
+      const { data: pays } = await supabase.from("payments")
+        .select("amount, installment_number, status")
+        .eq("student_id", studentId).eq("status", "verified");
+      setVerifiedPayments(pays || []);
+    })();
+  }, [open, studentId]);
 
   const copy = (text: string, label: string) => {
     navigator.clipboard.writeText(text);
@@ -81,25 +95,55 @@ const PaymentModal = ({ open, onOpenChange, studentId, defaultAmount, defaultIns
     if (!studentId || !proofFile) return;
     setSubmitting(true);
     try {
+      // Persist plan choice on student (so /payments page shows correct total)
+      await supabase.from("students").update({ payment_plan: plan }).eq("id", studentId);
+
       const ext = proofFile.name.split(".").pop();
       const path = `${studentId}/${Date.now()}.${ext}`;
       const { error: upErr } = await supabase.storage
-        .from("payment-proofs")
-        .upload(path, proofFile);
+        .from("payment-proofs").upload(path, proofFile);
       if (upErr) throw upErr;
       const { data: urlData } = supabase.storage.from("payment-proofs").getPublicUrl(path);
 
       const newRef = generateRefId();
-      const { error } = await supabase.from("payments").insert({
+      const installNum = plan === "full" ? 1 : installmentNumber;
+      const { data: inserted, error } = await supabase.from("payments").insert({
         student_id: studentId,
-        amount: parseFloat(amount),
+        amount: amountDue,
         payment_method: method,
         transaction_reference: newRef,
-        installment_number: parseInt(installment),
+        installment_number: installNum,
         proof_url: urlData.publicUrl,
         payment_date: new Date().toISOString(),
-      });
+      }).select("id").single();
       if (error) throw error;
+
+      // Lookup student details for emails
+      const { data: student } = await supabase.from("students")
+        .select("full_name, email, phone").eq("id", studentId).single();
+
+      if (student) {
+        const payload = {
+          student: { full_name: student.full_name, email: student.email, phone: student.phone },
+          payment: {
+            id: inserted.id,
+            reference: newRef,
+            amount: amountDue,
+            installment_number: installNum,
+            is_full: plan === "full",
+            date: new Date().toLocaleString(),
+            payment_method: method,
+            proof_url: urlData.publicUrl,
+          },
+        };
+        // Fire both emails (don't block UI on errors)
+        supabase.functions.invoke("payments-notify", {
+          body: { ...payload, event: "submitted_student" },
+        }).catch(e => console.error("student email", e));
+        supabase.functions.invoke("payments-notify", {
+          body: { ...payload, event: "submitted_admin" },
+        }).catch(e => console.error("admin email", e));
+      }
 
       setRefId(newRef);
       setStep(3);
@@ -123,11 +167,7 @@ const PaymentModal = ({ open, onOpenChange, studentId, defaultAmount, defaultIns
             <div
               className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors",
-                step > n
-                  ? "bg-primary text-primary-foreground"
-                  : step === n
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground border border-border"
+                step >= n ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground border border-border"
               )}
             >
               {step > n ? <CheckCircle2 className="w-4 h-4" /> : n}
@@ -154,45 +194,40 @@ const PaymentModal = ({ open, onOpenChange, studentId, defaultAmount, defaultIns
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold text-foreground">Step 1 — Book your course</h3>
-              <p className="text-sm text-muted-foreground">Confirm details and amount due</p>
+              <p className="text-sm text-muted-foreground">Choose a payment plan</p>
             </div>
             <div className="space-y-3 rounded-lg border border-border p-4 bg-muted/30">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Course</span>
-                <span className="font-medium">US Taxation Course</span>
+                <span className="font-medium">{COURSE_NAME}</span>
               </div>
               <div className="space-y-2">
                 <Label>Plan</Label>
-                <Select value={plan} onValueChange={setPlan}>
+                <Select value={plan} onValueChange={(v) => setPlan(v as PaymentPlan)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="full">Full payment</SelectItem>
-                    <SelectItem value="2_installments">2 installments</SelectItem>
-                    <SelectItem value="3_installments">3 installments</SelectItem>
+                    <SelectItem value="full">Full payment — Rs. {FULL_PRICE.toLocaleString()}</SelectItem>
+                    <SelectItem value="installment">2 installments — Rs. {INSTALLMENT_TOTAL.toLocaleString()} (Rs. {INSTALLMENT_SURCHARGE} installment surcharge)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-2">
-                  <Label>Installment</Label>
-                  <Select value={installment} onValueChange={setInstallment}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="1">1st</SelectItem>
-                      <SelectItem value="2">2nd</SelectItem>
-                      <SelectItem value="3">3rd</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <div className="rounded-md bg-background border border-border p-3 space-y-1">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Amount due now</span>
+                  <span className="font-bold text-primary text-lg">Rs. {amountDue.toLocaleString()}</span>
                 </div>
-                <div className="space-y-2">
-                  <Label>Amount due (Rs.)</Label>
-                  <Input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} />
-                </div>
+                {plan === "installment" && (
+                  <p className="text-xs text-muted-foreground">
+                    {installmentNumber === 1
+                      ? `Half payment required to start. Remaining Rs. ${INSTALLMENT_AMOUNT.toLocaleString()} due later. Includes Rs. ${INSTALLMENT_SURCHARGE} installment fee.`
+                      : `Final installment of 2.`}
+                  </p>
+                )}
               </div>
             </div>
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-              <Button onClick={() => setStep(2)} disabled={!amount}>Continue → Pay</Button>
+              <Button onClick={() => setStep(2)}>Continue → Pay</Button>
             </div>
           </div>
         )}
@@ -204,7 +239,7 @@ const PaymentModal = ({ open, onOpenChange, studentId, defaultAmount, defaultIns
               <p className="text-sm text-muted-foreground">
                 Scan the QR or transfer to bank, then upload screenshot.
               </p>
-              <p className="text-lg font-bold text-primary mt-2">Rs. {Number(amount).toLocaleString()}</p>
+              <p className="text-lg font-bold text-primary mt-2">Rs. {amountDue.toLocaleString()}</p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-4">
@@ -288,7 +323,7 @@ const PaymentModal = ({ open, onOpenChange, studentId, defaultAmount, defaultIns
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Amount</span>
-                <span className="font-semibold">Rs. {Number(amount).toLocaleString()}</span>
+                <span className="font-semibold">Rs. {amountDue.toLocaleString()}</span>
               </div>
               <div className="flex justify-between text-sm items-center">
                 <span className="text-muted-foreground">Status</span>
