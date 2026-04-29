@@ -12,6 +12,7 @@ import {
   COURSE_NAME, FULL_PRICE, INSTALLMENT_TOTAL, INSTALLMENT_AMOUNT,
   INSTALLMENT_SURCHARGE, type PaymentPlan,
 } from "@/lib/pricing";
+import fonepayQr from "@/assets/fonepay-qr.png";
 
 interface Props {
   open: boolean;
@@ -21,9 +22,10 @@ interface Props {
 }
 
 const BANK_DETAILS = {
-  bank: "Nabil Bank",
-  account: "8123-4567-8901",
-  name: "Focus Academy Pvt. Ltd.",
+  name: "ELYSIAN CAPITAL PVT LTD",
+  account: "55509351559",
+  bank: "Siddhartha Bank Limited",
+  branch: "OLDBANESHWOR",
 };
 
 const QR_PLACEHOLDER =
@@ -244,15 +246,16 @@ const PaymentModal = ({ open, onOpenChange, studentId, onSubmitted }: Props) => 
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="rounded-lg border border-border p-4 flex flex-col items-center bg-card">
-                <img src={QR_PLACEHOLDER} alt="QR code" className="w-32 h-32" />
-                <p className="text-xs text-muted-foreground mt-2">Scan with eSewa / Khalti / FonePay</p>
+                <img src={fonepayQr} alt="FonePay QR code" className="w-40 h-40 object-contain" />
+                <p className="text-xs text-muted-foreground mt-2 text-center">Scan with FonePay / eSewa / Khalti / Mobile Banking</p>
               </div>
               <div className="rounded-lg border border-border p-4 space-y-2 bg-card">
                 <p className="text-xs text-muted-foreground uppercase tracking-wide">Or bank transfer</p>
                 {[
+                  { k: "A/C Holder", v: BANK_DETAILS.name },
+                  { k: "Account No.", v: BANK_DETAILS.account, mono: true },
                   { k: "Bank", v: BANK_DETAILS.bank },
-                  { k: "Account", v: BANK_DETAILS.account, mono: true },
-                  { k: "Name", v: BANK_DETAILS.name },
+                  { k: "Branch", v: BANK_DETAILS.branch },
                 ].map((row) => (
                   <div key={row.k} className="flex items-center justify-between text-sm gap-2">
                     <span className="text-muted-foreground">{row.k}</span>
