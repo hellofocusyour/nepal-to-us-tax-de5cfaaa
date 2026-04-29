@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import SectionWrapper from "./SectionWrapper";
 import { toast } from "sonner";
@@ -6,22 +7,44 @@ import { toast } from "sonner";
 const LeadForm = () => {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [form, setForm] = useState({ full_name: "", email: "", phone: "", background: "" });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setEmailError(null);
     setLoading(true);
+
+    const normalizedEmail = form.email.trim().toLowerCase();
+
+    // Pre-check for existing email in inquiries or students
+    const [{ data: existingInquiry }, { data: existingStudent }] = await Promise.all([
+      supabase.from("inquiries").select("id").eq("email", normalizedEmail).maybeSingle(),
+      supabase.from("students").select("id").eq("email", normalizedEmail).maybeSingle(),
+    ]);
+
+    if (existingInquiry || existingStudent) {
+      setEmailError("This email is already registered — please sign in instead.");
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabase.functions.invoke("enroll-and-invite", {
       body: {
         full_name: form.full_name,
-        email: form.email,
+        email: normalizedEmail,
         phone: form.phone || null,
         background: form.background || null,
         redirect_to: `https://academy.focusyourfinance.com/portal?onboarding=1`,
       },
     });
     if (error) {
-      toast.error("Something went wrong. Please try again.");
+      const msg = (error as any)?.message?.toLowerCase?.() || "";
+      if (msg.includes("duplicate") || msg.includes("unique") || msg.includes("already")) {
+        setEmailError("This email is already registered — please sign in instead.");
+      } else {
+        toast.error("Something went wrong. Please try again.");
+      }
       setLoading(false);
       return;
     }
@@ -51,14 +74,23 @@ const LeadForm = () => {
               onChange={e => setForm(p => ({ ...p, full_name: e.target.value }))}
               className="w-full rounded-lg border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
-            <input
-              required
-              type="email"
-              placeholder="Email Address"
-              value={form.email}
-              onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
-              className="w-full rounded-lg border border-border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-            />
+            <div>
+              <input
+                required
+                type="email"
+                placeholder="Email Address"
+                value={form.email}
+                onChange={e => { setForm(p => ({ ...p, email: e.target.value })); if (emailError) setEmailError(null); }}
+                aria-invalid={!!emailError}
+                className={`w-full rounded-lg border bg-card px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${emailError ? "border-destructive" : "border-border"}`}
+              />
+              {emailError && (
+                <p className="mt-1.5 text-xs text-destructive">
+                  {emailError}{" "}
+                  <Link to="/login" className="underline font-semibold">Sign in</Link>
+                </p>
+              )}
+            </div>
             <input
               required
               type="tel"
