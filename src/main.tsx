@@ -3,7 +3,7 @@ import App from "./App.tsx";
 import "./index.css";
 
 // App version — bump this whenever a deploy needs to invalidate stale client caches/sessions.
-const APP_VERSION = "2026-04-29-1";
+const APP_VERSION = "2026-04-29-2";
 const VERSION_KEY = "fa_app_version";
 
 (async () => {
@@ -22,11 +22,9 @@ const VERSION_KEY = "fa_app_version";
       }
       localStorage.setItem(VERSION_KEY, APP_VERSION);
 
-      // First time existing users hit the new build — hard reload once to fetch fresh assets
-      if (stored !== null) {
-        window.location.reload();
-        return;
-      }
+      // Force every existing visitor to fetch the new build once.
+      window.location.reload();
+      return;
     }
   } catch {
     // non-fatal
