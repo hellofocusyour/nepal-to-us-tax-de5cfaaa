@@ -36,7 +36,7 @@ const StudentLogin = () => {
       if (error) {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
       } else {
-        navigate("/portal");
+        navigate("/portal?onboarding=1");
       }
     } else {
       if (!fullName.trim()) {
