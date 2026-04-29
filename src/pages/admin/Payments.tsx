@@ -49,6 +49,23 @@ const Payments = () => {
     if (h) setHighlightId(h);
   }, []);
 
+  const resolveProofUrl = async (rawUrl: string | null): Promise<string | null> => {
+    if (!rawUrl) return null;
+    // Extract the storage object path from either a full URL or raw path
+    let path = rawUrl;
+    const marker = "/payment-proofs/";
+    const idx = rawUrl.indexOf(marker);
+    if (idx !== -1) path = rawUrl.substring(idx + marker.length);
+    const { data, error } = await supabase.storage
+      .from("payment-proofs")
+      .createSignedUrl(path, 60 * 60);
+    if (error) {
+      console.error("signed url error", error);
+      return null;
+    }
+    return data.signedUrl;
+  };
+
   const fetchPayments = async () => {
     let query = supabase
       .from("payments")
@@ -56,7 +73,12 @@ const Payments = () => {
       .order("created_at", { ascending: false });
     if (statusFilter !== "all") query = query.eq("status", statusFilter as "pending_verification" | "verified" | "rejected" | "overdue");
     const { data } = await query;
-    setPayments((data as unknown as PaymentWithStudent[]) || []);
+    const rows = (data as unknown as PaymentWithStudent[]) || [];
+    // Resolve signed URLs for private bucket proofs
+    const resolved = await Promise.all(
+      rows.map(async (p) => ({ ...p, proof_url: await resolveProofUrl(p.proof_url) }))
+    );
+    setPayments(resolved);
     setLoading(false);
   };
 
