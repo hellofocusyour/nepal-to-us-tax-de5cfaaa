@@ -11,13 +11,14 @@ interface Highlight {
 
 interface MentorCardProps {
   image: string;
+  name: string;
   role: string;
   title: string;
   intro: string;
   highlights: Highlight[];
 }
 
-const MentorCard = ({ image, role, title, intro, highlights }: MentorCardProps) => (
+const MentorCard = ({ image, name, role, title, intro, highlights }: MentorCardProps) => (
   <div className="group rounded-2xl bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 hover:border-gold/40 transition-colors duration-300 overflow-hidden flex flex-col">
     {/* Clean image — no overlay, no text on top */}
     <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary/30 to-primary/10 border-b border-primary-foreground/10">
