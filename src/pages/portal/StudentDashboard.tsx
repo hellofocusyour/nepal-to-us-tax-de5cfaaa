@@ -12,11 +12,14 @@ import {
 import { Link } from "react-router-dom";
 import PaymentModal from "@/components/student/PaymentModal";
 
+import { FULL_PRICE, INSTALLMENT_TOTAL, type PaymentPlan } from "@/lib/pricing";
+
 interface StudentData {
   id: string;
   full_name: string;
   status: string;
   batch_id: string | null;
+  payment_plan: PaymentPlan;
   batch?: { name: string; start_date: string; end_date: string };
 }
 
@@ -28,7 +31,6 @@ const StudentDashboard = () => {
   const [student, setStudent] = useState<StudentData | null>(null);
   const [paid, setPaid] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
-  const [totalDue] = useState(45000);
   const [nextSession, setNextSession] = useState<{ topic: string; session_date: string } | null>(null);
   const [progress, setProgress] = useState(0);
   const [banner, setBanner] = useState<{ id: string; title: string; content: string } | null>(null);
