@@ -148,6 +148,7 @@ const StudentSyllabus = () => {
         </Card>
       )}
     </div>
+    </PaidAccessGate>
   );
 };
 
