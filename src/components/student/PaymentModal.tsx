@@ -210,10 +210,11 @@ const PaymentModal = ({ open, onOpenChange, studentId, onSubmitted }: Props) => 
                 <Select value={plan} onValueChange={(v) => setPlan(v as PaymentPlan)}>
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="full">Full payment — Rs. {FULL_PRICE.toLocaleString()}</SelectItem>
-                    <SelectItem value="installment">2 installments — Rs. {INSTALLMENT_TOTAL.toLocaleString()} (Rs. {INSTALLMENT_SURCHARGE} installment surcharge)</SelectItem>
+                    <SelectItem value="full">Full payment — Rs. {FULL_PRICE.toLocaleString()} (incl. 13% VAT)</SelectItem>
+                    <SelectItem value="installment">2 installments — Rs. {INSTALLMENT_TOTAL.toLocaleString()} (incl. 13% VAT + Rs. {INSTALLMENT_SURCHARGE} surcharge)</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">All prices are inclusive of 13% VAT.</p>
               </div>
               <div className="rounded-md bg-background border border-border p-3 space-y-1">
                 <div className="flex justify-between text-sm">
