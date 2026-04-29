@@ -48,6 +48,8 @@ const App = () => (
               <Route path="reports" element={<Reports />} />
             </Route>
             <Route path="/portal/login" element={<StudentLogin />} />
+            <Route path="/login" element={<StudentLogin />} />
+            <Route path="/signup" element={<StudentLogin />} />
             <Route path="/portal" element={<StudentLayout />}>
               <Route index element={<StudentDashboard />} />
               <Route path="batch" element={<StudentBatch />} />

@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +9,9 @@ import { GraduationCap, Eye, EyeOff } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const StudentLogin = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const location = useLocation();
+  const initialMode = location.pathname === "/signup" ? false : true;
+  const [isLogin, setIsLogin] = useState(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -20,10 +22,9 @@ const StudentLogin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  if (user) {
-    navigate("/portal", { replace: true });
-    return null;
-  }
+  useEffect(() => {
+    if (user) navigate("/portal", { replace: true });
+  }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
