@@ -251,15 +251,7 @@ const StudentDashboard = () => {
       ) : (
         <>
           {/* Stat grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <StatCard
-              icon={GraduationCap}
-              label="Course"
-              value="US Taxation"
-              sub={student.batch?.name || "Not assigned"}
-              gradient="from-primary/15 to-primary/5"
-              iconBg="bg-primary/20 text-primary"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             <StatCard
               icon={Calendar}
               label="Next Class"
