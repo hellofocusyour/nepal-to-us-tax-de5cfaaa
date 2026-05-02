@@ -33,7 +33,7 @@ const formatSize = (b: number) => b < 1024 * 1024 ? `${(b / 1024).toFixed(0)} KB
 const AdminMyCourses = () => {
   const { user } = useAuth();
   const [docs, setDocs] = useState<Doc[]>([]);
-  const [activeTab, setActiveTab] = useState<TabKey>("syllabus");
+  const [activeTab, setActiveTab] = useState<TabKey>("my_courses");
   const [open, setOpen] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [form, setForm] = useState<{ title: string; description: string; file: File | null }>({ title: "", description: "", file: null });
