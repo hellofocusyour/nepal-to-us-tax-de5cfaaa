@@ -26,7 +26,7 @@ const formatSize = (b: number) => b < 1024 * 1024 ? `${(b / 1024).toFixed(0)} KB
 const StudentMyCourses = () => {
   const { user } = useAuth();
   const [docs, setDocs] = useState<Doc[]>([]);
-  const [activeTab, setActiveTab] = useState<TabKey>("syllabus");
+  const [activeTab, setActiveTab] = useState<TabKey>("my_courses");
   const [hasAccess, setHasAccess] = useState(false);
   const [studentId, setStudentId] = useState<string | null>(null);
   const [payOpen, setPayOpen] = useState(false);
