@@ -96,7 +96,7 @@ const AdminMyCourses = () => {
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabKey)}>
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <TabsList>
-            <TabsTrigger value="syllabus">Syllabus</TabsTrigger>
+            {/* <TabsTrigger value="syllabus">Syllabus</TabsTrigger> */}
             <TabsTrigger value="my_courses">My Courses</TabsTrigger>
           </TabsList>
           <Button onClick={() => setOpen(true)}>
@@ -104,7 +104,7 @@ const AdminMyCourses = () => {
           </Button>
         </div>
 
-        {(["syllabus", "my_courses"] as TabKey[]).map(t => (
+        {(["my_courses"] as TabKey[]).map(t => (
           <TabsContent key={t} value={t} className="mt-4">
             {tabDocs.length === 0 ? (
               <Card><CardContent className="py-16 text-center">
