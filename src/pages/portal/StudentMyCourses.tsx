@@ -26,7 +26,7 @@ const formatSize = (b: number) => b < 1024 * 1024 ? `${(b / 1024).toFixed(0)} KB
 const StudentMyCourses = () => {
   const { user } = useAuth();
   const [docs, setDocs] = useState<Doc[]>([]);
-  const [activeTab, setActiveTab] = useState<TabKey>("syllabus");
+  const [activeTab, setActiveTab] = useState<TabKey>("my_courses");
   const [hasAccess, setHasAccess] = useState(false);
   const [studentId, setStudentId] = useState<string | null>(null);
   const [payOpen, setPayOpen] = useState(false);
@@ -89,11 +89,11 @@ const StudentMyCourses = () => {
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabKey)}>
         <TabsList>
-          <TabsTrigger value="syllabus">Syllabus</TabsTrigger>
+          {/* <TabsTrigger value="syllabus">Syllabus</TabsTrigger> */}
           <TabsTrigger value="my_courses">My Courses</TabsTrigger>
         </TabsList>
 
-        {(["syllabus", "my_courses"] as TabKey[]).map(t => (
+        {(["my_courses"] as TabKey[]).map(t => (
           <TabsContent key={t} value={t} className="mt-4">
             {t === "my_courses" && myCoursesLocked ? (
               <Card><CardContent className="py-16 text-center space-y-4">
