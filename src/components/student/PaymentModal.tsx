@@ -201,10 +201,6 @@ const PaymentModal = ({ open, onOpenChange, studentId, onSubmitted }: Props) => 
               <p className="text-sm text-muted-foreground">Choose a payment plan</p>
             </div>
             <div className="space-y-3 rounded-lg border border-border p-4 bg-muted/30">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Course</span>
-                <span className="font-medium">{COURSE_NAME}</span>
-              </div>
               <div className="space-y-2">
                 <Label>Plan</Label>
                 <Select value={plan} onValueChange={(v) => setPlan(v as PaymentPlan)}>
