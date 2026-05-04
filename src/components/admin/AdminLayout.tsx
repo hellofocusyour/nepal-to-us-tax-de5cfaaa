@@ -3,13 +3,15 @@ import { Link, useLocation, Outlet, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Users, CreditCard, MessageSquare, Calendar,
-  Megaphone, BarChart3, LogOut, Menu, X, GraduationCap, BookOpen
+  Megaphone, BarChart3, LogOut, Menu, X, GraduationCap, BookOpen,
+  Inbox as InboxIcon, Settings
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { label: "Inbox", href: "/admin/inbox", icon: InboxIcon },
   { label: "Students", href: "/admin/students", icon: Users },
   { label: "Inquiries", href: "/admin/inquiries", icon: MessageSquare },
   { label: "Payments", href: "/admin/payments", icon: CreditCard },
@@ -17,6 +19,7 @@ const navItems = [
   { label: "My Courses", href: "/admin/my-courses", icon: BookOpen },
   { label: "Announcements", href: "/admin/announcements", icon: Megaphone },
   { label: "Reports", href: "/admin/reports", icon: BarChart3 },
+  { label: "Integrations", href: "/admin/settings/integrations", icon: Settings },
 ];
 
 const AdminLayout = () => {
