@@ -187,6 +187,45 @@ export type Database = {
           },
         ]
       }
+      conversations: {
+        Row: {
+          conversation_key: string
+          created_at: string
+          customer_avatar: string | null
+          customer_id: string
+          customer_name: string | null
+          id: string
+          last_message_at: string
+          last_message_preview: string | null
+          platform: string
+          unread_count: number
+        }
+        Insert: {
+          conversation_key: string
+          created_at?: string
+          customer_avatar?: string | null
+          customer_id: string
+          customer_name?: string | null
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          platform: string
+          unread_count?: number
+        }
+        Update: {
+          conversation_key?: string
+          created_at?: string
+          customer_avatar?: string | null
+          customer_id?: string
+          customer_name?: string | null
+          id?: string
+          last_message_at?: string
+          last_message_preview?: string | null
+          platform?: string
+          unread_count?: number
+        }
+        Relationships: []
+      }
       course_documents: {
         Row: {
           description: string
@@ -270,6 +309,50 @@ export type Database = {
           },
         ]
       }
+      messages: {
+        Row: {
+          attachments: Json | null
+          conversation_key: string
+          created_at: string
+          direction: string
+          external_message_id: string | null
+          id: string
+          platform: string
+          sender_id: string | null
+          text: string | null
+        }
+        Insert: {
+          attachments?: Json | null
+          conversation_key: string
+          created_at?: string
+          direction: string
+          external_message_id?: string | null
+          id?: string
+          platform: string
+          sender_id?: string | null
+          text?: string | null
+        }
+        Update: {
+          attachments?: Json | null
+          conversation_key?: string
+          created_at?: string
+          direction?: string
+          external_message_id?: string | null
+          id?: string
+          platform?: string
+          sender_id?: string | null
+          text?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_key_fkey"
+            columns: ["conversation_key"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["conversation_key"]
+          },
+        ]
+      }
       payments: {
         Row: {
           admin_notes: string | null
@@ -328,6 +411,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      platform_credentials: {
+        Row: {
+          app_secret: string | null
+          id: string
+          page_access_token: string | null
+          updated_at: string
+          updated_by: string | null
+          verify_token: string | null
+          whatsapp_phone_id: string | null
+          whatsapp_token: string | null
+        }
+        Insert: {
+          app_secret?: string | null
+          id?: string
+          page_access_token?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verify_token?: string | null
+          whatsapp_phone_id?: string | null
+          whatsapp_token?: string | null
+        }
+        Update: {
+          app_secret?: string | null
+          id?: string
+          page_access_token?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          verify_token?: string | null
+          whatsapp_phone_id?: string | null
+          whatsapp_token?: string | null
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
