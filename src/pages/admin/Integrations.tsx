@@ -153,6 +153,25 @@ const Integrations = () => {
     }
   };
 
+  const verifyWebhookReachable = async () => {
+    if (!creds.verify_token) {
+      toast.error("Save a Verify Token first");
+      return;
+    }
+    try {
+      const probeUrl = `${webhookUrl}?hub.mode=subscribe&hub.verify_token=${encodeURIComponent(creds.verify_token)}&hub.challenge=PROBE_OK`;
+      const res = await fetch(probeUrl);
+      const body = await res.text();
+      if (res.ok && body === "PROBE_OK") {
+        toast.success("✓ Webhook URL is reachable AND your Verify Token matches. Now paste them into Meta App Dashboard.");
+      } else {
+        toast.error(`Webhook responded ${res.status}: ${body.slice(0, 120)}`);
+      }
+    } catch (e: any) {
+      toast.error(`Cannot reach webhook: ${e.message}`);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
