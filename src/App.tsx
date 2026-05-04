@@ -26,6 +26,8 @@ import StudentMyCourses from "./pages/portal/StudentMyCourses.tsx";
 import StudentAnnouncements from "./pages/portal/StudentAnnouncements.tsx";
 import StudentBatch from "./pages/portal/StudentBatch.tsx";
 import AdminMyCourses from "./pages/admin/MyCourses.tsx";
+import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
+import TermsOfService from "./pages/TermsOfService.tsx";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +40,8 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/admin/login" element={<AdminLogin />} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<Dashboard />} />
