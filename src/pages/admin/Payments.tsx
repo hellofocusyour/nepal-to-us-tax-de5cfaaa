@@ -43,6 +43,7 @@ const Payments = () => {
   const [rejectingPayment, setRejectingPayment] = useState<PaymentWithStudent | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [deletingPayment, setDeletingPayment] = useState<PaymentWithStudent | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
