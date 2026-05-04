@@ -196,6 +196,13 @@ const Integrations = () => {
               <Button variant="outline" size="icon" onClick={() => copy(creds.verify_token)} disabled={!creds.verify_token}><Copy className="w-4 h-4" /></Button>
             </div>
           </div>
+          <div className="pt-2">
+            <Button variant="outline" onClick={verifyWebhookReachable}>Verify Webhook URL is reachable</Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              This calls your webhook the same way Meta does. If it returns ✓, the URL works — meaning if no messages arrive,
+              the issue is in <strong>Meta App Dashboard</strong>: webhook URL/Verify Token not pasted, or Page/Instagram/WhatsApp not subscribed.
+            </p>
+          </div>
         </CardContent>
       </Card>
 
