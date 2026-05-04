@@ -239,6 +239,12 @@ const Integrations = () => {
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-1">{f.help}</p>
+              {f.key === "whatsapp_phone_id" && creds.whatsapp_phone_id && /[-+\s]/.test(creds.whatsapp_phone_id) && (
+                <p className="text-xs text-destructive mt-1">
+                  ⚠ This looks like a phone number. The WhatsApp <strong>Phone Number ID</strong> is a long numeric string (e.g. <code>123456789012345</code>),
+                  not your phone number. Find it in Meta App → WhatsApp → API Setup, under your "From" number.
+                </p>
+              )}
             </div>
           ))}
           <div className="flex flex-wrap gap-2 pt-2">
