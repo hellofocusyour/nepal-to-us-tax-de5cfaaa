@@ -17,6 +17,7 @@ const ChatInquiryButton = () => {
       email: form.email.trim().toLowerCase(),
       phone: form.phone.trim(),
       message: form.message.trim(),
+      background: form.message.trim(),
     });
     setLoading(false);
     if (error) {
