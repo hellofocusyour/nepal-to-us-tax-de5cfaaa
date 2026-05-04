@@ -233,6 +233,30 @@ const Integrations = () => {
       </Card>
 
       <Card>
+        <CardHeader><CardTitle>Test Webhook (Simulate Incoming Message)</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Inserts a fake inbound message into your Inbox so you can verify the unified inbox UI
+            works end-to-end before Meta is fully configured. Open <a href="/admin/inbox" className="text-primary underline">Inbox</a> in another tab to watch it arrive.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => simulateIncoming("messenger")} disabled={simulating === "messenger"}>
+              {simulating === "messenger" && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+              Simulate Messenger DM
+            </Button>
+            <Button variant="outline" onClick={() => simulateIncoming("instagram")} disabled={simulating === "instagram"}>
+              {simulating === "instagram" && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+              Simulate Instagram DM
+            </Button>
+            <Button variant="outline" onClick={() => simulateIncoming("whatsapp")} disabled={simulating === "whatsapp"}>
+              {simulating === "whatsapp" && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+              Simulate WhatsApp Message
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
         <CardHeader><CardTitle>Setup Checklist — why messages aren't arriving</CardTitle></CardHeader>
         <CardContent>
           <ol className="text-sm space-y-2 list-decimal list-inside text-muted-foreground">
