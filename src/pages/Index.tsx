@@ -14,6 +14,7 @@ import FinalCTA from "@/components/landing/FinalCTA";
 import LeadForm from "@/components/landing/LeadForm";
 import Footer from "@/components/landing/Footer";
 import WhatsAppButton from "@/components/landing/WhatsAppButton";
+import ChatInquiryButton from "@/components/landing/ChatInquiryButton";
 import { useSEO } from "@/hooks/useSEO";
 
 const Index = () => {
@@ -42,6 +43,7 @@ const Index = () => {
       <FinalCTA />
       <Footer />
       <WhatsAppButton />
+      <ChatInquiryButton />
     </>
   );
 };
