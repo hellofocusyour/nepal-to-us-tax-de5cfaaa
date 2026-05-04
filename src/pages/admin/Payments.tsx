@@ -138,6 +138,16 @@ const Payments = () => {
     fetchPayments();
   };
 
+  const confirmDelete = async () => {
+    if (!deletingPayment) return;
+    const { error } = await supabase.from("payments").delete().eq("id", deletingPayment.id);
+    if (error) { toast.error("Failed to delete"); return; }
+    toast.success("Payment deleted");
+    setDeletingPayment(null);
+    setSelectedPayment(null);
+    fetchPayments();
+  };
+
   return (
     <div className="space-y-6">
       <div>
