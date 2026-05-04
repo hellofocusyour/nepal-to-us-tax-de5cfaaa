@@ -9,6 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import ChatWidget from "@/components/student/ChatWidget";
 
 const navItems = [
   { label: "Dashboard", href: "/portal", icon: LayoutDashboard },
@@ -131,6 +132,7 @@ const StudentLayout = () => {
           <Outlet />
         </main>
       </div>
+      <ChatWidget />
     </div>
   );
 };

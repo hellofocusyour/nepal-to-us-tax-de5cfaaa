@@ -29,6 +29,8 @@ import AdminMyCourses from "./pages/admin/MyCourses.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import TermsOfService from "./pages/TermsOfService.tsx";
 import RefundPolicy from "./pages/RefundPolicy.tsx";
+import Inbox from "./pages/admin/Inbox.tsx";
+import Integrations from "./pages/admin/Integrations.tsx";
 
 const queryClient = new QueryClient();
 
@@ -54,6 +56,8 @@ const App = () => (
               <Route path="my-courses" element={<AdminMyCourses />} />
               <Route path="announcements" element={<Announcements />} />
               <Route path="reports" element={<Reports />} />
+              <Route path="inbox" element={<Inbox />} />
+              <Route path="settings/integrations" element={<Integrations />} />
             </Route>
             <Route path="/portal/login" element={<StudentLogin />} />
             <Route path="/login" element={<StudentLogin />} />
