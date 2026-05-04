@@ -87,6 +87,24 @@ const Integrations = () => {
     }
   };
 
+  const subscribePage = async () => {
+    if (!creds.page_access_token) {
+      toast.error("Enter Page Access Token first");
+      return;
+    }
+    try {
+      const res = await fetch(
+        `https://graph.facebook.com/v21.0/me/subscribed_apps?subscribed_fields=messages,messaging_postbacks&access_token=${encodeURIComponent(creds.page_access_token)}`,
+        { method: "POST" }
+      );
+      const json = await res.json();
+      if (res.ok && json.success) toast.success("Page subscribed to webhook ✓ Messenger + Instagram messages will now arrive in Inbox");
+      else toast.error(json.error?.message ?? "Subscribe failed");
+    } catch (e: any) {
+      toast.error(e.message);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
