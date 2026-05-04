@@ -25,6 +25,7 @@ import StudentProfile from "./pages/portal/StudentProfile.tsx";
 import StudentMyCourses from "./pages/portal/StudentMyCourses.tsx";
 import StudentAnnouncements from "./pages/portal/StudentAnnouncements.tsx";
 import StudentBatch from "./pages/portal/StudentBatch.tsx";
+import StudentInbox from "./pages/portal/StudentInbox.tsx";
 import AdminMyCourses from "./pages/admin/MyCourses.tsx";
 import PrivacyPolicy from "./pages/PrivacyPolicy.tsx";
 import TermsOfService from "./pages/TermsOfService.tsx";
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="courses" element={<StudentMyCourses />} />
               <Route path="announcements" element={<StudentAnnouncements />} />
               <Route path="payments" element={<StudentPayments />} />
+              <Route path="inbox" element={<StudentInbox />} />
               <Route path="certificates" element={<StudentCertificates />} />
               <Route path="profile" element={<StudentProfile />} />
             </Route>
