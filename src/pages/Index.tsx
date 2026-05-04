@@ -14,25 +14,36 @@ import FinalCTA from "@/components/landing/FinalCTA";
 import LeadForm from "@/components/landing/LeadForm";
 import Footer from "@/components/landing/Footer";
 import WhatsAppButton from "@/components/landing/WhatsAppButton";
+import { useSEO } from "@/hooks/useSEO";
 
-const Index = () => (
-  <>
-    <Navbar />
-    <Hero />
-    <Outcomes />
-    <CourseStats />
-    <LearningObjectives />
-    <Pricing />
-    <TargetAudience />
-    <Curriculum />
-    <Mentors />
-    <SocialProof />
-    <AfterCourse />
-    <FAQ />
-    <FinalCTA />
-    <Footer />
-    <WhatsAppButton />
-  </>
-);
+const Index = () => {
+  useSEO({
+    title: "Focus Academy — US Tax Course Nepal | Become a Job-Ready Tax Preparer in 30 Days",
+    description:
+      "Nepal's premier US Tax training. Become a job-ready US tax preparer in 30 days with IRS Enrolled Agent-led classes, hands-on Form 1040/1120/1065 practice, and remote job support.",
+    path: "/",
+    type: "website",
+  });
+
+  return (
+    <>
+      <Navbar />
+      <Hero />
+      <Outcomes />
+      <CourseStats />
+      <LearningObjectives />
+      <Pricing />
+      <TargetAudience />
+      <Curriculum />
+      <Mentors />
+      <SocialProof />
+      <AfterCourse />
+      <FAQ />
+      <FinalCTA />
+      <Footer />
+      <WhatsAppButton />
+    </>
+  );
+};
 
 export default Index;
