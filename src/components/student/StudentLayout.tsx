@@ -4,17 +4,17 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CreditCard, Award, BookOpen, LogOut, Menu, X,
-  GraduationCap, User, Megaphone, Users
+  GraduationCap, User, Megaphone, Users, Inbox as InboxIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import ChatWidget from "@/components/student/ChatWidget";
 
 const navItems = [
   { label: "Dashboard", href: "/portal", icon: LayoutDashboard },
   { label: "My Batch", href: "/portal/batch", icon: Users },
   { label: "My Courses", href: "/portal/my-courses", icon: BookOpen },
+  { label: "Inbox", href: "/portal/inbox", icon: InboxIcon, badgeKey: "inbox" },
   { label: "Announcements", href: "/portal/announcements", icon: Megaphone, badgeKey: "announcements" },
   { label: "Payments", href: "/portal/payments", icon: CreditCard },
   { label: "Certificates", href: "/portal/certificates", icon: Award },
@@ -28,6 +28,7 @@ const StudentLayout = () => {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [inboxUnread, setInboxUnread] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -41,7 +42,40 @@ const StudentLayout = () => {
       setUnreadCount(unread.length);
     };
     fetchUnread();
-    // refresh on route change
+  }, [user, location.pathname]);
+
+  // Inbox unread (admin replies = outbound msgs after last visit)
+  useEffect(() => {
+    if (!user) return;
+    const conversationKey = `web:${user.id}`;
+    const lastSeenKey = `fa_inbox_last_seen_${user.id}`;
+
+    const fetchInboxUnread = async () => {
+      if (location.pathname === "/portal/inbox") {
+        localStorage.setItem(lastSeenKey, new Date().toISOString());
+        setInboxUnread(0);
+        return;
+      }
+      const lastSeen = localStorage.getItem(lastSeenKey) ?? new Date(0).toISOString();
+      const { count } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .eq("conversation_key", conversationKey)
+        .eq("direction", "outbound")
+        .gt("created_at", lastSeen);
+      setInboxUnread(count ?? 0);
+    };
+    fetchInboxUnread();
+
+    const channel = supabase
+      .channel(`student-inbox-badge-${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages", filter: `conversation_key=eq.${conversationKey}` },
+        () => fetchInboxUnread()
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
   }, [user, location.pathname]);
 
   if (isLoading) {
@@ -80,7 +114,10 @@ const StudentLayout = () => {
           {navItems.map((item) => {
             const isActive = location.pathname === item.href ||
               (item.href !== "/portal" && location.pathname.startsWith(item.href));
-            const showBadge = item.badgeKey === "announcements" && unreadCount > 0;
+            const badgeValue =
+              item.badgeKey === "announcements" ? unreadCount :
+              item.badgeKey === "inbox" ? inboxUnread : 0;
+            const showBadge = badgeValue > 0;
             return (
               <Link
                 key={item.href}
@@ -97,7 +134,7 @@ const StudentLayout = () => {
                 <span className="flex-1">{item.label}</span>
                 {showBadge && (
                   <Badge className="bg-destructive text-destructive-foreground h-5 px-1.5 text-xs">
-                    {unreadCount}
+                    {badgeValue}
                   </Badge>
                 )}
               </Link>
@@ -132,7 +169,6 @@ const StudentLayout = () => {
           <Outlet />
         </main>
       </div>
-      <ChatWidget />
     </div>
   );
 };
