@@ -122,14 +122,29 @@ const Integrations = () => {
               <Label>{f.label}</Label>
               <div className="flex gap-2 mt-1">
                 <Input
-                  type={shown[f.key] ? "text" : "password"}
+                  type={f.secret && !shown[f.key] ? "password" : "text"}
                   value={creds[f.key]}
                   onChange={(e) => setCreds((p) => ({ ...p, [f.key]: e.target.value }))}
-                  placeholder="••••••••"
+                  placeholder={f.key === "verify_token" ? "e.g. my-random-token-12345" : "••••••••"}
                 />
-                <Button variant="outline" size="icon" onClick={() => setShown((p) => ({ ...p, [f.key]: !p[f.key] }))}>
-                  {shown[f.key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
+                {f.secret && (
+                  <Button variant="outline" size="icon" onClick={() => setShown((p) => ({ ...p, [f.key]: !p[f.key] }))}>
+                    {shown[f.key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </Button>
+                )}
+                {f.key === "verify_token" && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    title="Generate random token"
+                    onClick={() => {
+                      const token = crypto.randomUUID().replace(/-/g, "");
+                      setCreds((p) => ({ ...p, verify_token: token }));
+                    }}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
               <p className="text-xs text-muted-foreground mt-1">{f.help}</p>
             </div>
