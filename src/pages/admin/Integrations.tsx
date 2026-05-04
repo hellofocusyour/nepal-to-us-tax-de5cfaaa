@@ -153,6 +153,25 @@ const Integrations = () => {
     }
   };
 
+  const verifyWebhookReachable = async () => {
+    if (!creds.verify_token) {
+      toast.error("Save a Verify Token first");
+      return;
+    }
+    try {
+      const probeUrl = `${webhookUrl}?hub.mode=subscribe&hub.verify_token=${encodeURIComponent(creds.verify_token)}&hub.challenge=PROBE_OK`;
+      const res = await fetch(probeUrl);
+      const body = await res.text();
+      if (res.ok && body === "PROBE_OK") {
+        toast.success("✓ Webhook URL is reachable AND your Verify Token matches. Now paste them into Meta App Dashboard.");
+      } else {
+        toast.error(`Webhook responded ${res.status}: ${body.slice(0, 120)}`);
+      }
+    } catch (e: any) {
+      toast.error(`Cannot reach webhook: ${e.message}`);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-3xl">
       <div>
@@ -176,6 +195,13 @@ const Integrations = () => {
               <Input readOnly value={creds.verify_token || "(not set)"} />
               <Button variant="outline" size="icon" onClick={() => copy(creds.verify_token)} disabled={!creds.verify_token}><Copy className="w-4 h-4" /></Button>
             </div>
+          </div>
+          <div className="pt-2">
+            <Button variant="outline" onClick={verifyWebhookReachable}>Verify Webhook URL is reachable</Button>
+            <p className="text-xs text-muted-foreground mt-2">
+              This calls your webhook the same way Meta does. If it returns ✓, the URL works — meaning if no messages arrive,
+              the issue is in <strong>Meta App Dashboard</strong>: webhook URL/Verify Token not pasted, or Page/Instagram/WhatsApp not subscribed.
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -213,6 +239,12 @@ const Integrations = () => {
                 )}
               </div>
               <p className="text-xs text-muted-foreground mt-1">{f.help}</p>
+              {f.key === "whatsapp_phone_id" && creds.whatsapp_phone_id && /[-+\s]/.test(creds.whatsapp_phone_id) && (
+                <p className="text-xs text-destructive mt-1">
+                  ⚠ This looks like a phone number. The WhatsApp <strong>Phone Number ID</strong> is a long numeric string (e.g. <code>123456789012345</code>),
+                  not your phone number. Find it in Meta App → WhatsApp → API Setup, under your "From" number.
+                </p>
+              )}
             </div>
           ))}
           <div className="flex flex-wrap gap-2 pt-2">

@@ -111,6 +111,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   const url = new URL(req.url);
+  console.log(`[webhook] ${req.method} ${url.pathname}${url.search}`);
 
   // GET: Meta verification
   if (req.method === "GET") {
@@ -118,6 +119,7 @@ Deno.serve(async (req) => {
     const token = url.searchParams.get("hub.verify_token");
     const challenge = url.searchParams.get("hub.challenge");
     const creds = await getCreds();
+    console.log(`[webhook] verify attempt mode=${mode} token_match=${token === creds?.verify_token} has_creds=${!!creds?.verify_token}`);
     if (mode === "subscribe" && token && creds?.verify_token && token === creds.verify_token) {
       return new Response(challenge ?? "", { status: 200 });
     }
