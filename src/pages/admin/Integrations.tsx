@@ -28,6 +28,54 @@ const Integrations = () => {
   const [saving, setSaving] = useState(false);
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [simulating, setSimulating] = useState<string | null>(null);
+
+  const simulateIncoming = async (platform: "messenger" | "instagram" | "whatsapp") => {
+    setSimulating(platform);
+    try {
+      const fakeId = `test_${platform}_${Math.floor(Math.random() * 9000 + 1000)}`;
+      const names: Record<string, string> = {
+        messenger: "Test Messenger User",
+        instagram: "test_ig_user",
+        whatsapp: "Test WhatsApp",
+      };
+      const text = `👋 Simulated ${platform} message at ${new Date().toLocaleTimeString()}`;
+      const key = `${platform}:${fakeId}`;
+
+      const { data: existing } = await supabase
+        .from("conversations")
+        .select("unread_count")
+        .eq("conversation_key", key)
+        .maybeSingle();
+
+      const { error: convErr } = await supabase.from("conversations").upsert({
+        conversation_key: key,
+        platform,
+        customer_id: fakeId,
+        customer_name: names[platform],
+        last_message_at: new Date().toISOString(),
+        last_message_preview: text.slice(0, 200),
+        unread_count: (existing?.unread_count ?? 0) + 1,
+      }, { onConflict: "conversation_key" });
+      if (convErr) throw convErr;
+
+      const { error: msgErr } = await supabase.from("messages").insert({
+        conversation_key: key,
+        platform,
+        direction: "inbound",
+        sender_id: fakeId,
+        text,
+        external_message_id: `sim_${Date.now()}`,
+      });
+      if (msgErr) throw msgErr;
+
+      toast.success(`Simulated ${platform} message → check Inbox`);
+    } catch (e: any) {
+      toast.error(e.message ?? "Simulation failed");
+    } finally {
+      setSimulating(null);
+    }
+  };
 
   const webhookUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/webhook`;
 
@@ -181,6 +229,30 @@ const Integrations = () => {
               {testResult.msg}
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Test Webhook (Simulate Incoming Message)</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-sm text-muted-foreground">
+            Inserts a fake inbound message into your Inbox so you can verify the unified inbox UI
+            works end-to-end before Meta is fully configured. Open <a href="/admin/inbox" className="text-primary underline">Inbox</a> in another tab to watch it arrive.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => simulateIncoming("messenger")} disabled={simulating === "messenger"}>
+              {simulating === "messenger" && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+              Simulate Messenger DM
+            </Button>
+            <Button variant="outline" onClick={() => simulateIncoming("instagram")} disabled={simulating === "instagram"}>
+              {simulating === "instagram" && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+              Simulate Instagram DM
+            </Button>
+            <Button variant="outline" onClick={() => simulateIncoming("whatsapp")} disabled={simulating === "whatsapp"}>
+              {simulating === "whatsapp" && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+              Simulate WhatsApp Message
+            </Button>
+          </div>
         </CardContent>
       </Card>
 
