@@ -1,4 +1,5 @@
 import { Shield, Award, BadgeCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => (
   <footer className="bg-navy text-primary-foreground/70 py-12">
@@ -63,7 +64,17 @@ const Footer = () => (
             <BadgeCheck size={14} className="text-gold" /> QuickBooks Certified
           </div>
         </div>
-        <p className="text-xs">© {new Date().getFullYear()} Focus Academy. All rights reserved.</p>
+        <div className="flex flex-col md:flex-row items-center gap-3 md:gap-4 text-xs">
+          <div className="flex gap-4">
+            <Link to="/privacy-policy" className="hover:text-primary-foreground transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/terms-of-service" className="hover:text-primary-foreground transition-colors">
+              Terms of Service
+            </Link>
+          </div>
+          <p>© {new Date().getFullYear()} Focus Academy. All rights reserved.</p>
+        </div>
       </div>
     </div>
   </footer>
