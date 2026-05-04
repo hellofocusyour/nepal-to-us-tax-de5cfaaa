@@ -5,14 +5,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Eye, EyeOff, Copy, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Copy, CheckCircle2, XCircle, Loader2, RefreshCw } from "lucide-react";
 
 const FIELDS = [
-  { key: "app_secret", label: "App Secret", help: "From Meta App → Settings → Basic." },
-  { key: "verify_token", label: "Verify Token", help: "Make this up — any random string. Use the same value in Meta's webhook config." },
-  { key: "page_access_token", label: "Page Access Token", help: "Covers Messenger + Instagram. Generate in Meta App → Messenger → Settings." },
-  { key: "whatsapp_token", label: "WhatsApp Token", help: "From Meta App → WhatsApp → API Setup." },
-  { key: "whatsapp_phone_id", label: "WhatsApp Phone Number ID", help: "From Meta App → WhatsApp → API Setup." },
+  { key: "app_secret", label: "App Secret", help: "From Meta App → Settings → Basic.", secret: true },
+  { key: "verify_token", label: "Verify Token", help: "Make this up — any random string. Use the same value in Meta's webhook config.", secret: false },
+  { key: "page_access_token", label: "Page Access Token", help: "Covers Messenger + Instagram. Generate in Meta App → Messenger → Settings.", secret: true },
+  { key: "whatsapp_token", label: "WhatsApp Token", help: "From Meta App → WhatsApp → API Setup.", secret: true },
+  { key: "whatsapp_phone_id", label: "WhatsApp Phone Number ID", help: "From Meta App → WhatsApp → API Setup.", secret: false },
 ] as const;
 
 type FieldKey = typeof FIELDS[number]["key"];
@@ -122,14 +122,29 @@ const Integrations = () => {
               <Label>{f.label}</Label>
               <div className="flex gap-2 mt-1">
                 <Input
-                  type={shown[f.key] ? "text" : "password"}
+                  type={f.secret && !shown[f.key] ? "password" : "text"}
                   value={creds[f.key]}
                   onChange={(e) => setCreds((p) => ({ ...p, [f.key]: e.target.value }))}
-                  placeholder="••••••••"
+                  placeholder={f.key === "verify_token" ? "e.g. my-random-token-12345" : "••••••••"}
                 />
-                <Button variant="outline" size="icon" onClick={() => setShown((p) => ({ ...p, [f.key]: !p[f.key] }))}>
-                  {shown[f.key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </Button>
+                {f.secret && (
+                  <Button variant="outline" size="icon" onClick={() => setShown((p) => ({ ...p, [f.key]: !p[f.key] }))}>
+                    {shown[f.key] ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </Button>
+                )}
+                {f.key === "verify_token" && (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    title="Generate random token"
+                    onClick={() => {
+                      const token = crypto.randomUUID().replace(/-/g, "");
+                      setCreds((p) => ({ ...p, verify_token: token }));
+                    }}
+                  >
+                    <RefreshCw className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
               <p className="text-xs text-muted-foreground mt-1">{f.help}</p>
             </div>
