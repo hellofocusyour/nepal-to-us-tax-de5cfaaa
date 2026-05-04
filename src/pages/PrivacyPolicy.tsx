@@ -1,8 +1,15 @@
 import { Link } from "react-router-dom";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
+import { useSEO } from "@/hooks/useSEO";
 
 const PrivacyPolicy = () => {
+  useSEO({
+    title: "Privacy Policy | Focus Academy — US Tax Course Nepal",
+    description:
+      "Read Focus Academy's Privacy Policy: how we collect, use, store, and protect your personal, educational, and payment information when you enroll in our US Taxation training programs.",
+    path: "/privacy-policy",
+  });
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
