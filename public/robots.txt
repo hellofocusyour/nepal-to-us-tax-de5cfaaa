@@ -1,10 +1,80 @@
+# Allow all web crawlers, search engines, social media bots, and AI crawlers
 User-agent: *
 Allow: /
+Allow: /privacy-policy
+Allow: /terms-of-service
+Allow: /refund-policy
 Disallow: /admin
 Disallow: /admin/
 Disallow: /portal
 Disallow: /portal/
 Disallow: /student-login
 Disallow: /admin-login
+
+# Explicitly allow major AI / LLM crawlers to index policy pages
+User-agent: GPTBot
+Allow: /
+Disallow: /admin/
+Disallow: /portal/
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin/
+Disallow: /portal/
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Applebot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Social media preview crawlers
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Facebot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+User-agent: TelegramBot
+Allow: /
+
+User-agent: Slackbot
+Allow: /
+
+User-agent: Discordbot
+Allow: /
 
 Sitemap: https://academy.focusyourfinance.com/sitemap.xml

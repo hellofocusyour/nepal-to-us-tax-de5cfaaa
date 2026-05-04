@@ -2,8 +2,15 @@ import { Link } from "react-router-dom";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
 import { AlertCircle } from "lucide-react";
+import { useSEO } from "@/hooks/useSEO";
 
 const RefundPolicy = () => {
+  useSEO({
+    title: "Refund Policy | Focus Academy — US Tax Course Nepal",
+    description:
+      "Focus Academy Refund Policy: all course payments are final and non-refundable. Read the full policy, exceptions, and contact details before enrolling.",
+    path: "/refund-policy",
+  });
   return (
     <div className="min-h-screen bg-background">
       <Navbar />

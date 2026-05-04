@@ -1,8 +1,15 @@
 import { Link } from "react-router-dom";
 import Navbar from "@/components/landing/Navbar";
 import Footer from "@/components/landing/Footer";
+import { useSEO } from "@/hooks/useSEO";
 
 const TermsOfService = () => {
+  useSEO({
+    title: "Terms of Service | Focus Academy — US Tax Course Nepal",
+    description:
+      "Focus Academy Terms of Service: enrollment rules, payment terms, code of conduct, intellectual property, and conditions for using our US Tax training platform.",
+    path: "/terms-of-service",
+  });
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
