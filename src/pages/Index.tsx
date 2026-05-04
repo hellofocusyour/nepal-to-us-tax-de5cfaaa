@@ -43,6 +43,7 @@ const Index = () => {
       <FinalCTA />
       <Footer />
       <WhatsAppButton />
+      <ChatInquiryButton />
     </>
   );
 };
