@@ -7,8 +7,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, CheckCircle, XCircle, Eye } from "lucide-react";
+import { Search, CheckCircle, XCircle, Eye, Trash2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +43,7 @@ const Payments = () => {
   const [rejectingPayment, setRejectingPayment] = useState<PaymentWithStudent | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [deletingPayment, setDeletingPayment] = useState<PaymentWithStudent | null>(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -136,6 +138,16 @@ const Payments = () => {
     fetchPayments();
   };
 
+  const confirmDelete = async () => {
+    if (!deletingPayment) return;
+    const { error } = await supabase.from("payments").delete().eq("id", deletingPayment.id);
+    if (error) { toast.error("Failed to delete"); return; }
+    toast.success("Payment deleted");
+    setDeletingPayment(null);
+    setSelectedPayment(null);
+    fetchPayments();
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -218,6 +230,9 @@ const Payments = () => {
                               </Button>
                             </>
                           )}
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={() => setDeletingPayment(payment)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -295,6 +310,26 @@ const Payments = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deletingPayment} onOpenChange={(open) => !open && setDeletingPayment(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this payment?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the payment record
+              {deletingPayment?.students?.full_name ? ` for ${deletingPayment.students.full_name}` : ""}
+              {" "}(NPR {Number(deletingPayment?.amount || 0).toLocaleString()}). This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
