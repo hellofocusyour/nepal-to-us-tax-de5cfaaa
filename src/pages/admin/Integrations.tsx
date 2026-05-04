@@ -167,12 +167,13 @@ const Integrations = () => {
               <p className="text-xs text-muted-foreground mt-1">{f.help}</p>
             </div>
           ))}
-          <div className="flex gap-2 pt-2">
+          <div className="flex flex-wrap gap-2 pt-2">
             <Button onClick={save} disabled={saving}>{saving ? "Saving…" : "Save"}</Button>
             <Button variant="outline" onClick={testConnection} disabled={testing}>
               {testing && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
               Test Connection
             </Button>
+            <Button variant="outline" onClick={subscribePage}>Subscribe Page to Webhook</Button>
           </div>
           {testResult && (
             <div className={`flex items-center gap-2 text-sm p-3 rounded-md ${testResult.ok ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
@@ -184,15 +185,16 @@ const Integrations = () => {
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Setup Steps</CardTitle></CardHeader>
+        <CardHeader><CardTitle>Setup Checklist — why messages aren't arriving</CardTitle></CardHeader>
         <CardContent>
           <ol className="text-sm space-y-2 list-decimal list-inside text-muted-foreground">
-            <li>Go to <a href="https://developers.facebook.com" target="_blank" rel="noreferrer" className="text-primary underline">developers.facebook.com</a> → your App.</li>
-            <li>For each product (Messenger, Instagram, WhatsApp) → Webhooks.</li>
-            <li>Paste the <strong>Webhook URL</strong> and <strong>Verify Token</strong> above.</li>
-            <li>Subscribe to the <code className="bg-muted px-1 rounded">messages</code> field.</li>
-            <li>Copy your App Secret, Page Access Token, WhatsApp Token & Phone Number ID into the form above.</li>
-            <li>Click <strong>Save</strong>, then <strong>Test Connection</strong>.</li>
+            <li>Save your credentials above (App Secret, Verify Token, Page Access Token, WhatsApp Token + Phone ID).</li>
+            <li>In <a href="https://developers.facebook.com" target="_blank" rel="noreferrer" className="text-primary underline">Meta App Dashboard</a> → <strong>Webhooks</strong>, add the <strong>Webhook URL</strong> + <strong>Verify Token</strong> shown above for each product (Messenger, Instagram, WhatsApp).</li>
+            <li>Subscribe to the <code className="bg-muted px-1 rounded">messages</code> field for each product.</li>
+            <li>Click <strong>"Subscribe Page to Webhook"</strong> above — this links your Facebook Page (and connected Instagram) to your app so messages flow in. <strong>Without this step no messages arrive.</strong></li>
+            <li>For WhatsApp: in Meta App → WhatsApp → Configuration, also click "Subscribe" for your WhatsApp Business Account.</li>
+            <li>If your app is in <strong>Development mode</strong>, only admins/testers of the app can message it. Switch to Live mode for public messaging.</li>
+            <li>Send a test DM from another account → it should appear in <strong>Inbox</strong>.</li>
           </ol>
         </CardContent>
       </Card>
