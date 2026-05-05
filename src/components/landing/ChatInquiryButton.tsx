@@ -36,7 +36,7 @@ const ChatInquiryButton = () => {
     <>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform bg-light text-light-foreground hover:bg-hover hover:scale-110"
+        className={`fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform ${open ? "bg-dark text-light" : "bg-light-blue text-dark"}`}
         aria-label="Open chat"
       >
         {open ? <X size={24} /> : <MessageCircle size={24} />}
