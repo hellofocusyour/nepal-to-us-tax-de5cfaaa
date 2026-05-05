@@ -35,8 +35,8 @@ const ChatInquiryButton = () => {
   return (
     <>
       <button
-        onClick={() => setOpen((o) => !o)}
-        className={`fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform ${open ? "bg-dark text-light" : "bg-light-blue text-dark"}`}
+        onClick={() => setOpen(o => !o)}
+        className="fixed bottom-24 right-6 z-50 w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 bg-primary text-primary-foreground"
         aria-label="Open chat"
       >
         {open ? <X size={24} /> : <MessageCircle size={24} />}
@@ -55,7 +55,10 @@ const ChatInquiryButton = () => {
                 <p className="text-sm text-foreground font-medium">
                   Thank you for messaging us. Our contact team will review your inquiry and get back to you soon.
                 </p>
-                <button onClick={reset} className="text-xs text-primary underline">
+                <button
+                  onClick={reset}
+                  className="text-xs text-primary underline"
+                >
                   Send another message
                 </button>
               </div>
@@ -70,7 +73,7 @@ const ChatInquiryButton = () => {
                     type="text"
                     placeholder="Name"
                     value={form.full_name}
-                    onChange={(e) => setForm((p) => ({ ...p, full_name: e.target.value }))}
+                    onChange={e => setForm(p => ({ ...p, full_name: e.target.value }))}
                     className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                   <input
@@ -78,7 +81,7 @@ const ChatInquiryButton = () => {
                     type="email"
                     placeholder="Email"
                     value={form.email}
-                    onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))}
+                    onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
                     className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                   <input
@@ -86,7 +89,7 @@ const ChatInquiryButton = () => {
                     type="tel"
                     placeholder="Phone"
                     value={form.phone}
-                    onChange={(e) => setForm((p) => ({ ...p, phone: e.target.value }))}
+                    onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
                     className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring"
                   />
                   <textarea
@@ -94,7 +97,7 @@ const ChatInquiryButton = () => {
                     placeholder="Message / Question"
                     rows={3}
                     value={form.message}
-                    onChange={(e) => setForm((p) => ({ ...p, message: e.target.value }))}
+                    onChange={e => setForm(p => ({ ...p, message: e.target.value }))}
                     className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring resize-none"
                   />
                   <button
