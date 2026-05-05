@@ -43,7 +43,7 @@ const Index = () => {
       <FinalCTA />
       <Footer />
       <WhatsAppButton />
-      <ChatInquiryButton />
+      {/* <ChatInquiryButton /> hidden for now */}
     </>
   );
 };
