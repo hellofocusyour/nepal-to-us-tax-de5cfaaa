@@ -191,7 +191,7 @@ Deno.serve(async (req) => {
   const signature = req.headers.get("x-hub-signature-256") ?? url.searchParams.get("signature") ?? url.searchParams.get("x-hub-signature-256");
   const valid = await verifySignature(bodyBuffer, signature, creds.app_secret);
 
-  if (url.pathname.endsWith("/test-signature")) {
+  if (url.pathname.endsWith("/test-signature") || url.searchParams.get("test_signature") === "1") {
     let parsed: any = null;
     try { parsed = JSON.parse(rawBody); } catch (_) { /* raw body does not have to be JSON for signature testing */ }
 
