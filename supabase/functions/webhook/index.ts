@@ -11,6 +11,18 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
 );
 
+function jsonResponse(payload: unknown, status = 200) {
+  return new Response(JSON.stringify(payload), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+}
+
+function maskSignature(signature: string | null) {
+  if (!signature) return "null";
+  return signature.length > 18 ? `${signature.slice(0, 13)}…${signature.slice(-6)}` : signature;
+}
+
 async function getCreds() {
   const { data } = await supabase.from("platform_credentials").select("*").limit(1).maybeSingle();
   return data;
@@ -176,8 +188,30 @@ Deno.serve(async (req) => {
     return new Response("Not configured", { status: 503, headers: corsHeaders });
   }
 
-  const signature = req.headers.get("x-hub-signature-256");
+  const signature = req.headers.get("x-hub-signature-256") ?? url.searchParams.get("signature") ?? url.searchParams.get("x-hub-signature-256");
   const valid = await verifySignature(bodyBuffer, signature, creds.app_secret);
+
+  if (url.pathname.endsWith("/test-signature") || url.searchParams.get("test_signature") === "1") {
+    let parsed: any = null;
+    try { parsed = JSON.parse(rawBody); } catch (_) { /* raw body does not have to be JSON for signature testing */ }
+
+    await supabase.from("activity_log").insert({
+      action: valid ? "webhook_signature_test" : "webhook_signature_test_failed",
+      description: `valid=${valid} bodyLen=${bodyBuffer.byteLength} signature=${maskSignature(signature)} object=${parsed?.object ?? "n/a"} entries=${(parsed?.entry ?? []).length}`,
+      entity_type: "webhook",
+    });
+
+    return jsonResponse({
+      valid,
+      bodyBytes: bodyBuffer.byteLength,
+      bodyChars: rawBody.length,
+      signature: maskSignature(signature),
+      object: parsed?.object ?? null,
+      entries: parsed?.entry?.length ?? null,
+      message: valid ? "Signature matches the posted raw body." : "Signature does not match the posted raw body.",
+    }, valid ? 200 : 403);
+  }
+
   if (!valid) {
     await logError("signature", new Error(`Invalid x-hub-signature-256 header=${signature ?? "null"}`));
     return new Response("Invalid signature", { status: 403, headers: corsHeaders });
