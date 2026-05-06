@@ -317,6 +317,7 @@ export type Database = {
           direction: string
           external_message_id: string | null
           id: string
+          message_type: string
           platform: string
           sender_id: string | null
           text: string | null
@@ -328,6 +329,7 @@ export type Database = {
           direction: string
           external_message_id?: string | null
           id?: string
+          message_type?: string
           platform: string
           sender_id?: string | null
           text?: string | null
@@ -339,6 +341,7 @@ export type Database = {
           direction?: string
           external_message_id?: string | null
           id?: string
+          message_type?: string
           platform?: string
           sender_id?: string | null
           text?: string | null
