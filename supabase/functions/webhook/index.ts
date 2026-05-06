@@ -16,7 +16,7 @@ async function getCreds() {
   return data;
 }
 
-async function verifySignature(rawBody: string, signature: string | null, appSecret: string): Promise<boolean> {
+async function verifySignature(rawBody: ArrayBuffer, signature: string | null, appSecret: string): Promise<boolean> {
   if (!signature || !signature.startsWith("sha256=")) return false;
   const expected = signature.slice(7);
   const key = await crypto.subtle.importKey(
@@ -26,7 +26,7 @@ async function verifySignature(rawBody: string, signature: string | null, appSec
     false,
     ["sign"]
   );
-  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(rawBody));
+  const sig = await crypto.subtle.sign("HMAC", key, rawBody);
   const hex = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, "0")).join("");
   if (hex.length !== expected.length) return false;
   let diff = 0;
@@ -166,7 +166,8 @@ Deno.serve(async (req) => {
     return new Response("Method not allowed", { status: 405, headers: corsHeaders });
   }
 
-  const rawBody = await req.text();
+  const bodyBuffer = await req.arrayBuffer();
+  const rawBody = new TextDecoder().decode(bodyBuffer);
   console.log(`[webhook] POST body length=${rawBody.length} preview=${rawBody.slice(0, 300)}`);
 
   const creds = await getCreds();
@@ -176,7 +177,7 @@ Deno.serve(async (req) => {
   }
 
   const signature = req.headers.get("x-hub-signature-256");
-  const valid = await verifySignature(rawBody, signature, creds.app_secret);
+  const valid = await verifySignature(bodyBuffer, signature, creds.app_secret);
   if (!valid) {
     await logError("signature", new Error(`Invalid x-hub-signature-256 header=${signature ?? "null"}`));
     return new Response("Invalid signature", { status: 403, headers: corsHeaders });
