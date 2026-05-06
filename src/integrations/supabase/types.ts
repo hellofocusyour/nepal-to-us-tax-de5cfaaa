@@ -317,9 +317,12 @@ export type Database = {
           direction: string
           external_message_id: string | null
           id: string
+          is_read: boolean
           message_type: string
           platform: string
+          raw_payload: Json | null
           sender_id: string | null
+          sender_name: string | null
           text: string | null
         }
         Insert: {
@@ -329,9 +332,12 @@ export type Database = {
           direction: string
           external_message_id?: string | null
           id?: string
+          is_read?: boolean
           message_type?: string
           platform: string
+          raw_payload?: Json | null
           sender_id?: string | null
+          sender_name?: string | null
           text?: string | null
         }
         Update: {
@@ -341,9 +347,12 @@ export type Database = {
           direction?: string
           external_message_id?: string | null
           id?: string
+          is_read?: boolean
           message_type?: string
           platform?: string
+          raw_payload?: Json | null
           sender_id?: string | null
+          sender_name?: string | null
           text?: string | null
         }
         Relationships: [

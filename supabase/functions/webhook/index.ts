@@ -60,16 +60,19 @@ async function upsertConversation(key: string, platform: string, customerId: str
   if (error) await logError("upsertConversation", error, { key, platform });
 }
 
-async function insertMessage(key: string, platform: string, senderId: string, text: string, messageType: string, externalId?: string, attachments: any[] = []) {
+async function insertMessage(key: string, platform: string, senderId: string, text: string, messageType: string, externalId?: string, attachments: any[] = [], senderName?: string, rawPayload?: any) {
   const { error } = await supabase.from("messages").insert({
     conversation_key: key,
     platform,
     direction: "inbound",
     sender_id: senderId,
+    sender_name: senderName ?? null,
     text,
     message_type: messageType,
     external_message_id: externalId,
     attachments,
+    raw_payload: rawPayload ?? null,
+    is_read: false,
   });
   if (error) await logError("insertMessage", error, { key, platform, messageType });
 }
@@ -94,7 +97,7 @@ async function processMessenger(entry: any) {
         const { type, preview, attachments } = detectMetaType(m.message);
         const key = `messenger:${senderId}`;
         await upsertConversation(key, "messenger", senderId, preview);
-        await insertMessage(key, "messenger", senderId, preview, type, m.message?.mid, attachments);
+        await insertMessage(key, "messenger", senderId, preview, type, m.message?.mid, attachments, undefined, m);
       } catch (err) { await logError("processMessenger", err, m); }
     }
   }
@@ -110,7 +113,7 @@ async function processInstagram(entry: any) {
         const { type, preview, attachments } = detectMetaType(m.message);
         const key = `instagram:${senderId}`;
         await upsertConversation(key, "instagram", senderId, preview);
-        await insertMessage(key, "instagram", senderId, preview, type, m.message?.mid, attachments);
+        await insertMessage(key, "instagram", senderId, preview, type, m.message?.mid, attachments, undefined, m);
       } catch (err) { await logError("processInstagram", err, m); }
     }
   }
@@ -134,7 +137,7 @@ async function processWhatsApp(entry: any) {
           else { text = `[${type}]`; attachments = [m[type]].filter(Boolean); }
           const key = `whatsapp:${from}`;
           await upsertConversation(key, "whatsapp", from, text, nameById[from]);
-          await insertMessage(key, "whatsapp", from, text, type, m.id, attachments);
+          await insertMessage(key, "whatsapp", from, text, type, m.id, attachments, nameById[from], m);
         } catch (err) { await logError("processWhatsApp", err, m); }
       }
     }
