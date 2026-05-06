@@ -117,7 +117,7 @@ const Integrations = () => {
   };
 
   const webhookUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/webhook`;
-  const signatureTestUrl = `${webhookUrl}?test_signature=1`;
+  const signatureTestUrl = `${webhookUrl}/test-signature`;
 
   const testSignatureRoute = async () => {
     if (!signatureHeader.trim()) {
