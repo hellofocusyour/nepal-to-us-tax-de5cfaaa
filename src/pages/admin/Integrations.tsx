@@ -29,6 +29,33 @@ const Integrations = () => {
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; msg: string } | null>(null);
   const [simulating, setSimulating] = useState<string | null>(null);
+  const [logs, setLogs] = useState<Array<{ id: string; created_at: string; action: string; description: string }>>([]);
+  const [logsLoading, setLogsLoading] = useState(false);
+
+  const loadLogs = async () => {
+    setLogsLoading(true);
+    const { data } = await supabase
+      .from("activity_log")
+      .select("id, created_at, action, description")
+      .eq("entity_type", "webhook")
+      .order("created_at", { ascending: false })
+      .limit(50);
+    setLogs(data ?? []);
+    setLogsLoading(false);
+  };
+
+  useEffect(() => {
+    loadLogs();
+    const ch = supabase
+      .channel("webhook-logs")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "activity_log" }, (payload: any) => {
+        if (payload.new?.entity_type === "webhook") {
+          setLogs((prev) => [payload.new, ...prev].slice(0, 50));
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, []);
 
   const simulateIncoming = async (platform: "messenger" | "instagram" | "whatsapp") => {
     setSimulating(platform);
@@ -259,6 +286,36 @@ const Integrations = () => {
             <div className={`flex items-center gap-2 text-sm p-3 rounded-md ${testResult.ok ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
               {testResult.ok ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
               {testResult.msg}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Webhook Logs (live)</CardTitle>
+          <Button variant="outline" size="sm" onClick={loadLogs} disabled={logsLoading}>
+            {logsLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+            Refresh
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {logs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No webhook activity yet.</p>
+          ) : (
+            <div className="space-y-1 max-h-96 overflow-y-auto font-mono text-xs">
+              {logs.map((l) => {
+                const isError = l.action === "webhook_error";
+                return (
+                  <div key={l.id} className={`p-2 rounded border ${isError ? "border-destructive/40 bg-destructive/5" : "border-border bg-muted/30"}`}>
+                    <div className="flex justify-between gap-2">
+                      <span className={isError ? "text-destructive font-semibold" : "text-green-700 font-semibold"}>{l.action}</span>
+                      <span className="text-muted-foreground">{new Date(l.created_at).toLocaleString()}</span>
+                    </div>
+                    <div className="mt-1 break-all whitespace-pre-wrap">{l.description}</div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </CardContent>

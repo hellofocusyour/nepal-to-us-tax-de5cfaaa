@@ -188,6 +188,14 @@ Deno.serve(async (req) => {
 
   console.log(`[webhook] received object=${body.object} entries=${(body.entry ?? []).length}`);
 
+  try {
+    await supabase.from("activity_log").insert({
+      action: "webhook_received",
+      description: `object=${body.object} entries=${(body.entry ?? []).length} bodyLen=${rawBody.length}`,
+      entity_type: "webhook",
+    });
+  } catch (_) { /* swallow */ }
+
   (async () => {
     try {
       const entry = body.entry ?? [];
