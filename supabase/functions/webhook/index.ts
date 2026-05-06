@@ -97,7 +97,7 @@ async function processMessenger(entry: any) {
         const { type, preview, attachments } = detectMetaType(m.message);
         const key = `messenger:${senderId}`;
         await upsertConversation(key, "messenger", senderId, preview);
-        await insertMessage(key, "messenger", senderId, preview, type, m.message?.mid, attachments);
+        await insertMessage(key, "messenger", senderId, preview, type, m.message?.mid, attachments, undefined, m);
       } catch (err) { await logError("processMessenger", err, m); }
     }
   }
@@ -113,7 +113,7 @@ async function processInstagram(entry: any) {
         const { type, preview, attachments } = detectMetaType(m.message);
         const key = `instagram:${senderId}`;
         await upsertConversation(key, "instagram", senderId, preview);
-        await insertMessage(key, "instagram", senderId, preview, type, m.message?.mid, attachments);
+        await insertMessage(key, "instagram", senderId, preview, type, m.message?.mid, attachments, undefined, m);
       } catch (err) { await logError("processInstagram", err, m); }
     }
   }
@@ -137,7 +137,7 @@ async function processWhatsApp(entry: any) {
           else { text = `[${type}]`; attachments = [m[type]].filter(Boolean); }
           const key = `whatsapp:${from}`;
           await upsertConversation(key, "whatsapp", from, text, nameById[from]);
-          await insertMessage(key, "whatsapp", from, text, type, m.id, attachments);
+          await insertMessage(key, "whatsapp", from, text, type, m.id, attachments, nameById[from], m);
         } catch (err) { await logError("processWhatsApp", err, m); }
       }
     }
