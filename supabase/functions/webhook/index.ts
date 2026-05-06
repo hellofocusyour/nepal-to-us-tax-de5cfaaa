@@ -28,17 +28,27 @@ async function verifySignature(rawBody: string, signature: string | null, appSec
   );
   const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(rawBody));
   const hex = Array.from(new Uint8Array(sig)).map(b => b.toString(16).padStart(2, "0")).join("");
-  // timing-safe compare
   if (hex.length !== expected.length) return false;
   let diff = 0;
   for (let i = 0; i < hex.length; i++) diff |= hex.charCodeAt(i) ^ expected.charCodeAt(i);
   return diff === 0;
 }
 
+async function logError(context: string, err: unknown, payload?: unknown) {
+  console.error(`[webhook][error] ${context}:`, err, payload ? JSON.stringify(payload).slice(0, 500) : "");
+  try {
+    await supabase.from("activity_log").insert({
+      action: "webhook_error",
+      description: `${context}: ${err instanceof Error ? err.message : String(err)}`,
+      entity_type: "webhook",
+    });
+  } catch (_) { /* swallow */ }
+}
+
 async function upsertConversation(key: string, platform: string, customerId: string, preview: string, customerName?: string) {
   const { data: existing } = await supabase.from("conversations").select("unread_count").eq("conversation_key", key).maybeSingle();
   const unread = (existing?.unread_count ?? 0) + 1;
-  await supabase.from("conversations").upsert({
+  const { error } = await supabase.from("conversations").upsert({
     conversation_key: key,
     platform,
     customer_id: customerId,
@@ -47,29 +57,45 @@ async function upsertConversation(key: string, platform: string, customerId: str
     last_message_preview: preview.slice(0, 200),
     unread_count: unread,
   }, { onConflict: "conversation_key" });
+  if (error) await logError("upsertConversation", error, { key, platform });
 }
 
-async function insertMessage(key: string, platform: string, senderId: string, text: string, externalId?: string) {
-  await supabase.from("messages").insert({
+async function insertMessage(key: string, platform: string, senderId: string, text: string, messageType: string, externalId?: string, attachments: any[] = []) {
+  const { error } = await supabase.from("messages").insert({
     conversation_key: key,
     platform,
     direction: "inbound",
     sender_id: senderId,
     text,
+    message_type: messageType,
     external_message_id: externalId,
+    attachments,
   });
+  if (error) await logError("insertMessage", error, { key, platform, messageType });
+}
+
+function detectMetaType(message: any): { type: string; preview: string; attachments: any[] } {
+  if (message?.text) return { type: "text", preview: message.text, attachments: [] };
+  const atts = message?.attachments ?? [];
+  if (atts.length > 0) {
+    const t = atts[0]?.type ?? "attachment";
+    return { type: t, preview: `[${t}]`, attachments: atts };
+  }
+  return { type: "unknown", preview: "[unknown]", attachments: [] };
 }
 
 async function processMessenger(entry: any) {
   for (const e of entry) {
     for (const m of (e.messaging ?? [])) {
-      if (m.message?.is_echo) continue;
-      const senderId = m.sender?.id;
-      const text = m.message?.text ?? "[attachment]";
-      if (!senderId) continue;
-      const key = `messenger:${senderId}`;
-      await upsertConversation(key, "messenger", senderId, text);
-      await insertMessage(key, "messenger", senderId, text, m.message?.mid);
+      try {
+        if (m.message?.is_echo) continue;
+        const senderId = m.sender?.id;
+        if (!senderId) continue;
+        const { type, preview, attachments } = detectMetaType(m.message);
+        const key = `messenger:${senderId}`;
+        await upsertConversation(key, "messenger", senderId, preview);
+        await insertMessage(key, "messenger", senderId, preview, type, m.message?.mid, attachments);
+      } catch (err) { await logError("processMessenger", err, m); }
     }
   }
 }
@@ -77,13 +103,15 @@ async function processMessenger(entry: any) {
 async function processInstagram(entry: any) {
   for (const e of entry) {
     for (const m of (e.messaging ?? [])) {
-      if (m.message?.is_echo) continue;
-      const senderId = m.sender?.id;
-      const text = m.message?.text ?? "[attachment]";
-      if (!senderId) continue;
-      const key = `instagram:${senderId}`;
-      await upsertConversation(key, "instagram", senderId, text);
-      await insertMessage(key, "instagram", senderId, text, m.message?.mid);
+      try {
+        if (m.message?.is_echo) continue;
+        const senderId = m.sender?.id;
+        if (!senderId) continue;
+        const { type, preview, attachments } = detectMetaType(m.message);
+        const key = `instagram:${senderId}`;
+        await upsertConversation(key, "instagram", senderId, preview);
+        await insertMessage(key, "instagram", senderId, preview, type, m.message?.mid, attachments);
+      } catch (err) { await logError("processInstagram", err, m); }
     }
   }
 }
@@ -97,11 +125,17 @@ async function processWhatsApp(entry: any) {
       const nameById: Record<string, string> = {};
       for (const c of contacts) nameById[c.wa_id] = c.profile?.name ?? c.wa_id;
       for (const m of (value.messages ?? [])) {
-        const from = m.from;
-        const text = m.text?.body ?? `[${m.type}]`;
-        const key = `whatsapp:${from}`;
-        await upsertConversation(key, "whatsapp", from, text, nameById[from]);
-        await insertMessage(key, "whatsapp", from, text, m.id);
+        try {
+          const from = m.from;
+          const type = m.type ?? "unknown";
+          let text = "";
+          let attachments: any[] = [];
+          if (type === "text") text = m.text?.body ?? "";
+          else { text = `[${type}]`; attachments = [m[type]].filter(Boolean); }
+          const key = `whatsapp:${from}`;
+          await upsertConversation(key, "whatsapp", from, text, nameById[from]);
+          await insertMessage(key, "whatsapp", from, text, type, m.id, attachments);
+        } catch (err) { await logError("processWhatsApp", err, m); }
       }
     }
   }
@@ -113,7 +147,6 @@ Deno.serve(async (req) => {
   const url = new URL(req.url);
   console.log(`[webhook] ${req.method} ${url.pathname}${url.search}`);
 
-  // GET: Meta verification
   if (req.method === "GET") {
     const mode = url.searchParams.get("hub.mode");
     const token = url.searchParams.get("hub.verify_token");
@@ -131,20 +164,26 @@ Deno.serve(async (req) => {
   }
 
   const rawBody = await req.text();
+  console.log(`[webhook] POST body length=${rawBody.length} preview=${rawBody.slice(0, 300)}`);
+
   const creds = await getCreds();
   if (!creds?.app_secret) {
+    await logError("config", new Error("Missing app_secret in platform_credentials"));
     return new Response("Not configured", { status: 503, headers: corsHeaders });
   }
 
   const signature = req.headers.get("x-hub-signature-256");
   const valid = await verifySignature(rawBody, signature, creds.app_secret);
   if (!valid) {
+    await logError("signature", new Error(`Invalid x-hub-signature-256 header=${signature ?? "null"}`));
     return new Response("Invalid signature", { status: 403, headers: corsHeaders });
   }
 
-  // ack immediately, process async
   let body: any;
-  try { body = JSON.parse(rawBody); } catch { return new Response("Bad JSON", { status: 400 }); }
+  try { body = JSON.parse(rawBody); }
+  catch (err) { await logError("parse", err); return new Response("Bad JSON", { status: 400 }); }
+
+  console.log(`[webhook] received object=${body.object} entries=${(body.entry ?? []).length}`);
 
   (async () => {
     try {
@@ -152,8 +191,9 @@ Deno.serve(async (req) => {
       if (body.object === "page") await processMessenger(entry);
       else if (body.object === "instagram") await processInstagram(entry);
       else if (body.object === "whatsapp_business_account") await processWhatsApp(entry);
+      else await logError("unknown_object", new Error(`Unhandled object type: ${body.object}`), body);
     } catch (err) {
-      console.error("webhook process error", err);
+      await logError("process", err, body);
     }
   })();
 
