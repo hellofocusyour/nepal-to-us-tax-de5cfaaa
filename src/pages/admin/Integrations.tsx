@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { Eye, EyeOff, Copy, CheckCircle2, XCircle, Loader2, RefreshCw } from "lucide-react";
@@ -31,16 +32,27 @@ const Integrations = () => {
   const [simulating, setSimulating] = useState<string | null>(null);
   const [logs, setLogs] = useState<Array<{ id: string; created_at: string; action: string; description: string }>>([]);
   const [logsLoading, setLogsLoading] = useState(false);
+  const [logsError, setLogsError] = useState<string | null>(null);
+  const [signatureBody, setSignatureBody] = useState('{"object":"page","entry":[{"messaging":[{"sender":{"id":"123"},"message":{"mid":"m_test","text":"hello"}}]}]}');
+  const [signatureHeader, setSignatureHeader] = useState("");
+  const [signatureTesting, setSignatureTesting] = useState(false);
+  const [signatureResult, setSignatureResult] = useState<string | null>(null);
 
   const loadLogs = async () => {
     setLogsLoading(true);
-    const { data } = await supabase
+    setLogsError(null);
+    const { data, error } = await supabase
       .from("activity_log")
       .select("id, created_at, action, description")
       .eq("entity_type", "webhook")
       .order("created_at", { ascending: false })
       .limit(50);
-    setLogs(data ?? []);
+    if (error) {
+      setLogsError(error.message);
+      toast.error(`Webhook logs failed: ${error.message}`);
+    } else {
+      setLogs(data ?? []);
+    }
     setLogsLoading(false);
   };
 
@@ -105,6 +117,36 @@ const Integrations = () => {
   };
 
   const webhookUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/webhook`;
+  const signatureTestUrl = `${webhookUrl}/test-signature`;
+
+  const testSignatureRoute = async () => {
+    if (!signatureHeader.trim()) {
+      toast.error("Paste an x-hub-signature-256 value first");
+      return;
+    }
+    setSignatureTesting(true);
+    setSignatureResult(null);
+    try {
+      const res = await fetch(signatureTestUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-hub-signature-256": signatureHeader.trim(),
+        },
+        body: signatureBody,
+      });
+      const text = await res.text();
+      setSignatureResult(`${res.status} ${res.statusText}: ${text}`);
+      if (res.ok) toast.success("Signature matched this raw body");
+      else toast.error("Signature did not match this raw body");
+      await loadLogs();
+    } catch (e: any) {
+      setSignatureResult(e.message ?? "Signature test failed");
+      toast.error(e.message ?? "Signature test failed");
+    } finally {
+      setSignatureTesting(false);
+    }
+  };
 
   useEffect(() => {
     supabase.from("platform_credentials").select("*").limit(1).maybeSingle().then(({ data }) => {
@@ -234,6 +276,32 @@ const Integrations = () => {
       </Card>
 
       <Card>
+        <CardHeader><CardTitle>Local Signature Test Route</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div>
+            <Label>Test URL</Label>
+            <div className="flex gap-2 mt-1">
+              <Input readOnly value={signatureTestUrl} />
+              <Button variant="outline" size="icon" onClick={() => copy(signatureTestUrl)}><Copy className="w-4 h-4" /></Button>
+            </div>
+          </div>
+          <div>
+            <Label>x-hub-signature-256</Label>
+            <Input className="mt-1 font-mono" value={signatureHeader} onChange={(e) => setSignatureHeader(e.target.value)} placeholder="sha256=..." />
+          </div>
+          <div>
+            <Label>Raw body</Label>
+            <Textarea className="mt-1 min-h-32 font-mono text-xs" value={signatureBody} onChange={(e) => setSignatureBody(e.target.value)} />
+          </div>
+          <Button variant="outline" onClick={testSignatureRoute} disabled={signatureTesting}>
+            {signatureTesting && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+            Test Signature
+          </Button>
+          {signatureResult && <pre className="rounded-md border border-border bg-muted/30 p-3 text-xs whitespace-pre-wrap break-all">{signatureResult}</pre>}
+        </CardContent>
+      </Card>
+
+      <Card>
         <CardHeader><CardTitle>Credentials</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           {FIELDS.map((f) => (
@@ -300,6 +368,7 @@ const Integrations = () => {
           </Button>
         </CardHeader>
         <CardContent>
+          {logsError && <p className="text-sm text-destructive mb-3">{logsError}</p>}
           {logs.length === 0 ? (
             <p className="text-sm text-muted-foreground">No webhook activity yet.</p>
           ) : (
