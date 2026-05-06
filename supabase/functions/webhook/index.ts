@@ -60,16 +60,19 @@ async function upsertConversation(key: string, platform: string, customerId: str
   if (error) await logError("upsertConversation", error, { key, platform });
 }
 
-async function insertMessage(key: string, platform: string, senderId: string, text: string, messageType: string, externalId?: string, attachments: any[] = []) {
+async function insertMessage(key: string, platform: string, senderId: string, text: string, messageType: string, externalId?: string, attachments: any[] = [], senderName?: string, rawPayload?: any) {
   const { error } = await supabase.from("messages").insert({
     conversation_key: key,
     platform,
     direction: "inbound",
     sender_id: senderId,
+    sender_name: senderName ?? null,
     text,
     message_type: messageType,
     external_message_id: externalId,
     attachments,
+    raw_payload: rawPayload ?? null,
+    is_read: false,
   });
   if (error) await logError("insertMessage", error, { key, platform, messageType });
 }
