@@ -292,6 +292,36 @@ const Integrations = () => {
       </Card>
 
       <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle>Webhook Logs (live)</CardTitle>
+          <Button variant="outline" size="sm" onClick={loadLogs} disabled={logsLoading}>
+            {logsLoading && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
+            Refresh
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {logs.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No webhook activity yet.</p>
+          ) : (
+            <div className="space-y-1 max-h-96 overflow-y-auto font-mono text-xs">
+              {logs.map((l) => {
+                const isError = l.action === "webhook_error";
+                return (
+                  <div key={l.id} className={`p-2 rounded border ${isError ? "border-destructive/40 bg-destructive/5" : "border-border bg-muted/30"}`}>
+                    <div className="flex justify-between gap-2">
+                      <span className={isError ? "text-destructive font-semibold" : "text-green-700 font-semibold"}>{l.action}</span>
+                      <span className="text-muted-foreground">{new Date(l.created_at).toLocaleString()}</span>
+                    </div>
+                    <div className="mt-1 break-all whitespace-pre-wrap">{l.description}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
         <CardHeader><CardTitle>Test Webhook (Simulate Incoming Message)</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <p className="text-sm text-muted-foreground">
