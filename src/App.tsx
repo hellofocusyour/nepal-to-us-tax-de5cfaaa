@@ -58,6 +58,7 @@ const App = () => (
               <Route path="announcements" element={<Announcements />} />
               <Route path="reports" element={<Reports />} />
               <Route path="inbox" element={<Inbox />} />
+              <Route path="integrations" element={<Integrations />} />
               <Route path="settings/integrations" element={<Integrations />} />
             </Route>
             <Route path="/portal/login" element={<StudentLogin />} />
