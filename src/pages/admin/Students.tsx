@@ -55,14 +55,25 @@ const Students = () => {
       toast.error("Name and email are required");
       return;
     }
-    const { error } = await supabase.from("students").insert({
+    const { data: studentRow, error } = await supabase.from("students").insert({
       full_name: newStudent.full_name,
       email: newStudent.email,
       phone: newStudent.phone || null,
       background: newStudent.background || null,
-    });
+    }).select("id").maybeSingle();
     if (error) { toast.error("Failed to add student"); return; }
-    toast.success("Student added successfully");
+
+    // Also create an inquiry record so they appear on the Inquiries page
+    const { error: inqErr } = await supabase.from("inquiries").insert({
+      full_name: newStudent.full_name,
+      email: newStudent.email,
+      phone: newStudent.phone || null,
+      background: newStudent.background || null,
+      student_id: studentRow?.id ?? null,
+    });
+    if (inqErr) console.error("inquiry insert failed", inqErr);
+
+    toast.success("Student added and tagged as inquiry");
     setNewStudent({ full_name: "", email: "", phone: "", background: "" });
     setAddDialogOpen(false);
     fetchStudents();
