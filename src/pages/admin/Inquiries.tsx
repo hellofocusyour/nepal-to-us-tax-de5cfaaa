@@ -29,6 +29,7 @@ const Inquiries = () => {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [composeOpen, setComposeOpen] = useState(false);
@@ -39,12 +40,13 @@ const Inquiries = () => {
   const fetchInquiries = async () => {
     let query = supabase.from("inquiries").select("*").order("created_at", { ascending: false });
     if (statusFilter !== "all") query = query.eq("status", statusFilter as Inquiry["status"]);
+    if (sourceFilter !== "all") query = query.eq("source", sourceFilter);
     const { data } = await query;
     setInquiries(data || []);
     setLoading(false);
   };
 
-  useEffect(() => { fetchInquiries(); }, [statusFilter]);
+  useEffect(() => { fetchInquiries(); }, [statusFilter, sourceFilter]);
 
   const filtered = useMemo(
     () => inquiries.filter(i =>
@@ -118,13 +120,22 @@ const Inquiries = () => {
             <Input placeholder="Search inquiries..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-48"><SelectValue /></SelectTrigger>
+            <SelectTrigger className="w-full sm:w-44"><SelectValue placeholder="Status" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
               <SelectItem value="new">New</SelectItem>
               <SelectItem value="contacted">Contacted</SelectItem>
               <SelectItem value="converted">Converted</SelectItem>
               <SelectItem value="dropped">Dropped</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={sourceFilter} onValueChange={setSourceFilter}>
+            <SelectTrigger className="w-full sm:w-44"><SelectValue placeholder="Source" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All sources</SelectItem>
+              <SelectItem value="website">Website</SelectItem>
+              <SelectItem value="facebook_ads">Facebook Ads</SelectItem>
+              <SelectItem value="manual">Manual</SelectItem>
             </SelectContent>
           </Select>
         </CardContent>
@@ -162,15 +173,16 @@ const Inquiries = () => {
                 <TableHead className="hidden md:table-cell">Email</TableHead>
                 <TableHead className="hidden lg:table-cell">Phone</TableHead>
                 <TableHead className="hidden lg:table-cell">Background</TableHead>
+                <TableHead>Source</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
               ) : filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No inquiries found</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No inquiries found</TableCell></TableRow>
               ) : (
                 filtered.map((inquiry) => (
                   <TableRow key={inquiry.id} data-state={selectedIds.has(inquiry.id) ? "selected" : undefined}>
@@ -185,6 +197,18 @@ const Inquiries = () => {
                     <TableCell className="hidden md:table-cell">{inquiry.email}</TableCell>
                     <TableCell className="hidden lg:table-cell">{inquiry.phone || "—"}</TableCell>
                     <TableCell className="hidden lg:table-cell capitalize">{inquiry.background || "—"}</TableCell>
+                    <TableCell>
+                      {(() => {
+                        const src = (inquiry as any).source || "website";
+                        const label = src === "facebook_ads" ? "Facebook Ads" : src === "manual" ? "Manual" : "Website";
+                        const cls = src === "facebook_ads"
+                          ? "bg-[#1877F2]/10 text-[#1877F2] border-[#1877F2]/30"
+                          : src === "manual"
+                          ? "bg-muted text-foreground border-border"
+                          : "bg-primary/10 text-primary border-primary/30";
+                        return <Badge variant="outline" className={cls}>{label}</Badge>;
+                      })()}
+                    </TableCell>
                     <TableCell>
                       <Badge variant={statusColors[inquiry.status] || "outline"} className="capitalize">{inquiry.status}</Badge>
                     </TableCell>
