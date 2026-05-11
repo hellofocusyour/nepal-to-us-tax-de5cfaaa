@@ -155,8 +155,15 @@ Deno.serve(async (req) => {
         .replace(/\[name\]/g, first);
     };
 
-    const results = await Promise.all(
-      recipients.map(async (r) => {
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    // Resend free tier allows 2 req/sec — pace at ~1.5 emails/sec to be safe.
+    const PACE_MS = 700;
+
+    const results: Array<{ to: string; ok: boolean; status: number; error: string | null }> = [];
+    for (let i = 0; i < recipients.length; i++) {
+      const r = recipients[i];
+      if (i > 0) await sleep(PACE_MS);
+      const sendOne = async () => {
         const personalBody = personalize(payload.body, r.name);
         // Insert pending log first to get an id used for tracking links.
         const { data: inserted } = await admin.from("email_logs").insert({
