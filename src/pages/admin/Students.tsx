@@ -114,6 +114,30 @@ const Students = () => {
     }
   };
 
+  const allVisibleSelected = filtered.length > 0 && filtered.every(s => selectedIds.has(s.id));
+  const someVisibleSelected = filtered.some(s => selectedIds.has(s.id));
+  const toggleAll = (checked: boolean) => {
+    const next = new Set(selectedIds);
+    if (checked) filtered.forEach(s => next.add(s.id));
+    else filtered.forEach(s => next.delete(s.id));
+    setSelectedIds(next);
+  };
+  const toggleOne = (id: string, checked: boolean) => {
+    const next = new Set(selectedIds);
+    if (checked) next.add(id); else next.delete(id);
+    setSelectedIds(next);
+  };
+  const openSmsFor = (recipients: Student[]) => {
+    const withPhone = recipients.filter(r => r.phone && r.phone.trim());
+    if (withPhone.length === 0) {
+      toast.error("Selected students have no phone numbers");
+      return;
+    }
+    setSmsRecipients(withPhone.map(r => ({ name: r.full_name, phone: r.phone!, student_id: r.id })));
+    setSmsOpen(true);
+  };
+  const selectedStudents = students.filter(s => selectedIds.has(s.id));
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
