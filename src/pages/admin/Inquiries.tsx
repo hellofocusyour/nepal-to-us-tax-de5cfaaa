@@ -188,33 +188,11 @@ const Inquiries = () => {
         </CardContent>
       </Card>
 
-      <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Compose Email</DialogTitle>
-            <DialogDescription>
-              To: {composeRecipients.map(r => r.full_name).join(", ")}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium">Subject</label>
-              <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Email subject" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Message</label>
-              <Textarea value={body} onChange={e => setBody(e.target.value)} placeholder="Write your message..." rows={8} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setComposeOpen(false)}>Cancel</Button>
-            <Button onClick={handleSend}>
-              <Mail className="w-4 h-4 mr-2" />
-              Send
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EmailComposeModal
+        open={composeOpen}
+        onOpenChange={setComposeOpen}
+        recipients={composeRecipients}
+      />
     </div>
   );
 };
