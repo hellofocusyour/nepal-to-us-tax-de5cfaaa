@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { EmailComposeModal, type EmailRecipient } from "@/components/admin/EmailComposeModal";
+import { EmailHistory } from "@/components/admin/EmailHistory";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Mail } from "lucide-react";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
@@ -87,8 +89,15 @@ const Inquiries = () => {
         <p className="text-muted-foreground">Manage form submissions</p>
       </div>
 
-      <Card className="border border-border">
-        <CardContent className="p-4 flex flex-col sm:flex-row gap-4">
+      <Tabs defaultValue="inquiries" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="inquiries">Inquiries</TabsTrigger>
+          <TabsTrigger value="emails">Email History</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="inquiries" className="space-y-6">
+          <Card className="border border-border">
+            <CardContent className="p-4 flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
             <Input placeholder="Search inquiries..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
@@ -187,6 +196,12 @@ const Inquiries = () => {
           </Table>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="emails">
+          <EmailHistory />
+        </TabsContent>
+      </Tabs>
 
       <EmailComposeModal
         open={composeOpen}
