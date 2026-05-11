@@ -9,8 +9,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { EmailComposeModal, type EmailRecipient } from "@/components/admin/EmailComposeModal";
 import { EmailHistory } from "@/components/admin/EmailHistory";
+import { SmsComposeModal, type SmsRecipient } from "@/components/admin/SmsComposeModal";
+import { SmsHistory } from "@/components/admin/SmsHistory";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Mail } from "lucide-react";
+import { Search, Mail, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -31,6 +33,8 @@ const Inquiries = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [composeOpen, setComposeOpen] = useState(false);
   const [composeRecipients, setComposeRecipients] = useState<EmailRecipient[]>([]);
+  const [smsOpen, setSmsOpen] = useState(false);
+  const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
 
   const fetchInquiries = async () => {
     let query = supabase.from("inquiries").select("*").order("created_at", { ascending: false });
@@ -77,6 +81,16 @@ const Inquiries = () => {
     if (recipients.length === 0) return;
     setComposeRecipients(recipients.map(r => ({ name: r.full_name, email: r.email, inquiry_id: r.id })));
     setComposeOpen(true);
+  };
+
+  const openSmsFor = (recipients: Inquiry[]) => {
+    const withPhone = recipients.filter(r => r.phone && r.phone.trim());
+    if (withPhone.length === 0) {
+      toast.error("Selected inquiries have no phone numbers");
+      return;
+    }
+    setSmsRecipients(withPhone.map(r => ({ name: r.full_name, phone: r.phone!, inquiry_id: r.id })));
+    setSmsOpen(true);
   };
 
   const selectedCount = selectedIds.size;
