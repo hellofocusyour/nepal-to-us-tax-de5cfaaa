@@ -28,9 +28,7 @@ const Inquiries = () => {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [composeOpen, setComposeOpen] = useState(false);
-  const [composeRecipients, setComposeRecipients] = useState<Inquiry[]>([]);
-  const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
+  const [composeRecipients, setComposeRecipients] = useState<EmailRecipient[]>([]);
 
   const fetchInquiries = async () => {
     let query = supabase.from("inquiries").select("*").order("created_at", { ascending: false });
@@ -75,22 +73,8 @@ const Inquiries = () => {
 
   const openComposeFor = (recipients: Inquiry[]) => {
     if (recipients.length === 0) return;
-    setComposeRecipients(recipients);
-    setSubject("");
-    setBody("");
+    setComposeRecipients(recipients.map(r => ({ name: r.full_name, email: r.email })));
     setComposeOpen(true);
-  };
-
-  const handleSend = () => {
-    if (!subject.trim() || !body.trim()) {
-      toast.error("Subject and message are required");
-      return;
-    }
-    const emails = composeRecipients.map(r => r.email).join(",");
-    const url = `mailto:${emails}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = url;
-    toast.success(`Opening email to ${composeRecipients.length} recipient(s)`);
-    setComposeOpen(false);
   };
 
   const selectedCount = selectedIds.size;
