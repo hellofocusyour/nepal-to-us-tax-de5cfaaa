@@ -651,8 +651,6 @@ export type Database = {
         }
         Returns: boolean
       }
-      increment_email_click: { Args: { _id: string }; Returns: undefined }
-      increment_email_open: { Args: { _id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "student"
