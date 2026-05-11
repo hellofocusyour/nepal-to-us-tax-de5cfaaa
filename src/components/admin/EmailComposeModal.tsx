@@ -66,6 +66,9 @@ export const EmailComposeModal = ({
   const [template, setTemplate] = useState<TemplateKey>("custom");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [ctaLabel, setCtaLabel] = useState("Enroll Now");
+  const [ctaUrl, setCtaUrl] = useState("https://academy.focusyourfinance.com");
+  const [includeCta, setIncludeCta] = useState(true);
   const [sending, setSending] = useState(false);
 
   // Reset to Custom on every open.
@@ -74,6 +77,9 @@ export const EmailComposeModal = ({
       setTemplate("custom");
       setSubject("");
       setBody("");
+      setCtaLabel("Enroll Now");
+      setCtaUrl("https://academy.focusyourfinance.com");
+      setIncludeCta(true);
     }
   }, [open]);
 
@@ -104,7 +110,13 @@ export const EmailComposeModal = ({
     setSending(true);
     try {
       const { data, error } = await supabase.functions.invoke("send-email", {
-        body: { to: recipients, subject, body },
+        body: {
+          to: recipients,
+          subject,
+          body,
+          cta_label: includeCta ? ctaLabel : null,
+          cta_url: includeCta ? ctaUrl : null,
+        },
       });
       if (error) throw error;
       const failed = (data as { failed?: number })?.failed ?? 0;
