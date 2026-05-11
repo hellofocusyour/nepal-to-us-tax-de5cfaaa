@@ -1,15 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
-} from "@/components/ui/select";
-import { Mail, Loader2 } from "lucide-react";
+import { Loader2, X, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 export interface EmailRecipient {
@@ -25,61 +16,141 @@ interface EmailComposeModalProps {
   onSent?: () => void;
 }
 
-type TemplateKey = "class_starting" | "follow_up" | "custom";
+type TemplateKey =
+  | "blank"
+  | "class_starting"
+  | "cpa_surprise"
+  | "last_chance"
+  | "career"
+  | "custom";
 
-const TEMPLATES: Record<TemplateKey, { label: string; subject: string; body: string }> = {
+const TEMPLATES: Record<
+  TemplateKey,
+  { label: string; subject: string; body: string }
+> = {
+  blank: { label: "Select a template...", subject: "", body: "" },
   class_starting: {
     label: "Class Starting May 15",
     subject: "Your US Tax Course Starts May 15 🎓",
-    body:
-      "Hi there,\n\n" +
-      "Quick reminder — your US Tax Course at Focus Academy kicks off on May 15. " +
-      "Sessions are taught in Neplish (Nepali + English) by mentors who've worked on real US tax filings.\n\n" +
-      "What to do before day 1:\n" +
-      "• Log in to your student portal and check your batch details\n" +
-      "• Make sure your laptop has a stable internet connection\n" +
-      "• Keep a notebook handy for the first walkthrough\n\n" +
-      "If you have any questions before we start, just reply to this email.\n\n" +
-      "See you on the 15th!\n— Focus Academy",
+    body: `Hi [Name],
+
+We noticed you reached out about the US Tax Course at Focus Academy. Our next batch starts May 15 and we'd love to have you join — only a few seats remain.
+
+What you get in 30 days:
+- Trained by an EA (Enrolled Agent) — the highest IRS-recognized credential
+- Live classes in Neplish (Nepali + English) — no language barrier
+- Hands-on practice with real US tax forms: 1040, W-2, 1099
+- Career guidance and support after the course ends
+
+Reply to this email if you have any questions about fees, schedule, or what to expect and we'll get back to you quickly.
+
+— Focus Academy Team
+academy.focusyourfinance.com`,
   },
-  follow_up: {
-    label: "Follow-up Inquiry",
-    subject: "Still interested in the US Tax Course?",
-    body:
-      "Hi there,\n\n" +
-      "We noticed you reached out about the US Tax Course at Focus Academy but haven't enrolled yet. " +
-      "We wanted to check in and see if you had any questions we can help answer.\n\n" +
-      "A few things worth knowing:\n" +
-      "• 30 Days of structured training in Neplish\n" +
-      "• Real US tax forms (1040, W-2, 1099) and live practice\n" +
-      "• Career Breakthroughs support after the course\n\n" +
-      "Reply to this email and we'll get you sorted with the next batch details, fee plans, " +
-      "or anything else you need.\n\n" +
-      "— Focus Academy",
+  cpa_surprise: {
+    label: "CPA Surprise (Facebook Leads)",
+    subject: "We've got a surprise lined up for you 👀",
+    body: `Hi [Name],
+
+You showed interest in our US Tax Course through Facebook — and we're glad you did, because the May 15 batch has something no other Nepali tax course offers.
+
+We've arranged surprise live sessions with a CPA from the USA.
+
+Real American tax professionals joining live to share how US tax filing works from the inside — the cases, the edge scenarios, the things textbooks won't tell you. These sessions are only announced to enrolled students.
+
+Here's what you get in 30 days:
+- Trained by an EA (Enrolled Agent) — the highest IRS-recognized credential
+- Live classes in Neplish (Nepali + English) — no language barrier
+- Hands-on practice with real US tax forms: 1040, W-2, 1099
+- Surprise live sessions with a CPA from the USA
+- Career guidance and support after the course ends
+
+Classes begin May 15. Seats are limited because we keep batches small to give every student personal attention. Once it's full, registration closes.
+
+Have a question before enrolling? Just reply to this email — we respond quickly.
+
+— Focus Academy Team
+academy.focusyourfinance.com`,
   },
-  custom: { label: "Custom", subject: "", body: "" },
+  last_chance: {
+    label: "Last Chance — Closes May 14",
+    subject: "4 days left — US Tax Course enrollment closes May 14",
+    body: `Hi [Name],
+
+You reached out about the US Tax Course on Facebook. We don't want you to miss this — so here's the honest picture.
+
+Enrollment closes May 14. Classes start May 15. After that, the next batch date is TBD.
+
+This batch is taught by a certified Enrolled Agent (EA) — the highest credential recognized by the IRS — and includes exclusive live sessions with a CPA from the USA that only enrolled students get access to.
+
+What's included:
+- Taught in Neplish — easy to follow, nothing lost in translation
+- Real US tax forms: 1040, W-2, 1099 — hands-on practice every session
+- Small batch size — personal attention, not a crowded classroom
+- Career support after the course — we don't just teach and leave
+
+You have 4 days to decide. After May 14, registration is closed.
+
+Reply to this email with any questions and we'll get back to you today.
+
+— Focus Academy Team
+academy.focusyourfinance.com`,
+  },
+  career: {
+    label: "Career Opportunity",
+    subject: "US tax skills = real jobs. Here's how to get there.",
+    body: `Hi [Name],
+
+You connected with us on Facebook. Here's why we think this course could genuinely change your career path.
+
+Thousands of US-based Nepali families and businesses need someone who understands US taxes and speaks their language. Right now, almost no one fills that gap. This course makes you that person.
+
+Who teaches you matters. Ours:
+- Lead mentor: Enrolled Agent (EA) — IRS-recognized credential, not just a certificate
+- Surprise sessions: Live classes with a CPA from the USA — real-world filings, real stories
+
+In 30 days you'll be able to:
+- Prepare and file 1040, W-2, and 1099 forms with confidence
+- Understand how the US tax system actually works — not just theory
+- Position yourself for remote tax prep jobs and freelance opportunities
+
+Classes are in Neplish (Nepali + English), start May 15, and batch size is intentionally small.
+
+Reply anytime with questions — we're happy to walk you through what to expect before you enroll.
+
+— Focus Academy Team
+academy.focusyourfinance.com`,
+  },
+  custom: { label: "Custom Message", subject: "", body: "" },
 };
 
+const TEMPLATE_ORDER: TemplateKey[] = [
+  "blank",
+  "class_starting",
+  "cpa_surprise",
+  "last_chance",
+  "career",
+  "custom",
+];
+
+const SITE_URL = "https://academy.focusyourfinance.com";
+
 export const EmailComposeModal = ({
-  open, onOpenChange, recipients, onSent,
+  open,
+  onOpenChange,
+  recipients,
+  onSent,
 }: EmailComposeModalProps) => {
-  const [template, setTemplate] = useState<TemplateKey>("custom");
+  const [template, setTemplate] = useState<TemplateKey>("blank");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
-  const [ctaLabel, setCtaLabel] = useState("Enroll Now");
-  const [ctaUrl, setCtaUrl] = useState("https://academy.focusyourfinance.com");
-  const [includeCta, setIncludeCta] = useState(true);
   const [sending, setSending] = useState(false);
 
-  // Reset to Custom on every open.
   useEffect(() => {
     if (open) {
-      setTemplate("custom");
+      setTemplate("blank");
       setSubject("");
       setBody("");
-      setCtaLabel("Enroll Now");
-      setCtaUrl("https://academy.focusyourfinance.com");
-      setIncludeCta(true);
     }
   }, [open]);
 
@@ -90,23 +161,13 @@ export const EmailComposeModal = ({
     setBody(t.body);
   };
 
-  const toLine = useMemo(
-    () =>
-      recipients
-        .map((r) => (r.name ? `${r.name} <${r.email}>` : r.email))
-        .join(", "),
-    [recipients]
+  const canSend = useMemo(
+    () => subject.trim().length > 0 && body.trim().length > 0 && recipients.length > 0,
+    [subject, body, recipients.length]
   );
 
   const handleSend = async () => {
-    if (!subject.trim() || !body.trim()) {
-      toast.error("Subject and message are required");
-      return;
-    }
-    if (recipients.length === 0) {
-      toast.error("No recipients selected");
-      return;
-    }
+    if (!canSend) return;
     setSending(true);
     try {
       const { data, error } = await supabase.functions.invoke("send-email", {
@@ -114,125 +175,308 @@ export const EmailComposeModal = ({
           to: recipients,
           subject,
           body,
-          cta_label: includeCta ? ctaLabel : null,
-          cta_url: includeCta ? ctaUrl : null,
+          cta_label: "Reserve My Seat →",
+          cta_url: SITE_URL,
         },
       });
       if (error) throw error;
       const failed = (data as { failed?: number })?.failed ?? 0;
-      const sent = (data as { sent?: number })?.sent ?? recipients.length;
-      if (failed > 0) {
-        toast.warning(`Sent ${sent}, ${failed} failed`);
-      } else {
-        toast.success(`Email sent to ${sent} recipient${sent === 1 ? "" : "s"}`);
+      if (failed > 0 && failed === recipients.length) {
+        toast.error("✗ Failed to send. Please try again.");
+        return;
       }
+      toast.success("✓ Email sent successfully!", { duration: 3000 });
       onSent?.();
       onOpenChange(false);
-    } catch (err) {
-      toast.error(`Failed to send: ${(err as Error).message}`);
+    } catch {
+      toast.error("✗ Failed to send. Please try again.");
     } finally {
       setSending(false);
     }
   };
 
+  if (!open) return null;
+
   return (
-    <Dialog open={open} onOpenChange={(o) => (!sending ? onOpenChange(o) : null)}>
-      <DialogContent className="sm:max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Compose Email</DialogTitle>
-          <DialogDescription>
-            Sending to {recipients.length} recipient{recipients.length === 1 ? "" : "s"}
-          </DialogDescription>
-        </DialogHeader>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: "rgba(0,0,0,0.5)" }}
+      onClick={() => !sending && onOpenChange(false)}
+    >
+      <div
+        className="w-full max-h-[92vh] overflow-hidden flex flex-col"
+        style={{
+          maxWidth: 680,
+          background: "#ffffff",
+          borderRadius: 16,
+          boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div
+          style={{
+            background: "#0c4a6e",
+            borderRadius: "16px 16px 0 0",
+            padding: "24px 32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                background: "rgba(255,255,255,0.15)",
+                borderRadius: 10,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#ffffff",
+                fontWeight: 800,
+                fontSize: 22,
+                fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+              }}
+            >
+              F
+            </div>
+            <div>
+              <div style={{ color: "#ffffff", fontSize: 18, fontWeight: 700, lineHeight: 1.2 }}>
+                Compose Email
+              </div>
+              <div style={{ color: "#93c5fd", fontSize: 12, marginTop: 2 }}>
+                Focus Academy
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => !sending && onOpenChange(false)}
+            disabled={sending}
+            style={{
+              background: "transparent",
+              border: "none",
+              color: "#ffffff",
+              cursor: sending ? "not-allowed" : "pointer",
+              padding: 6,
+              borderRadius: 8,
+              opacity: sending ? 0.5 : 1,
+            }}
+            aria-label="Close"
+          >
+            <X size={20} />
+          </button>
+        </div>
 
-        <div className="space-y-4">
-          <div>
-            <label className="text-sm font-medium mb-1 block">To</label>
-            <Input value={toLine} readOnly className="bg-muted" />
+        {/* Body */}
+        <div style={{ padding: "24px 32px", overflowY: "auto", flex: 1 }}>
+          {/* To field */}
+          <div style={{ marginBottom: 18 }}>
+            <label style={{ color: "#64748b", fontSize: 13, display: "block", marginBottom: 6 }}>
+              To
+            </label>
+            <div
+              style={{
+                background: "#f8fafc",
+                border: "1px solid #e2e8f0",
+                borderRadius: 8,
+                padding: "10px 14px",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 6,
+                maxHeight: 110,
+                overflowY: "auto",
+              }}
+            >
+              {recipients.length === 0 ? (
+                <span style={{ color: "#94a3b8", fontSize: 13 }}>No recipients</span>
+              ) : (
+                recipients.map((r, i) => (
+                  <span
+                    key={`${r.email}-${i}`}
+                    style={{
+                      background: "#ffffff",
+                      border: "1px solid #0c4a6e",
+                      color: "#0c4a6e",
+                      borderRadius: 20,
+                      padding: "4px 12px",
+                      fontSize: 13,
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {r.name ? `${r.name} — ${r.email}` : r.email}
+                  </span>
+                ))
+              )}
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm font-medium mb-1 block">Template</label>
-            <Select value={template} onValueChange={(v) => applyTemplate(v as TemplateKey)}>
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {(Object.keys(TEMPLATES) as TemplateKey[]).map((key) => (
-                  <SelectItem key={key} value={key}>{TEMPLATES[key].label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* Template */}
+          <div style={{ marginBottom: 18 }}>
+            <label style={{ color: "#64748b", fontSize: 13, display: "block", marginBottom: 6 }}>
+              Template
+            </label>
+            <select
+              value={template}
+              onChange={(e) => applyTemplate(e.target.value as TemplateKey)}
+              disabled={sending}
+              className="focus:outline-none"
+              style={{
+                width: "100%",
+                border: "1px solid #cbd5e1",
+                borderRadius: 8,
+                padding: "10px 14px",
+                fontSize: 14,
+                background: "#ffffff",
+                color: "#0f172a",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#0c4a6e")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "#cbd5e1")}
+            >
+              {TEMPLATE_ORDER.map((k) => (
+                <option key={k} value={k}>
+                  {TEMPLATES[k].label}
+                </option>
+              ))}
+            </select>
           </div>
 
-          <div>
-            <label className="text-sm font-medium mb-1 block">Subject</label>
-            <Input
+          {/* Subject */}
+          <div style={{ marginBottom: 18 }}>
+            <label style={{ color: "#64748b", fontSize: 13, display: "block", marginBottom: 6 }}>
+              Subject
+            </label>
+            <input
+              type="text"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Email subject"
               disabled={sending}
+              className="focus:outline-none"
+              style={{
+                width: "100%",
+                border: "1px solid #cbd5e1",
+                borderRadius: 8,
+                padding: "10px 14px",
+                fontSize: 14,
+                color: "#0f172a",
+                background: "#ffffff",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#0c4a6e")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "#cbd5e1")}
             />
           </div>
 
+          {/* Body */}
           <div>
-            <label className="text-sm font-medium mb-1 block">Message</label>
-            <Textarea
+            <label style={{ color: "#64748b", fontSize: 13, display: "block", marginBottom: 6 }}>
+              Message
+            </label>
+            <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="Write your message..."
+              placeholder="Write your message... (use [Name] to personalize)"
               rows={10}
               disabled={sending}
+              className="focus:outline-none"
+              style={{
+                width: "100%",
+                border: "1px solid #cbd5e1",
+                borderRadius: 8,
+                padding: "12px 14px",
+                fontSize: 14,
+                lineHeight: 1.7,
+                color: "#0f172a",
+                background: "#ffffff",
+                resize: "vertical",
+                minHeight: 220,
+                fontFamily: "inherit",
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = "#0c4a6e")}
+              onBlur={(e) => (e.currentTarget.style.borderColor = "#cbd5e1")}
             />
-          </div>
-
-          <div className="rounded-md border border-border p-3 space-y-3">
-            <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
-              <input
-                type="checkbox"
-                checked={includeCta}
-                onChange={(e) => setIncludeCta(e.target.checked)}
-                disabled={sending}
-              />
-              Include call-to-action button
-            </label>
-            {includeCta && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Button text</label>
-                  <Input
-                    value={ctaLabel}
-                    onChange={(e) => setCtaLabel(e.target.value)}
-                    placeholder="Enroll Now"
-                    disabled={sending}
-                  />
-                </div>
-                <div>
-                  <label className="text-xs text-muted-foreground mb-1 block">Button URL</label>
-                  <Input
-                    value={ctaUrl}
-                    onChange={(e) => setCtaUrl(e.target.value)}
-                    placeholder="https://..."
-                    disabled={sending}
-                  />
-                </div>
-              </div>
-            )}
+            <div
+              style={{
+                color: "#94a3b8",
+                fontSize: 12,
+                textAlign: "right",
+                marginTop: 4,
+              }}
+            >
+              {body.length} characters
+            </div>
           </div>
         </div>
 
-        <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={sending}>
-            Cancel
-          </Button>
-          <Button onClick={handleSend} disabled={sending}>
-            {sending ? (
-              <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending...</>
-            ) : (
-              <><Mail className="w-4 h-4 mr-2" /> Send</>
-            )}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        {/* Footer */}
+        <div
+          style={{
+            borderTop: "1px solid #e2e8f0",
+            padding: "16px 32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 16,
+            flexWrap: "wrap",
+          }}
+        >
+          <span style={{ color: "#94a3b8", fontSize: 12 }}>
+            Sent emails are logged in Email History
+          </span>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button
+              onClick={() => onOpenChange(false)}
+              disabled={sending}
+              style={{
+                background: "#ffffff",
+                border: "1px solid #cbd5e1",
+                color: "#475569",
+                borderRadius: 8,
+                padding: "10px 24px",
+                fontSize: 14,
+                cursor: sending ? "not-allowed" : "pointer",
+                opacity: sending ? 0.6 : 1,
+              }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSend}
+              disabled={!canSend || sending}
+              style={{
+                background: "#0c4a6e",
+                border: "none",
+                color: "#ffffff",
+                borderRadius: 8,
+                padding: "10px 24px",
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: !canSend || sending ? "not-allowed" : "pointer",
+                opacity: !canSend || sending ? 0.6 : 1,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                minWidth: 140,
+                justifyContent: "center",
+              }}
+            >
+              {sending ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Mail size={16} />
+                  Send Email
+                </>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
