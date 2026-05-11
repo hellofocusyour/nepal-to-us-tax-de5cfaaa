@@ -3,12 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { EmailComposeModal, type EmailRecipient } from "@/components/admin/EmailComposeModal";
 import { Search, Mail } from "lucide-react";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
@@ -29,9 +28,7 @@ const Inquiries = () => {
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [composeOpen, setComposeOpen] = useState(false);
-  const [composeRecipients, setComposeRecipients] = useState<Inquiry[]>([]);
-  const [subject, setSubject] = useState("");
-  const [body, setBody] = useState("");
+  const [composeRecipients, setComposeRecipients] = useState<EmailRecipient[]>([]);
 
   const fetchInquiries = async () => {
     let query = supabase.from("inquiries").select("*").order("created_at", { ascending: false });
@@ -76,22 +73,8 @@ const Inquiries = () => {
 
   const openComposeFor = (recipients: Inquiry[]) => {
     if (recipients.length === 0) return;
-    setComposeRecipients(recipients);
-    setSubject("");
-    setBody("");
+    setComposeRecipients(recipients.map(r => ({ name: r.full_name, email: r.email })));
     setComposeOpen(true);
-  };
-
-  const handleSend = () => {
-    if (!subject.trim() || !body.trim()) {
-      toast.error("Subject and message are required");
-      return;
-    }
-    const emails = composeRecipients.map(r => r.email).join(",");
-    const url = `mailto:${emails}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = url;
-    toast.success(`Opening email to ${composeRecipients.length} recipient(s)`);
-    setComposeOpen(false);
   };
 
   const selectedCount = selectedIds.size;
@@ -205,33 +188,11 @@ const Inquiries = () => {
         </CardContent>
       </Card>
 
-      <Dialog open={composeOpen} onOpenChange={setComposeOpen}>
-        <DialogContent className="sm:max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Compose Email</DialogTitle>
-            <DialogDescription>
-              To: {composeRecipients.map(r => r.full_name).join(", ")}
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium">Subject</label>
-              <Input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Email subject" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Message</label>
-              <Textarea value={body} onChange={e => setBody(e.target.value)} placeholder="Write your message..." rows={8} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setComposeOpen(false)}>Cancel</Button>
-            <Button onClick={handleSend}>
-              <Mail className="w-4 h-4 mr-2" />
-              Send
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <EmailComposeModal
+        open={composeOpen}
+        onOpenChange={setComposeOpen}
+        recipients={composeRecipients}
+      />
     </div>
   );
 };
