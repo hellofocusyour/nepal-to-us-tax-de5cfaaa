@@ -183,6 +183,40 @@ export const EmailComposeModal = ({
               disabled={sending}
             />
           </div>
+
+          <div className="rounded-md border border-border p-3 space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includeCta}
+                onChange={(e) => setIncludeCta(e.target.checked)}
+                disabled={sending}
+              />
+              Include call-to-action button
+            </label>
+            {includeCta && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Button text</label>
+                  <Input
+                    value={ctaLabel}
+                    onChange={(e) => setCtaLabel(e.target.value)}
+                    placeholder="Enroll Now"
+                    disabled={sending}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Button URL</label>
+                  <Input
+                    value={ctaUrl}
+                    onChange={(e) => setCtaUrl(e.target.value)}
+                    placeholder="https://..."
+                    disabled={sending}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         <DialogFooter>
