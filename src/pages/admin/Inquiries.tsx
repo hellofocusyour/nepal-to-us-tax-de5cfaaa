@@ -196,6 +196,12 @@ const Inquiries = () => {
           </Table>
         </CardContent>
       </Card>
+        </TabsContent>
+
+        <TabsContent value="emails">
+          <EmailHistory />
+        </TabsContent>
+      </Tabs>
 
       <EmailComposeModal
         open={composeOpen}
