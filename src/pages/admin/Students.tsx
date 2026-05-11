@@ -181,69 +181,123 @@ const Students = () => {
         </p>
       </div>
 
-      {/* Filters */}
-      <Card className="border border-border">
-        <CardContent className="p-4 flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Search students..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="Filter by status" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              {Object.entries(statusConfig).map(([key, { label, emoji }]) => (
-                <SelectItem key={key} value={key}>{emoji} {label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
+      <Tabs defaultValue="students" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="students">Students</TabsTrigger>
+          <TabsTrigger value="sms">SMS History</TabsTrigger>
+        </TabsList>
 
-      {/* Student Table */}
-      <Card className="border border-border">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead className="hidden md:table-cell">Email</TableHead>
-                <TableHead className="hidden lg:table-cell">Phone</TableHead>
-                <TableHead className="hidden lg:table-cell">Background</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {loading ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
-              ) : filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No students found</TableCell></TableRow>
-              ) : (
-                filtered.map((student) => {
-                  const status = statusConfig[student.status] || { label: student.status, emoji: "⚪", variant: "outline" as const };
-                  return (
-                    <TableRow key={student.id}>
-                      <TableCell className="font-medium">{student.full_name}</TableCell>
-                      <TableCell className="hidden md:table-cell">{student.email}</TableCell>
-                      <TableCell className="hidden lg:table-cell">{student.phone || "—"}</TableCell>
-                      <TableCell className="hidden lg:table-cell capitalize">{student.background || "—"}</TableCell>
-                      <TableCell>
-                        <Badge variant={status.variant}>{status.emoji} {status.label}</Badge>
-                      </TableCell>
-                      <TableCell>
-                        <Button variant="ghost" size="sm" onClick={() => setSelectedStudent(student)}>
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+        <TabsContent value="students" className="space-y-6">
+          {/* Filters */}
+          <Card className="border border-border">
+            <CardContent className="p-4 flex flex-col sm:flex-row gap-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                <Input placeholder="Search students..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
+              </div>
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-full sm:w-48"><SelectValue placeholder="Filter by status" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Statuses</SelectItem>
+                  {Object.entries(statusConfig).map(([key, { label, emoji }]) => (
+                    <SelectItem key={key} value={key}>{emoji} {label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+
+          {selectedIds.size > 0 && (
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-md border border-border bg-muted/40 px-4 py-2">
+              <span className="text-sm text-muted-foreground">{selectedIds.size} selected</span>
+              <Button size="sm" variant="outline" onClick={() => openSmsFor(selectedStudents)}>
+                <MessageSquare className="w-4 h-4 mr-2" />
+                Send SMS ({selectedStudents.filter(s => s.phone).length})
+              </Button>
+            </div>
+          )}
+
+          {/* Student Table */}
+          <Card className="border border-border">
+            <CardContent className="p-0">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-10">
+                      <Checkbox
+                        checked={allVisibleSelected ? true : someVisibleSelected ? "indeterminate" : false}
+                        onCheckedChange={(c) => toggleAll(Boolean(c))}
+                        aria-label="Select all"
+                      />
+                    </TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead className="hidden md:table-cell">Email</TableHead>
+                    <TableHead className="hidden lg:table-cell">Phone</TableHead>
+                    <TableHead className="hidden lg:table-cell">Background</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {loading ? (
+                    <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+                  ) : filtered.length === 0 ? (
+                    <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No students found</TableCell></TableRow>
+                  ) : (
+                    filtered.map((student) => {
+                      const status = statusConfig[student.status] || { label: student.status, emoji: "⚪", variant: "outline" as const };
+                      return (
+                        <TableRow key={student.id} data-state={selectedIds.has(student.id) ? "selected" : undefined}>
+                          <TableCell>
+                            <Checkbox
+                              checked={selectedIds.has(student.id)}
+                              onCheckedChange={(c) => toggleOne(student.id, Boolean(c))}
+                              aria-label={`Select ${student.full_name}`}
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium">{student.full_name}</TableCell>
+                          <TableCell className="hidden md:table-cell">{student.email}</TableCell>
+                          <TableCell className="hidden lg:table-cell">{student.phone || "—"}</TableCell>
+                          <TableCell className="hidden lg:table-cell capitalize">{student.background || "—"}</TableCell>
+                          <TableCell>
+                            <Badge variant={status.variant}>{status.emoji} {status.label}</Badge>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              <Button variant="ghost" size="sm" onClick={() => setSelectedStudent(student)}>
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => openSmsFor([student])}
+                                disabled={!student.phone}
+                                title={student.phone ? "Send SMS" : "No phone number"}
+                              >
+                                <MessageSquare className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="sms">
+          <SmsHistory />
+        </TabsContent>
+      </Tabs>
+
+      <SmsComposeModal
+        open={smsOpen}
+        onOpenChange={setSmsOpen}
+        recipients={smsRecipients}
+      />
 
       {/* Student Detail Dialog */}
       <Dialog open={!!selectedStudent} onOpenChange={(open) => !open && setSelectedStudent(null)}>
