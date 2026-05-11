@@ -19,11 +19,63 @@ interface Payload {
 const escapeHtml = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-const wrapHtml = (body: string) => `
-<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;background:#fff;color:#1f2937;padding:24px;max-width:560px;margin:0 auto;line-height:1.6;">
-  ${body.includes("<") ? body : escapeHtml(body).replace(/\n/g, "<br/>")}
-  <p style="color:#6b7280;font-size:12px;margin-top:24px;">— Focus Academy</p>
-</div>`;
+const LOGO_URL = "https://heupdkfdjdrbdwvzlywf.supabase.co/storage/v1/object/public/email-assets/logo.png";
+const SITE_URL = "https://academy.focusyourfinance.com";
+const SUPPORT_EMAIL = "hello@focusyourfinance.com";
+const SUPPORT_PHONE = "+977 9802374215";
+
+const wrapHtml = (body: string, subject: string) => {
+  const content = body.includes("<") ? body : escapeHtml(body).replace(/\n/g, "<br/>");
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>${escapeHtml(subject)}</title>
+</head>
+<body style="margin:0;padding:0;background:#eef2f7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#0f172a;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;">${escapeHtml(subject)} — Focus Academy</div>
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef2f7;padding:32px 12px;">
+    <tr><td align="center">
+      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 6px 24px rgba(15,23,42,0.08);">
+        <!-- Header -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#0c4a6e 0%,#075985 50%,#0369a1 100%);padding:28px 32px;text-align:center;">
+            <img src="${LOGO_URL}" alt="Focus Academy" width="64" height="64" style="display:inline-block;border-radius:12px;background:#ffffff;padding:6px;margin-bottom:10px;" />
+            <div style="color:#ffffff;font-size:20px;font-weight:700;letter-spacing:0.3px;">Focus Academy</div>
+            <div style="color:#fcd34d;font-size:12px;font-weight:500;margin-top:4px;letter-spacing:1.5px;text-transform:uppercase;">US Tax Career Program</div>
+          </td>
+        </tr>
+        <!-- Body -->
+        <tr>
+          <td style="padding:32px;line-height:1.65;font-size:15px;color:#1f2937;">
+            ${content}
+          </td>
+        </tr>
+        <!-- Divider -->
+        <tr><td style="padding:0 32px;"><div style="height:1px;background:#e5e7eb;"></div></td></tr>
+        <!-- Contact -->
+        <tr>
+          <td style="padding:20px 32px;font-size:13px;color:#475569;">
+            <div style="font-weight:600;color:#0c4a6e;margin-bottom:6px;">Need help?</div>
+            <div>📧 <a href="mailto:${SUPPORT_EMAIL}" style="color:#0369a1;text-decoration:none;">${SUPPORT_EMAIL}</a></div>
+            <div>📞 ${SUPPORT_PHONE}</div>
+            <div style="margin-top:8px;">🌐 <a href="${SITE_URL}" style="color:#0369a1;text-decoration:none;">academy.focusyourfinance.com</a></div>
+          </td>
+        </tr>
+        <!-- Footer -->
+        <tr>
+          <td style="background:#0c4a6e;padding:18px 32px;text-align:center;color:#cbd5e1;font-size:12px;">
+            © ${new Date().getFullYear()} Focus Academy · Bridging Nepal to US Tax Careers
+            <div style="margin-top:6px;color:#94a3b8;">You received this email because you engaged with Focus Academy.</div>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`;
+};
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
