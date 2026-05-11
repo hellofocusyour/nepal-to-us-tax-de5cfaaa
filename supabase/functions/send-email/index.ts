@@ -128,7 +128,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    const html = wrapHtml(payload.body);
+    const html = wrapHtml(payload.body, payload.subject);
 
     const results = await Promise.all(
       recipients.map(async (r) => {
