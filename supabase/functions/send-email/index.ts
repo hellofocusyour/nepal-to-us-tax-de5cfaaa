@@ -147,14 +147,23 @@ Deno.serve(async (req) => {
       });
     }
 
+    const personalize = (text: string, name: string | null | undefined) => {
+      const first = (name ?? "").trim().split(/\s+/)[0] || "there";
+      return text
+        .replace(/\[Name\]/g, first)
+        .replace(/\[NAME\]/g, first)
+        .replace(/\[name\]/g, first);
+    };
+
     const results = await Promise.all(
       recipients.map(async (r) => {
+        const personalBody = personalize(payload.body, r.name);
         // Insert pending log first to get an id used for tracking links.
         const { data: inserted } = await admin.from("email_logs").insert({
           recipient_name: r.name ?? null,
           recipient_email: r.email,
           subject: payload.subject,
-          body: payload.body,
+          body: personalBody,
           status: "sent", // optimistic; will update on failure
           sent_by: sentBy,
           inquiry_id: r.inquiry_id ?? r.id ?? null,
@@ -163,7 +172,7 @@ Deno.serve(async (req) => {
         }).select("id").single();
 
         const logId = inserted?.id as string;
-        const html = wrapHtml(payload.body, payload.subject, logId, cta);
+        const html = wrapHtml(personalBody, payload.subject, logId, cta);
 
         let ok = false, status = 0, errMsg: string | null = null;
         try {
