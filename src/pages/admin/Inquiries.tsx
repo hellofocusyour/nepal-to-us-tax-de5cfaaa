@@ -29,6 +29,7 @@ const Inquiries = () => {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [composeOpen, setComposeOpen] = useState(false);
