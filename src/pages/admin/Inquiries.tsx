@@ -107,6 +107,7 @@ const Inquiries = () => {
         <TabsList>
           <TabsTrigger value="inquiries">Inquiries</TabsTrigger>
           <TabsTrigger value="emails">Email History</TabsTrigger>
+          <TabsTrigger value="sms">SMS History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="inquiries" className="space-y-6">
@@ -130,12 +131,18 @@ const Inquiries = () => {
       </Card>
 
       {selectedCount > 0 && (
-        <div className="flex items-center justify-between rounded-md border border-border bg-muted/40 px-4 py-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-md border border-border bg-muted/40 px-4 py-2">
           <span className="text-sm text-muted-foreground">{selectedCount} selected</span>
-          <Button size="sm" onClick={() => openComposeFor(selectedInquiries)}>
-            <Mail className="w-4 h-4 mr-2" />
-            Send Email to Selected ({selectedCount})
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => openSmsFor(selectedInquiries)}>
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Send SMS ({selectedInquiries.filter(i => i.phone).length})
+            </Button>
+            <Button size="sm" onClick={() => openComposeFor(selectedInquiries)}>
+              <Mail className="w-4 h-4 mr-2" />
+              Send Email ({selectedCount})
+            </Button>
+          </div>
         </div>
       )}
 
@@ -201,6 +208,17 @@ const Inquiries = () => {
                           <Mail className="w-4 h-4 mr-1" />
                           Email
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => openSmsFor([inquiry])}
+                          disabled={!inquiry.phone}
+                          title={inquiry.phone ? "Send SMS" : "No phone number"}
+                        >
+                          <MessageSquare className="w-4 h-4 mr-1" />
+                          SMS
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -215,12 +233,21 @@ const Inquiries = () => {
         <TabsContent value="emails">
           <EmailHistory />
         </TabsContent>
+
+        <TabsContent value="sms">
+          <SmsHistory />
+        </TabsContent>
       </Tabs>
 
       <EmailComposeModal
         open={composeOpen}
         onOpenChange={setComposeOpen}
         recipients={composeRecipients}
+      />
+      <SmsComposeModal
+        open={smsOpen}
+        onOpenChange={setSmsOpen}
+        recipients={smsRecipients}
       />
     </div>
   );
