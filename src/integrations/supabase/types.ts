@@ -558,6 +558,48 @@ export type Database = {
         }
         Relationships: []
       }
+      sms_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          inquiry_id: string | null
+          message: string
+          provider_response: Json | null
+          recipient_name: string | null
+          recipient_phone: string
+          sent_by: string | null
+          status: string
+          student_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          inquiry_id?: string | null
+          message: string
+          provider_response?: Json | null
+          recipient_name?: string | null
+          recipient_phone: string
+          sent_by?: string | null
+          status?: string
+          student_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          inquiry_id?: string | null
+          message?: string
+          provider_response?: Json | null
+          recipient_name?: string | null
+          recipient_phone?: string
+          sent_by?: string | null
+          status?: string
+          student_id?: string | null
+        }
+        Relationships: []
+      }
       students: {
         Row: {
           background: string | null
