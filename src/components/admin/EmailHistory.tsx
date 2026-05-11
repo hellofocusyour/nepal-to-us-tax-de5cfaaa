@@ -2,9 +2,15 @@ import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Search, Inbox } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Search, Inbox, Trash2, Eye, MousePointerClick } from "lucide-react";
+import { toast } from "sonner";
 
 interface EmailLog {
   id: string;
@@ -14,23 +20,30 @@ interface EmailLog {
   status: string;
   error_message: string | null;
   created_at: string;
+  opens_count: number | null;
+  clicks_count: number | null;
+  last_opened_at: string | null;
+  last_clicked_at: string | null;
 }
 
 export const EmailHistory = () => {
   const [logs, setLogs] = useState<EmailLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [pendingDelete, setPendingDelete] = useState<EmailLog | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      const { data } = await (supabase as any)
-        .from("email_logs")
-        .select("*")
-        .order("created_at", { ascending: false });
-      setLogs((data as EmailLog[]) || []);
-      setLoading(false);
-    })();
-  }, []);
+  const load = async () => {
+    setLoading(true);
+    const { data } = await (supabase as any)
+      .from("email_logs")
+      .select("*")
+      .order("created_at", { ascending: false });
+    setLogs((data as EmailLog[]) || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, []);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
@@ -47,6 +60,21 @@ export const EmailHistory = () => {
       year: "numeric", month: "short", day: "numeric",
       hour: "2-digit", minute: "2-digit",
     });
+
+  const handleDelete = async () => {
+    if (!pendingDelete) return;
+    setDeleting(true);
+    const { error } = await (supabase as any)
+      .from("email_logs").delete().eq("id", pendingDelete.id);
+    setDeleting(false);
+    if (error) {
+      toast.error(`Delete failed: ${error.message}`);
+      return;
+    }
+    setLogs((prev) => prev.filter((l) => l.id !== pendingDelete.id));
+    toast.success("Email log deleted");
+    setPendingDelete(null);
+  };
 
   return (
     <div className="space-y-4">
@@ -73,19 +101,22 @@ export const EmailHistory = () => {
                 <TableHead>Email</TableHead>
                 <TableHead>Subject</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Opens</TableHead>
+                <TableHead>Clicks</TableHead>
                 <TableHead>Date &amp; Time</TableHead>
+                <TableHead className="w-[60px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     Loading...
                   </TableCell>
                 </TableRow>
               ) : logs.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-12">
+                  <TableCell colSpan={8} className="text-center py-12">
                     <div className="flex flex-col items-center gap-2 text-muted-foreground">
                       <Inbox className="w-10 h-10 opacity-50" />
                       <p className="font-medium">No emails sent yet</p>
@@ -95,7 +126,7 @@ export const EmailHistory = () => {
                 </TableRow>
               ) : filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     No emails match your search
                   </TableCell>
                 </TableRow>
@@ -114,7 +145,36 @@ export const EmailHistory = () => {
                         </Badge>
                       )}
                     </TableCell>
+                    <TableCell>
+                      <span
+                        className="inline-flex items-center gap-1 text-sm"
+                        title={l.last_opened_at ? `Last opened: ${formatDate(l.last_opened_at)}` : "Not opened yet"}
+                      >
+                        <Eye className="w-3.5 h-3.5 text-muted-foreground" />
+                        {l.opens_count ?? 0}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <span
+                        className="inline-flex items-center gap-1 text-sm"
+                        title={l.last_clicked_at ? `Last clicked: ${formatDate(l.last_clicked_at)}` : "No clicks yet"}
+                      >
+                        <MousePointerClick className="w-3.5 h-3.5 text-muted-foreground" />
+                        {l.clicks_count ?? 0}
+                      </span>
+                    </TableCell>
                     <TableCell className="whitespace-nowrap">{formatDate(l.created_at)}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => setPendingDelete(l)}
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
@@ -122,6 +182,27 @@ export const EmailHistory = () => {
           </Table>
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!pendingDelete} onOpenChange={(o) => !o && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete this email log?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This removes the record for <strong>{pendingDelete?.recipient_email}</strong> ({pendingDelete?.subject}) from your history. The recipient still has the email — only the log is removed. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

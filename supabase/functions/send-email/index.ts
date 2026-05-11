@@ -1,4 +1,5 @@
-// Generic admin-triggered email sender via Resend gateway. Logs every send to email_logs.
+// Generic admin-triggered email sender via Resend gateway. Logs every send to email_logs
+// and injects open/click tracking + optional CTA button.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
@@ -14,6 +15,8 @@ interface Payload {
   to: Recipient[] | string[];
   subject: string;
   body: string;
+  cta_label?: string | null;
+  cta_url?: string | null;
 }
 
 const escapeHtml = (s: string) =>
@@ -23,9 +26,25 @@ const LOGO_URL = "https://heupdkfdjdrbdwvzlywf.supabase.co/storage/v1/object/pub
 const SITE_URL = "https://academy.focusyourfinance.com";
 const SUPPORT_EMAIL = "hello@focusyourfinance.com";
 const SUPPORT_PHONE = "+977 9802374215";
+const TRACK_BASE = "https://heupdkfdjdrbdwvzlywf.supabase.co/functions/v1/email-track";
 
-const wrapHtml = (body: string, subject: string) => {
+const wrapHtml = (
+  body: string,
+  subject: string,
+  logId: string,
+  cta?: { label: string; url: string } | null,
+) => {
   const content = body.includes("<") ? body : escapeHtml(body).replace(/\n/g, "<br/>");
+  const ctaBlock = cta && cta.label && cta.url ? `
+        <tr>
+          <td style="padding:8px 32px 28px;text-align:center;">
+            <a href="${TRACK_BASE}?e=click&id=${logId}&u=${encodeURIComponent(cta.url)}"
+               style="display:inline-block;background:linear-gradient(135deg,#0c4a6e,#0369a1);color:#ffffff;text-decoration:none;font-weight:600;font-size:15px;padding:14px 32px;border-radius:10px;box-shadow:0 4px 12px rgba(3,105,161,0.3);">
+              ${escapeHtml(cta.label)}
+            </a>
+          </td>
+        </tr>` : "";
+  const pixel = `<img src="${TRACK_BASE}?e=open&id=${logId}" width="1" height="1" alt="" style="display:block;width:1px;height:1px;border:0;" />`;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -38,7 +57,6 @@ const wrapHtml = (body: string, subject: string) => {
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#eef2f7;padding:32px 12px;">
     <tr><td align="center">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 6px 24px rgba(15,23,42,0.08);">
-        <!-- Header -->
         <tr>
           <td style="background:linear-gradient(135deg,#0c4a6e 0%,#075985 50%,#0369a1 100%);padding:28px 32px;text-align:center;">
             <img src="${LOGO_URL}" alt="Focus Academy" width="64" height="64" style="display:inline-block;border-radius:12px;background:#ffffff;padding:6px;margin-bottom:10px;" />
@@ -46,15 +64,13 @@ const wrapHtml = (body: string, subject: string) => {
             <div style="color:#fcd34d;font-size:12px;font-weight:500;margin-top:4px;letter-spacing:1.5px;text-transform:uppercase;">US Tax Career Program</div>
           </td>
         </tr>
-        <!-- Body -->
         <tr>
-          <td style="padding:32px;line-height:1.65;font-size:15px;color:#1f2937;">
+          <td style="padding:32px 32px 8px;line-height:1.65;font-size:15px;color:#1f2937;">
             ${content}
           </td>
         </tr>
-        <!-- Divider -->
+        ${ctaBlock}
         <tr><td style="padding:0 32px;"><div style="height:1px;background:#e5e7eb;"></div></td></tr>
-        <!-- Contact -->
         <tr>
           <td style="padding:20px 32px;font-size:13px;color:#475569;">
             <div style="font-weight:600;color:#0c4a6e;margin-bottom:6px;">Need help?</div>
@@ -63,7 +79,6 @@ const wrapHtml = (body: string, subject: string) => {
             <div style="margin-top:8px;">🌐 <a href="${SITE_URL}" style="color:#0369a1;text-decoration:none;">academy.focusyourfinance.com</a></div>
           </td>
         </tr>
-        <!-- Footer -->
         <tr>
           <td style="background:#0c4a6e;padding:18px 32px;text-align:center;color:#cbd5e1;font-size:12px;">
             © ${new Date().getFullYear()} Focus Academy · Bridging Nepal to US Tax Careers
@@ -71,6 +86,7 @@ const wrapHtml = (body: string, subject: string) => {
           </td>
         </tr>
       </table>
+      ${pixel}
     </td></tr>
   </table>
 </body>
@@ -84,7 +100,6 @@ Deno.serve(async (req) => {
   const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
   const admin = createClient(SUPABASE_URL, SERVICE_KEY);
 
-  // Identify caller (best-effort) for sent_by
   let sentBy: string | null = null;
   const auth = req.headers.get("Authorization");
   if (auth) {
@@ -118,6 +133,10 @@ Deno.serve(async (req) => {
       });
     }
 
+    const cta = payload.cta_label?.trim() && payload.cta_url?.trim()
+      ? { label: payload.cta_label.trim(), url: payload.cta_url.trim() }
+      : null;
+
     const recipients: Recipient[] = payload.to.map((r) =>
       typeof r === "string" ? { email: r, name: null } : r
     ).filter((r) => !!r.email);
@@ -128,10 +147,24 @@ Deno.serve(async (req) => {
       });
     }
 
-    const html = wrapHtml(payload.body, payload.subject);
-
     const results = await Promise.all(
       recipients.map(async (r) => {
+        // Insert pending log first to get an id used for tracking links.
+        const { data: inserted } = await admin.from("email_logs").insert({
+          recipient_name: r.name ?? null,
+          recipient_email: r.email,
+          subject: payload.subject,
+          body: payload.body,
+          status: "sent", // optimistic; will update on failure
+          sent_by: sentBy,
+          inquiry_id: r.inquiry_id ?? r.id ?? null,
+          cta_label: cta?.label ?? null,
+          cta_url: cta?.url ?? null,
+        }).select("id").single();
+
+        const logId = inserted?.id as string;
+        const html = wrapHtml(payload.body, payload.subject, logId, cta);
+
         let ok = false, status = 0, errMsg: string | null = null;
         try {
           const res = await fetch(`${GATEWAY_URL}/emails`, {
@@ -153,16 +186,11 @@ Deno.serve(async (req) => {
           errMsg = (e as Error).message;
         }
 
-        await admin.from("email_logs").insert({
-          recipient_name: r.name ?? null,
-          recipient_email: r.email,
-          subject: payload.subject,
-          body: payload.body,
-          status: ok ? "sent" : "failed",
-          error_message: errMsg,
-          sent_by: sentBy,
-          inquiry_id: r.inquiry_id ?? r.id ?? null,
-        });
+        if (!ok && logId) {
+          await admin.from("email_logs").update({
+            status: "failed", error_message: errMsg,
+          }).eq("id", logId);
+        }
 
         return { to: r.email, ok, status, error: errMsg };
       })

@@ -66,6 +66,9 @@ export const EmailComposeModal = ({
   const [template, setTemplate] = useState<TemplateKey>("custom");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [ctaLabel, setCtaLabel] = useState("Enroll Now");
+  const [ctaUrl, setCtaUrl] = useState("https://academy.focusyourfinance.com");
+  const [includeCta, setIncludeCta] = useState(true);
   const [sending, setSending] = useState(false);
 
   // Reset to Custom on every open.
@@ -74,6 +77,9 @@ export const EmailComposeModal = ({
       setTemplate("custom");
       setSubject("");
       setBody("");
+      setCtaLabel("Enroll Now");
+      setCtaUrl("https://academy.focusyourfinance.com");
+      setIncludeCta(true);
     }
   }, [open]);
 
@@ -104,7 +110,13 @@ export const EmailComposeModal = ({
     setSending(true);
     try {
       const { data, error } = await supabase.functions.invoke("send-email", {
-        body: { to: recipients, subject, body },
+        body: {
+          to: recipients,
+          subject,
+          body,
+          cta_label: includeCta ? ctaLabel : null,
+          cta_url: includeCta ? ctaUrl : null,
+        },
       });
       if (error) throw error;
       const failed = (data as { failed?: number })?.failed ?? 0;
@@ -170,6 +182,40 @@ export const EmailComposeModal = ({
               rows={10}
               disabled={sending}
             />
+          </div>
+
+          <div className="rounded-md border border-border p-3 space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+              <input
+                type="checkbox"
+                checked={includeCta}
+                onChange={(e) => setIncludeCta(e.target.checked)}
+                disabled={sending}
+              />
+              Include call-to-action button
+            </label>
+            {includeCta && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Button text</label>
+                  <Input
+                    value={ctaLabel}
+                    onChange={(e) => setCtaLabel(e.target.value)}
+                    placeholder="Enroll Now"
+                    disabled={sending}
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">Button URL</label>
+                  <Input
+                    value={ctaUrl}
+                    onChange={(e) => setCtaUrl(e.target.value)}
+                    placeholder="https://..."
+                    disabled={sending}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
