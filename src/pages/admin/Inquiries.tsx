@@ -173,15 +173,16 @@ const Inquiries = () => {
                 <TableHead className="hidden md:table-cell">Email</TableHead>
                 <TableHead className="hidden lg:table-cell">Phone</TableHead>
                 <TableHead className="hidden lg:table-cell">Background</TableHead>
+                <TableHead>Source</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
               ) : filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">No inquiries found</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No inquiries found</TableCell></TableRow>
               ) : (
                 filtered.map((inquiry) => (
                   <TableRow key={inquiry.id} data-state={selectedIds.has(inquiry.id) ? "selected" : undefined}>
@@ -196,6 +197,18 @@ const Inquiries = () => {
                     <TableCell className="hidden md:table-cell">{inquiry.email}</TableCell>
                     <TableCell className="hidden lg:table-cell">{inquiry.phone || "—"}</TableCell>
                     <TableCell className="hidden lg:table-cell capitalize">{inquiry.background || "—"}</TableCell>
+                    <TableCell>
+                      {(() => {
+                        const src = (inquiry as any).source || "website";
+                        const label = src === "facebook_ads" ? "Facebook Ads" : src === "manual" ? "Manual" : "Website";
+                        const cls = src === "facebook_ads"
+                          ? "bg-[#1877F2]/10 text-[#1877F2] border-[#1877F2]/30"
+                          : src === "manual"
+                          ? "bg-muted text-foreground border-border"
+                          : "bg-primary/10 text-primary border-primary/30";
+                        return <Badge variant="outline" className={cls}>{label}</Badge>;
+                      })()}
+                    </TableCell>
                     <TableCell>
                       <Badge variant={statusColors[inquiry.status] || "outline"} className="capitalize">{inquiry.status}</Badge>
                     </TableCell>
