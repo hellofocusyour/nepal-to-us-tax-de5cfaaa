@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
-import { Search, Plus, Eye } from "lucide-react";
+import { Search, Plus, Eye, Info } from "lucide-react";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -36,7 +36,25 @@ const Students = () => {
   const [newStudent, setNewStudent] = useState({ full_name: "", email: "", phone: "", background: "" });
 
   const fetchStudents = async () => {
-    let query = supabase.from("students").select("*").order("created_at", { ascending: false });
+    setLoading(true);
+    // Only show students who have at least one verified payment.
+    const { data: paidRows } = await supabase
+      .from("payments")
+      .select("student_id")
+      .eq("status", "verified");
+    const paidIds = Array.from(new Set((paidRows || []).map(p => p.student_id).filter(Boolean))) as string[];
+
+    if (paidIds.length === 0) {
+      setStudents([]);
+      setLoading(false);
+      return;
+    }
+
+    let query = supabase
+      .from("students")
+      .select("*")
+      .in("id", paidIds)
+      .order("created_at", { ascending: false });
     if (statusFilter !== "all") query = query.eq("status", statusFilter as Student["status"]);
     const { data } = await query;
     setStudents(data || []);
@@ -122,6 +140,14 @@ const Students = () => {
             </div>
           </DialogContent>
         </Dialog>
+      </div>
+
+      {/* Info Banner */}
+      <div className="flex items-start gap-3 rounded-md border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
+        <Info className="w-4 h-4 mt-0.5 text-primary shrink-0" />
+        <p className="text-foreground">
+          Showing enrolled students only. Unpaid inquiries are managed in the Inquiries section.
+        </p>
       </div>
 
       {/* Filters */}
