@@ -7,9 +7,9 @@ const corsHeaders = {
 };
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
-const FROM = "Focus Academy <onboarding@resend.dev>";
+const FROM = "Focus Academy <hello@focusyourfinance.com>";
 
-interface Recipient { name?: string | null; email: string }
+interface Recipient { id?: string | null; name?: string | null; email: string; inquiry_id?: string | null }
 interface Payload {
   to: Recipient[] | string[];
   subject: string;
@@ -109,6 +109,7 @@ Deno.serve(async (req) => {
           status: ok ? "sent" : "failed",
           error_message: errMsg,
           sent_by: sentBy,
+          inquiry_id: r.inquiry_id ?? r.id ?? null,
         });
 
         return { to: r.email, ok, status, error: errMsg };

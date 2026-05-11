@@ -75,7 +75,7 @@ const Inquiries = () => {
 
   const openComposeFor = (recipients: Inquiry[]) => {
     if (recipients.length === 0) return;
-    setComposeRecipients(recipients.map(r => ({ name: r.full_name, email: r.email })));
+    setComposeRecipients(recipients.map(r => ({ name: r.full_name, email: r.email, inquiry_id: r.id })));
     setComposeOpen(true);
   };
 
