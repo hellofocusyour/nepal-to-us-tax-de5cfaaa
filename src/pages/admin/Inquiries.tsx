@@ -9,8 +9,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { EmailComposeModal, type EmailRecipient } from "@/components/admin/EmailComposeModal";
 import { EmailHistory } from "@/components/admin/EmailHistory";
+import { SmsComposeModal, type SmsRecipient } from "@/components/admin/SmsComposeModal";
+import { SmsHistory } from "@/components/admin/SmsHistory";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Search, Mail } from "lucide-react";
+import { Search, Mail, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -31,6 +33,8 @@ const Inquiries = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [composeOpen, setComposeOpen] = useState(false);
   const [composeRecipients, setComposeRecipients] = useState<EmailRecipient[]>([]);
+  const [smsOpen, setSmsOpen] = useState(false);
+  const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
 
   const fetchInquiries = async () => {
     let query = supabase.from("inquiries").select("*").order("created_at", { ascending: false });
@@ -79,6 +83,16 @@ const Inquiries = () => {
     setComposeOpen(true);
   };
 
+  const openSmsFor = (recipients: Inquiry[]) => {
+    const withPhone = recipients.filter(r => r.phone && r.phone.trim());
+    if (withPhone.length === 0) {
+      toast.error("Selected inquiries have no phone numbers");
+      return;
+    }
+    setSmsRecipients(withPhone.map(r => ({ name: r.full_name, phone: r.phone!, inquiry_id: r.id })));
+    setSmsOpen(true);
+  };
+
   const selectedCount = selectedIds.size;
   const selectedInquiries = inquiries.filter(i => selectedIds.has(i.id));
 
@@ -93,6 +107,7 @@ const Inquiries = () => {
         <TabsList>
           <TabsTrigger value="inquiries">Inquiries</TabsTrigger>
           <TabsTrigger value="emails">Email History</TabsTrigger>
+          <TabsTrigger value="sms">SMS History</TabsTrigger>
         </TabsList>
 
         <TabsContent value="inquiries" className="space-y-6">
@@ -116,12 +131,18 @@ const Inquiries = () => {
       </Card>
 
       {selectedCount > 0 && (
-        <div className="flex items-center justify-between rounded-md border border-border bg-muted/40 px-4 py-2">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-md border border-border bg-muted/40 px-4 py-2">
           <span className="text-sm text-muted-foreground">{selectedCount} selected</span>
-          <Button size="sm" onClick={() => openComposeFor(selectedInquiries)}>
-            <Mail className="w-4 h-4 mr-2" />
-            Send Email to Selected ({selectedCount})
-          </Button>
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" onClick={() => openSmsFor(selectedInquiries)}>
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Send SMS ({selectedInquiries.filter(i => i.phone).length})
+            </Button>
+            <Button size="sm" onClick={() => openComposeFor(selectedInquiries)}>
+              <Mail className="w-4 h-4 mr-2" />
+              Send Email ({selectedCount})
+            </Button>
+          </div>
         </div>
       )}
 
@@ -187,6 +208,17 @@ const Inquiries = () => {
                           <Mail className="w-4 h-4 mr-1" />
                           Email
                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8"
+                          onClick={() => openSmsFor([inquiry])}
+                          disabled={!inquiry.phone}
+                          title={inquiry.phone ? "Send SMS" : "No phone number"}
+                        >
+                          <MessageSquare className="w-4 h-4 mr-1" />
+                          SMS
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -201,12 +233,21 @@ const Inquiries = () => {
         <TabsContent value="emails">
           <EmailHistory />
         </TabsContent>
+
+        <TabsContent value="sms">
+          <SmsHistory />
+        </TabsContent>
       </Tabs>
 
       <EmailComposeModal
         open={composeOpen}
         onOpenChange={setComposeOpen}
         recipients={composeRecipients}
+      />
+      <SmsComposeModal
+        open={smsOpen}
+        onOpenChange={setSmsOpen}
+        recipients={smsRecipients}
       />
     </div>
   );
