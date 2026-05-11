@@ -155,8 +155,15 @@ Deno.serve(async (req) => {
         .replace(/\[name\]/g, first);
     };
 
-    const results = await Promise.all(
-      recipients.map(async (r) => {
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+    // Resend free tier allows 2 req/sec — pace at ~1.5 emails/sec to be safe.
+    const PACE_MS = 700;
+
+    const results: Array<{ to: string; ok: boolean; status: number; error: string | null }> = [];
+    for (let i = 0; i < recipients.length; i++) {
+      const r = recipients[i];
+      if (i > 0) await sleep(PACE_MS);
+      const sendOne = async () => {
         const personalBody = personalize(payload.body, r.name);
         // Insert pending log first to get an id used for tracking links.
         const { data: inserted } = await admin.from("email_logs").insert({
@@ -175,24 +182,32 @@ Deno.serve(async (req) => {
         const html = wrapHtml(personalBody, payload.subject, logId, cta);
 
         let ok = false, status = 0, errMsg: string | null = null;
-        try {
-          const res = await fetch(`${GATEWAY_URL}/emails`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${LOVABLE_API_KEY}`,
-              "X-Connection-Api-Key": RESEND_API_KEY,
-            },
-            body: JSON.stringify({ from: FROM, to: [r.email], subject: payload.subject, html }),
-          });
-          status = res.status;
-          ok = res.ok;
-          if (!ok) {
+        // Retry up to 3 times on 429 rate-limit
+        for (let attempt = 0; attempt < 3; attempt++) {
+          try {
+            const res = await fetch(`${GATEWAY_URL}/emails`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${LOVABLE_API_KEY}`,
+                "X-Connection-Api-Key": RESEND_API_KEY,
+              },
+              body: JSON.stringify({ from: FROM, to: [r.email], subject: payload.subject, html }),
+            });
+            status = res.status;
+            ok = res.ok;
+            if (ok) break;
             const data = await res.json().catch(() => ({}));
             errMsg = data?.message || data?.error || `HTTP ${status}`;
+            if (status === 429) {
+              await sleep(1200 * (attempt + 1));
+              continue;
+            }
+            break;
+          } catch (e) {
+            errMsg = (e as Error).message;
+            break;
           }
-        } catch (e) {
-          errMsg = (e as Error).message;
         }
 
         if (!ok && logId) {
@@ -202,8 +217,9 @@ Deno.serve(async (req) => {
         }
 
         return { to: r.email, ok, status, error: errMsg };
-      })
-    );
+      };
+      results.push(await sendOne());
+    }
 
     const failed = results.filter((r) => !r.ok).length;
     return new Response(
