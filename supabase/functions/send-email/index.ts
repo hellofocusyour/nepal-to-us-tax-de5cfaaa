@@ -7,7 +7,7 @@ const corsHeaders = {
 };
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
-const FROM = "Focus Academy <hello@focusyourfinance.com>";
+const FROM = "Focus Academy <onboarding@resend.dev>";
 
 interface Recipient { id?: string | null; name?: string | null; email: string; inquiry_id?: string | null }
 interface Payload {
