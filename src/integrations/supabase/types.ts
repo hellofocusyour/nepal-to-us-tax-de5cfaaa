@@ -268,6 +268,7 @@ export type Database = {
           created_at: string
           error_message: string | null
           id: string
+          inquiry_id: string | null
           recipient_email: string
           recipient_name: string | null
           sent_by: string | null
@@ -279,6 +280,7 @@ export type Database = {
           created_at?: string
           error_message?: string | null
           id?: string
+          inquiry_id?: string | null
           recipient_email: string
           recipient_name?: string | null
           sent_by?: string | null
@@ -290,13 +292,22 @@ export type Database = {
           created_at?: string
           error_message?: string | null
           id?: string
+          inquiry_id?: string | null
           recipient_email?: string
           recipient_name?: string | null
           sent_by?: string | null
           status?: string
           subject?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "email_logs_inquiry_id_fkey"
+            columns: ["inquiry_id"]
+            isOneToOne: false
+            referencedRelation: "inquiries"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       inquiries: {
         Row: {

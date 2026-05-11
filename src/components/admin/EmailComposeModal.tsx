@@ -15,6 +15,7 @@ import { toast } from "sonner";
 export interface EmailRecipient {
   name?: string | null;
   email: string;
+  inquiry_id?: string | null;
 }
 
 interface EmailComposeModalProps {
