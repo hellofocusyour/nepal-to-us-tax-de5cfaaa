@@ -40,12 +40,13 @@ const Inquiries = () => {
   const fetchInquiries = async () => {
     let query = supabase.from("inquiries").select("*").order("created_at", { ascending: false });
     if (statusFilter !== "all") query = query.eq("status", statusFilter as Inquiry["status"]);
+    if (sourceFilter !== "all") query = query.eq("source", sourceFilter);
     const { data } = await query;
     setInquiries(data || []);
     setLoading(false);
   };
 
-  useEffect(() => { fetchInquiries(); }, [statusFilter]);
+  useEffect(() => { fetchInquiries(); }, [statusFilter, sourceFilter]);
 
   const filtered = useMemo(
     () => inquiries.filter(i =>
