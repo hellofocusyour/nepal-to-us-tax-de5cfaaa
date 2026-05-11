@@ -265,10 +265,17 @@ export type Database = {
       email_logs: {
         Row: {
           body: string
+          clicks_count: number
           created_at: string
+          cta_label: string | null
+          cta_url: string | null
           error_message: string | null
+          first_opened_at: string | null
           id: string
           inquiry_id: string | null
+          last_clicked_at: string | null
+          last_opened_at: string | null
+          opens_count: number
           recipient_email: string
           recipient_name: string | null
           sent_by: string | null
@@ -277,10 +284,17 @@ export type Database = {
         }
         Insert: {
           body: string
+          clicks_count?: number
           created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
           error_message?: string | null
+          first_opened_at?: string | null
           id?: string
           inquiry_id?: string | null
+          last_clicked_at?: string | null
+          last_opened_at?: string | null
+          opens_count?: number
           recipient_email: string
           recipient_name?: string | null
           sent_by?: string | null
@@ -289,10 +303,17 @@ export type Database = {
         }
         Update: {
           body?: string
+          clicks_count?: number
           created_at?: string
+          cta_label?: string | null
+          cta_url?: string | null
           error_message?: string | null
+          first_opened_at?: string | null
           id?: string
           inquiry_id?: string | null
+          last_clicked_at?: string | null
+          last_opened_at?: string | null
+          opens_count?: number
           recipient_email?: string
           recipient_name?: string | null
           sent_by?: string | null
@@ -630,6 +651,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_email_click: { Args: { _id: string }; Returns: undefined }
+      increment_email_open: { Args: { _id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "student"
