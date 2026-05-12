@@ -21,7 +21,7 @@ const Index = () => {
   useSEO({
     title: "Focus Academy — US Tax Course Nepal | Become a Job-Ready Tax Preparer in 30 Days",
     description:
-      "Nepal's premier US Tax training. Become a job-ready US tax preparer in 30 days with IRS Enrolled Agent-led classes, hands-on Form 1040/1120/1065 practice, and remote job support.",
+      "Nepal's premier US Tax training. Become a job-ready US tax preparer in 30 days with IRS Enrolled Agent-led classes, hands-on Form practices, and remote job support.",
     path: "/",
     type: "website",
   });
