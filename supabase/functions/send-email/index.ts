@@ -25,7 +25,7 @@ const escapeHtml = (s: string) =>
 const LOGO_URL = "https://heupdkfdjdrbdwvzlywf.supabase.co/storage/v1/object/public/email-assets/logo.png";
 const SITE_URL = "https://academy.focusyourfinance.com";
 const SUPPORT_EMAIL = "hello@focusyourfinance.com";
-const SUPPORT_PHONE = "+977 9802374215";
+const SUPPORT_PHONE = "+977 970-9139754";
 const TRACK_BASE = "https://heupdkfdjdrbdwvzlywf.supabase.co/functions/v1/email-track";
 
 const wrapHtml = (
