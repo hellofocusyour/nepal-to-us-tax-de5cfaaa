@@ -31,6 +31,8 @@ export const EmailHistory = () => {
   const [logs, setLogs] = useState<EmailLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [rangeFilter, setRangeFilter] = useState<string>("all");
   const [pendingDelete, setPendingDelete] = useState<EmailLog | null>(null);
   const [deleting, setDeleting] = useState(false);
 
