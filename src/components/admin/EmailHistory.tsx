@@ -50,13 +50,28 @@ export const EmailHistory = () => {
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    if (!q) return logs;
-    return logs.filter(
-      (l) =>
-        (l.recipient_name || "").toLowerCase().includes(q) ||
-        l.recipient_email.toLowerCase().includes(q)
-    );
-  }, [logs, search]);
+    const now = Date.now();
+    const rangeMs: Record<string, number> = {
+      "24h": 24 * 60 * 60 * 1000,
+      "7d": 7 * 24 * 60 * 60 * 1000,
+      "30d": 30 * 24 * 60 * 60 * 1000,
+    };
+    return logs.filter((l) => {
+      if (statusFilter !== "all") {
+        const isSent = l.status === "sent";
+        if (statusFilter === "sent" && !isSent) return false;
+        if (statusFilter === "failed" && isSent) return false;
+      }
+      if (rangeFilter !== "all" && rangeMs[rangeFilter]) {
+        if (now - new Date(l.created_at).getTime() > rangeMs[rangeFilter]) return false;
+      }
+      if (q) {
+        const hay = `${l.recipient_name || ""} ${l.recipient_email} ${l.subject}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [logs, search, statusFilter, rangeFilter]);
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleString(undefined, {
