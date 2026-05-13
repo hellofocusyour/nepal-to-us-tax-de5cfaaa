@@ -175,6 +175,7 @@ const Inquiries = () => {
                 <TableHead className="hidden lg:table-cell">Background</TableHead>
                 <TableHead>Source</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead className="hidden md:table-cell whitespace-nowrap">Date</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
