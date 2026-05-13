@@ -4,6 +4,7 @@
 //   - "submitted_admin":   admin alert (with screenshot attached)
 //   - "approved":          student approval email
 //   - "rejected":          student rejection email with reason
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -11,7 +12,7 @@ const corsHeaders = {
 };
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
-const FROM = "Focus Academy <onboarding@resend.dev>";
+const FROM = "Focus Academy <hello@focusyourfinance.com>";
 const ADMIN_EMAIL = "hello@focusyourfinance.com";
 const APP_URL = "https://academy.focusyourfinance.com";
 
@@ -130,7 +131,10 @@ Deno.serve(async (req) => {
 
   try {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY_1") ?? Deno.env.get("RESEND_API_KEY");
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const admin = createClient(SUPABASE_URL, SERVICE_KEY);
     if (!LOVABLE_API_KEY || !RESEND_API_KEY) {
       return new Response(JSON.stringify({ error: "Email service not configured" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -195,6 +199,21 @@ Deno.serve(async (req) => {
     const data = await r.json().catch(() => ({}));
     if (!r.ok) {
       console.error("Resend error", r.status, data);
+    }
+
+    // Log to email_logs (skip admin alerts to keep history customer-facing)
+    if (p.event !== "submitted_admin") {
+      await admin.from("email_logs").insert({
+        recipient_name: p.student.full_name,
+        recipient_email: to,
+        subject,
+        body: html,
+        status: r.ok ? "sent" : "failed",
+        error_message: r.ok ? null : ((data as any)?.message || `HTTP ${r.status}`),
+      }).then(() => {}, (e) => console.error("log insert", e));
+    }
+
+    if (!r.ok) {
       return new Response(JSON.stringify({ error: "Send failed", details: data }), {
         status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
