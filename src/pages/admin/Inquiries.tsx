@@ -213,6 +213,9 @@ const Inquiries = () => {
                     <TableCell>
                       <Badge variant={statusColors[inquiry.status] || "outline"} className="capitalize">{inquiry.status}</Badge>
                     </TableCell>
+                    <TableCell className="hidden md:table-cell whitespace-nowrap text-sm text-muted-foreground">
+                      {new Date(inquiry.created_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         <Select onValueChange={(v) => updateStatus(inquiry.id, v as Inquiry["status"])}>
