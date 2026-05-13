@@ -11,7 +11,7 @@ const corsHeaders = {
 };
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
-const FROM = "Focus Academy <onboarding@resend.dev>";
+const FROM = "Focus Academy <hello@focusyourfinance.com>";
 const ADMIN_EMAIL = "hello@focusyourfinance.com";
 const APP_URL = "https://academy.focusyourfinance.com";
 
