@@ -10,6 +10,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Search, Inbox, Trash2, Eye, MousePointerClick } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
 interface EmailLog {
@@ -30,6 +31,8 @@ export const EmailHistory = () => {
   const [logs, setLogs] = useState<EmailLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [rangeFilter, setRangeFilter] = useState<string>("all");
   const [pendingDelete, setPendingDelete] = useState<EmailLog | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -47,13 +50,28 @@ export const EmailHistory = () => {
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase().trim();
-    if (!q) return logs;
-    return logs.filter(
-      (l) =>
-        (l.recipient_name || "").toLowerCase().includes(q) ||
-        l.recipient_email.toLowerCase().includes(q)
-    );
-  }, [logs, search]);
+    const now = Date.now();
+    const rangeMs: Record<string, number> = {
+      "24h": 24 * 60 * 60 * 1000,
+      "7d": 7 * 24 * 60 * 60 * 1000,
+      "30d": 30 * 24 * 60 * 60 * 1000,
+    };
+    return logs.filter((l) => {
+      if (statusFilter !== "all") {
+        const isSent = l.status === "sent";
+        if (statusFilter === "sent" && !isSent) return false;
+        if (statusFilter === "failed" && isSent) return false;
+      }
+      if (rangeFilter !== "all" && rangeMs[rangeFilter]) {
+        if (now - new Date(l.created_at).getTime() > rangeMs[rangeFilter]) return false;
+      }
+      if (q) {
+        const hay = `${l.recipient_name || ""} ${l.recipient_email} ${l.subject}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+  }, [logs, search, statusFilter, rangeFilter]);
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleString(undefined, {
@@ -80,14 +98,33 @@ export const EmailHistory = () => {
     <div className="space-y-4">
       <Card className="border border-border">
         <CardContent className="p-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by recipient name or email..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-10"
-            />
+          <div className="flex flex-col md:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by recipient name, email, or subject..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-full md:w-[160px]"><SelectValue placeholder="Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                <SelectItem value="sent">Sent</SelectItem>
+                <SelectItem value="failed">Failed</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={rangeFilter} onValueChange={setRangeFilter}>
+              <SelectTrigger className="w-full md:w-[160px]"><SelectValue placeholder="Date range" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All time</SelectItem>
+                <SelectItem value="24h">Last 24 hours</SelectItem>
+                <SelectItem value="7d">Last 7 days</SelectItem>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
