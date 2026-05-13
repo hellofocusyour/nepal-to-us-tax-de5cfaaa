@@ -131,7 +131,10 @@ Deno.serve(async (req) => {
 
   try {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY_1") ?? Deno.env.get("RESEND_API_KEY");
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+    const SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const admin = createClient(SUPABASE_URL, SERVICE_KEY);
     if (!LOVABLE_API_KEY || !RESEND_API_KEY) {
       return new Response(JSON.stringify({ error: "Email service not configured" }), {
         status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
