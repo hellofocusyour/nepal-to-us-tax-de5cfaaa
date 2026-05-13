@@ -199,6 +199,21 @@ Deno.serve(async (req) => {
     const data = await r.json().catch(() => ({}));
     if (!r.ok) {
       console.error("Resend error", r.status, data);
+    }
+
+    // Log to email_logs (skip admin alerts to keep history customer-facing)
+    if (p.event !== "submitted_admin") {
+      await admin.from("email_logs").insert({
+        recipient_name: p.student.full_name,
+        recipient_email: to,
+        subject,
+        body: html,
+        status: r.ok ? "sent" : "failed",
+        error_message: r.ok ? null : ((data as any)?.message || `HTTP ${r.status}`),
+      }).then(() => {}, (e) => console.error("log insert", e));
+    }
+
+    if (!r.ok) {
       return new Response(JSON.stringify({ error: "Send failed", details: data }), {
         status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
