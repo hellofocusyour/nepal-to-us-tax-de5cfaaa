@@ -175,14 +175,15 @@ const Inquiries = () => {
                 <TableHead className="hidden lg:table-cell">Background</TableHead>
                 <TableHead>Source</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead className="hidden md:table-cell whitespace-nowrap">Date</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
               ) : filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">No inquiries found</TableCell></TableRow>
+                <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">No inquiries found</TableCell></TableRow>
               ) : (
                 filtered.map((inquiry) => (
                   <TableRow key={inquiry.id} data-state={selectedIds.has(inquiry.id) ? "selected" : undefined}>
@@ -211,6 +212,9 @@ const Inquiries = () => {
                     </TableCell>
                     <TableCell>
                       <Badge variant={statusColors[inquiry.status] || "outline"} className="capitalize">{inquiry.status}</Badge>
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell whitespace-nowrap text-sm text-muted-foreground">
+                      {new Date(inquiry.created_at).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" })}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
