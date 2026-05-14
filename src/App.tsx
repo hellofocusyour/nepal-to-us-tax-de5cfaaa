@@ -33,6 +33,8 @@ import RefundPolicy from "./pages/RefundPolicy.tsx";
 import Inbox from "./pages/admin/Inbox.tsx";
 import Integrations from "./pages/admin/Integrations.tsx";
 import LiveClass from "./pages/admin/LiveClass.tsx";
+import AdminModules from "./pages/admin/Modules.tsx";
+import StudentModules from "./pages/portal/StudentModules.tsx";
 
 const queryClient = new QueryClient();
 
@@ -61,6 +63,7 @@ const App = () => (
               <Route path="inbox" element={<Inbox />} />
               <Route path="integrations" element={<Integrations />} />
               <Route path="live-class" element={<LiveClass />} />
+              <Route path="modules" element={<AdminModules />} />
               <Route path="settings/integrations" element={<Integrations />} />
             </Route>
             <Route path="/portal/login" element={<StudentLogin />} />
@@ -70,6 +73,7 @@ const App = () => (
               <Route index element={<StudentDashboard />} />
               <Route path="batch" element={<StudentBatch />} />
               <Route path="my-courses" element={<StudentMyCourses />} />
+              <Route path="modules" element={<StudentModules />} />
               <Route path="syllabus" element={<StudentMyCourses />} />
               <Route path="courses" element={<StudentMyCourses />} />
               <Route path="announcements" element={<StudentAnnouncements />} />
