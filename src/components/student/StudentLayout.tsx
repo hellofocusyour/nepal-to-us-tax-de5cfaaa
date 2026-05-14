@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CreditCard, Award, BookOpen, LogOut, Menu, X,
-  GraduationCap, User, Megaphone, Users, Inbox as InboxIcon, Layers
+  GraduationCap, User, Megaphone, Users, Inbox as InboxIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +14,6 @@ const navItems = [
   { label: "Dashboard", href: "/portal", icon: LayoutDashboard },
   { label: "My Batch", href: "/portal/batch", icon: Users },
   { label: "My Courses", href: "/portal/my-courses", icon: BookOpen },
-  { label: "Modules", href: "/portal/modules", icon: Layers },
   { label: "Inbox", href: "/portal/inbox", icon: InboxIcon, badgeKey: "inbox" },
   { label: "Announcements", href: "/portal/announcements", icon: Megaphone, badgeKey: "announcements" },
   { label: "Payments", href: "/portal/payments", icon: CreditCard },
