@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, X, Mail } from "lucide-react";
+import { Loader2, X, Mail, Eye, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export interface EmailRecipient {
