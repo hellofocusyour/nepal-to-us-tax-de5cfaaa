@@ -244,6 +244,7 @@ export const EmailComposeModal = ({
           background: "#ffffff",
           borderRadius: 16,
           boxShadow: "0 20px 60px rgba(0,0,0,0.3)",
+          position: "relative",
         }}
         onClick={(e) => e.stopPropagation()}
       >
