@@ -262,6 +262,42 @@ export type Database = {
         }
         Relationships: []
       }
+      course_modules: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_unlocked: boolean
+          module_number: number
+          slide_count: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_unlocked?: boolean
+          module_number: number
+          slide_count?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_unlocked?: boolean
+          module_number?: number
+          slide_count?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       email_logs: {
         Row: {
           body: string
