@@ -73,7 +73,7 @@ const App = () => (
               <Route index element={<StudentDashboard />} />
               <Route path="batch" element={<StudentBatch />} />
               <Route path="my-courses" element={<StudentMyCourses />} />
-              <Route path="modules" element={<StudentModules />} />
+              <Route path="modules" element={<StudentMyCourses />} />
               <Route path="syllabus" element={<StudentMyCourses />} />
               <Route path="courses" element={<StudentMyCourses />} />
               <Route path="announcements" element={<StudentAnnouncements />} />
