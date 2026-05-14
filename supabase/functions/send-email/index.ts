@@ -148,11 +148,17 @@ Deno.serve(async (req) => {
     }
 
     const personalize = (text: string, name: string | null | undefined) => {
-      const first = (name ?? "").trim().split(/\s+/)[0] || "there";
+      const full = (name ?? "").trim();
+      const first = full.split(/\s+/)[0] || "there";
+      const safeFull = full || first;
+      // Match [First Name], [FirstName], [first_name], {name}, {{name}}, [Full Name], etc.
       return text
-        .replace(/\[Name\]/g, first)
-        .replace(/\[NAME\]/g, first)
-        .replace(/\[name\]/g, first);
+        .replace(/\[\s*first[\s_-]*name\s*\]/gi, first)
+        .replace(/\{\{?\s*first[\s_-]*name\s*\}?\}/gi, first)
+        .replace(/\[\s*full[\s_-]*name\s*\]/gi, safeFull)
+        .replace(/\{\{?\s*full[\s_-]*name\s*\}?\}/gi, safeFull)
+        .replace(/\[\s*name\s*\]/gi, first)
+        .replace(/\{\{?\s*name\s*\}?\}/gi, first);
     };
 
     const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
