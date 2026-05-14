@@ -34,7 +34,6 @@ import Inbox from "./pages/admin/Inbox.tsx";
 import Integrations from "./pages/admin/Integrations.tsx";
 import LiveClass from "./pages/admin/LiveClass.tsx";
 import AdminModules from "./pages/admin/Modules.tsx";
-import StudentModules from "./pages/portal/StudentModules.tsx";
 
 const queryClient = new QueryClient();
 
