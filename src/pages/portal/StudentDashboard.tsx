@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import PaymentModal from "@/components/student/PaymentModal";
+import LiveClassCard from "@/components/student/LiveClassCard";
 import { FULL_PRICE, INSTALLMENT_TOTAL, type PaymentPlan } from "@/lib/pricing";
 import { format, differenceInDays } from "date-fns";
 
@@ -179,6 +180,9 @@ const StudentDashboard = () => {
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* Live class card (paid students only) */}
+      <LiveClassCard />
+
       {/* Announcement banner */}
       {banner && (
         <div className="flex items-start gap-3 rounded-xl bg-gradient-to-r from-primary to-primary-light text-primary-foreground p-4 shadow-lg">

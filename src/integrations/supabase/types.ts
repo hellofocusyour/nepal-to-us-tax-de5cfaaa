@@ -380,6 +380,51 @@ export type Database = {
           },
         ]
       }
+      live_class_settings: {
+        Row: {
+          class_description: string | null
+          class_title: string
+          created_at: string
+          duration_minutes: number
+          enabled: boolean
+          id: string
+          last_reminder_sent_for: string | null
+          meet_link: string
+          next_class_at: string | null
+          reminder_minutes: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          class_description?: string | null
+          class_title?: string
+          created_at?: string
+          duration_minutes?: number
+          enabled?: boolean
+          id?: string
+          last_reminder_sent_for?: string | null
+          meet_link?: string
+          next_class_at?: string | null
+          reminder_minutes?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          class_description?: string | null
+          class_title?: string
+          created_at?: string
+          duration_minutes?: number
+          enabled?: boolean
+          id?: string
+          last_reminder_sent_for?: string | null
+          meet_link?: string
+          next_class_at?: string | null
+          reminder_minutes?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           attachments: Json | null
