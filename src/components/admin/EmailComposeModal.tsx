@@ -144,13 +144,21 @@ export const EmailComposeModal = ({
   const [template, setTemplate] = useState<TemplateKey>("blank");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [ctaLabel, setCtaLabel] = useState("Reserve My Seat →");
+  const [ctaUrl, setCtaUrl] = useState(SITE_URL);
+  const [includeCta, setIncludeCta] = useState(true);
   const [sending, setSending] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     if (open) {
       setTemplate("blank");
       setSubject("");
       setBody("");
+      setCtaLabel("Reserve My Seat →");
+      setCtaUrl(SITE_URL);
+      setIncludeCta(true);
+      setShowPreview(false);
     }
   }, [open]);
 
@@ -166,6 +174,32 @@ export const EmailComposeModal = ({
     [subject, body, recipients.length]
   );
 
+  const personalize = (text: string, name?: string | null) => {
+    const full = (name ?? "").trim();
+    const first = full.split(/\s+/)[0] || "there";
+    const safeFull = full || first;
+    return text
+      .replace(/\[\s*first[\s_-]*name\s*\]/gi, first)
+      .replace(/\{\{?\s*first[\s_-]*name\s*\}?\}/gi, first)
+      .replace(/\[\s*full[\s_-]*name\s*\]/gi, safeFull)
+      .replace(/\{\{?\s*full[\s_-]*name\s*\}?\}/gi, safeFull)
+      .replace(/\[\s*name\s*\]/gi, first)
+      .replace(/\{\{?\s*name\s*\}?\}/gi, first);
+  };
+
+  const previewRecipient = recipients[0];
+  const previewBodyHtml = useMemo(() => {
+    const text = personalize(body, previewRecipient?.name);
+    return text
+      .split(/\n/)
+      .map((line) => line.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"))
+      .join("<br/>");
+  }, [body, previewRecipient?.name]);
+  const previewSubject = useMemo(
+    () => personalize(subject, previewRecipient?.name),
+    [subject, previewRecipient?.name]
+  );
+
   const handleSend = async () => {
     if (!canSend) return;
     setSending(true);
@@ -175,8 +209,8 @@ export const EmailComposeModal = ({
           to: recipients,
           subject,
           body,
-          cta_label: "Reserve My Seat →",
-          cta_url: SITE_URL,
+          cta_label: includeCta ? ctaLabel : null,
+          cta_url: includeCta ? ctaUrl : null,
         },
       });
       if (error) throw error;
