@@ -410,7 +410,7 @@ export const EmailComposeModal = ({
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              placeholder="Write your message... (use [Name] to personalize)"
+              placeholder="Write your message... (use [First Name] or [Name] to personalize)"
               rows={10}
               disabled={sending}
               className="focus:outline-none"
@@ -430,16 +430,49 @@ export const EmailComposeModal = ({
               onFocus={(e) => (e.currentTarget.style.borderColor = "#0c4a6e")}
               onBlur={(e) => (e.currentTarget.style.borderColor = "#cbd5e1")}
             />
-            <div
-              style={{
-                color: "#94a3b8",
-                fontSize: 12,
-                textAlign: "right",
-                marginTop: 4,
-              }}
-            >
-              {body.length} characters
+            <div style={{ color: "#94a3b8", fontSize: 12, display: "flex", justifyContent: "space-between", marginTop: 4, gap: 12 }}>
+              <span>Tip: <code>[First Name]</code>, <code>[Full Name]</code>, <code>[Name]</code> are auto-replaced.</span>
+              <span>{body.length} chars</span>
             </div>
+          </div>
+
+          {/* CTA Button */}
+          <div style={{ marginTop: 18, padding: 14, background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 8 }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 8, color: "#0f172a", fontSize: 14, fontWeight: 600, marginBottom: includeCta ? 12 : 0, cursor: "pointer" }}>
+              <input
+                type="checkbox"
+                checked={includeCta}
+                onChange={(e) => setIncludeCta(e.target.checked)}
+                disabled={sending}
+              />
+              Include call-to-action button
+            </label>
+            {includeCta && (
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1.5fr", gap: 10 }}>
+                <div>
+                  <label style={{ color: "#64748b", fontSize: 12, display: "block", marginBottom: 4 }}>Button label</label>
+                  <input
+                    type="text"
+                    value={ctaLabel}
+                    onChange={(e) => setCtaLabel(e.target.value)}
+                    disabled={sending}
+                    className="focus:outline-none"
+                    style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: 6, padding: "8px 10px", fontSize: 13, background: "#fff" }}
+                  />
+                </div>
+                <div>
+                  <label style={{ color: "#64748b", fontSize: 12, display: "block", marginBottom: 4 }}>Button URL</label>
+                  <input
+                    type="url"
+                    value={ctaUrl}
+                    onChange={(e) => setCtaUrl(e.target.value)}
+                    disabled={sending}
+                    className="focus:outline-none"
+                    style={{ width: "100%", border: "1px solid #cbd5e1", borderRadius: 6, padding: "8px 10px", fontSize: 13, background: "#fff" }}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -467,13 +500,34 @@ export const EmailComposeModal = ({
                 border: "1px solid #cbd5e1",
                 color: "#475569",
                 borderRadius: 8,
-                padding: "10px 24px",
+                padding: "10px 20px",
                 fontSize: 14,
                 cursor: sending ? "not-allowed" : "pointer",
                 opacity: sending ? 0.6 : 1,
               }}
             >
               Cancel
+            </button>
+            <button
+              onClick={() => setShowPreview(true)}
+              disabled={!canSend || sending}
+              style={{
+                background: "#ffffff",
+                border: "1px solid #0c4a6e",
+                color: "#0c4a6e",
+                borderRadius: 8,
+                padding: "10px 20px",
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: !canSend || sending ? "not-allowed" : "pointer",
+                opacity: !canSend || sending ? 0.6 : 1,
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+              }}
+            >
+              <Eye size={16} />
+              Preview
             </button>
             <button
               onClick={handleSend}
@@ -509,6 +563,70 @@ export const EmailComposeModal = ({
             </button>
           </div>
         </div>
+
+        {/* Preview overlay */}
+        {showPreview && (
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "#eef2f7",
+              borderRadius: 16,
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div style={{ background: "#0c4a6e", padding: "16px 24px", borderRadius: "16px 16px 0 0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <button
+                onClick={() => setShowPreview(false)}
+                style={{ background: "transparent", border: "none", color: "#fff", display: "inline-flex", alignItems: "center", gap: 6, cursor: "pointer", fontSize: 14 }}
+              >
+                <ArrowLeft size={16} /> Back to edit
+              </button>
+              <div style={{ color: "#fff", fontWeight: 600 }}>
+                Preview · personalized for {previewRecipient?.name || previewRecipient?.email || "recipient"}
+              </div>
+              <button
+                onClick={handleSend}
+                disabled={sending}
+                style={{ background: "#fcd34d", border: "none", color: "#0c4a6e", borderRadius: 6, padding: "8px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+              >
+                {sending ? "Sending..." : `Send to ${recipients.length}`}
+              </button>
+            </div>
+            <div style={{ flex: 1, overflowY: "auto", padding: 20 }}>
+              <div style={{ maxWidth: 600, margin: "0 auto", background: "#fff", borderRadius: 12, overflow: "hidden", boxShadow: "0 6px 24px rgba(15,23,42,0.08)" }}>
+                <div style={{ background: "linear-gradient(135deg,#0c4a6e 0%,#075985 50%,#0369a1 100%)", padding: "28px 32px", textAlign: "center", color: "#fff" }}>
+                  <div style={{ fontSize: 20, fontWeight: 700 }}>Focus Academy</div>
+                  <div style={{ color: "#fcd34d", fontSize: 12, fontWeight: 500, marginTop: 4, letterSpacing: 1.5, textTransform: "uppercase" }}>US Tax Career Program</div>
+                </div>
+                <div style={{ padding: "16px 32px", borderBottom: "1px solid #f1f5f9", background: "#f8fafc" }}>
+                  <div style={{ fontSize: 11, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5 }}>Subject</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: "#0f172a", marginTop: 4 }}>{previewSubject}</div>
+                </div>
+                <div
+                  style={{ padding: "24px 32px", lineHeight: 1.65, fontSize: 15, color: "#1f2937" }}
+                  dangerouslySetInnerHTML={{ __html: previewBodyHtml }}
+                />
+                {includeCta && ctaLabel.trim() && ctaUrl.trim() && (
+                  <div style={{ padding: "8px 32px 28px", textAlign: "center" }}>
+                    <span style={{ display: "inline-block", background: "linear-gradient(135deg,#0c4a6e,#0369a1)", color: "#fff", fontWeight: 600, fontSize: 15, padding: "14px 32px", borderRadius: 10 }}>
+                      {ctaLabel}
+                    </span>
+                  </div>
+                )}
+                <div style={{ borderTop: "1px solid #e5e7eb", padding: "20px 32px", fontSize: 13, color: "#475569" }}>
+                  <div style={{ fontWeight: 600, color: "#0c4a6e", marginBottom: 6 }}>Need help?</div>
+                  <div>📧 hello@focusyourfinance.com</div>
+                  <div>📞 +977 970-9139754</div>
+                </div>
+                <div style={{ background: "#0c4a6e", padding: "14px 32px", textAlign: "center", color: "#cbd5e1", fontSize: 12 }}>
+                  © {new Date().getFullYear()} Focus Academy
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
