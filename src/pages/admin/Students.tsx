@@ -44,26 +44,16 @@ const Students = () => {
 
   const fetchStudents = async () => {
     setLoading(true);
-    // Only show students who have at least one verified payment.
-    const { data: paidRows } = await supabase
-      .from("payments")
-      .select("student_id")
-      .eq("status", "verified");
-    const paidIds = Array.from(new Set((paidRows || []).map(p => p.student_id).filter(Boolean))) as string[];
-
-    if (paidIds.length === 0) {
-      setStudents([]);
-      setLoading(false);
-      return;
-    }
-
     let query = supabase
       .from("students")
       .select("*")
-      .in("id", paidIds)
       .order("created_at", { ascending: false });
     if (statusFilter !== "all") query = query.eq("status", statusFilter as Student["status"]);
-    const { data } = await query;
+    const { data, error } = await query;
+    if (error) {
+      console.error("fetch students failed", error);
+      toast.error("Failed to load students");
+    }
     setStudents(data || []);
     setLoading(false);
   };
