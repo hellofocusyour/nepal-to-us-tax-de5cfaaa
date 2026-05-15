@@ -171,7 +171,7 @@ const Students = () => {
       <div className="flex items-start gap-3 rounded-md border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
         <Info className="w-4 h-4 mt-0.5 text-primary shrink-0" />
         <p className="text-foreground">
-          Showing enrolled students only. Unpaid inquiries are managed in the Inquiries section.
+          Showing all students. New leads also appear in the Inquiries section.
         </p>
       </div>
 
