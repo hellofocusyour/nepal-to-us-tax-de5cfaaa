@@ -76,7 +76,11 @@ const Students = () => {
       phone: newStudent.phone || null,
       background: newStudent.background || null,
     }).select("id").maybeSingle();
-    if (error) { toast.error("Failed to add student"); return; }
+    if (error) {
+      console.error("add student failed", error);
+      toast.error(error.message || "Failed to add student");
+      return;
+    }
 
     // Also create an inquiry record so they appear on the Inquiries page
     const { error: inqErr } = await supabase.from("inquiries").insert({
@@ -88,7 +92,7 @@ const Students = () => {
     });
     if (inqErr) console.error("inquiry insert failed", inqErr);
 
-    toast.success("Student added and tagged as inquiry");
+    toast.success("Student added");
     setNewStudent({ full_name: "", email: "", phone: "", background: "" });
     setAddDialogOpen(false);
     fetchStudents();
