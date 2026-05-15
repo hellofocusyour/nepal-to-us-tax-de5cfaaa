@@ -44,26 +44,16 @@ const Students = () => {
 
   const fetchStudents = async () => {
     setLoading(true);
-    // Only show students who have at least one verified payment.
-    const { data: paidRows } = await supabase
-      .from("payments")
-      .select("student_id")
-      .eq("status", "verified");
-    const paidIds = Array.from(new Set((paidRows || []).map(p => p.student_id).filter(Boolean))) as string[];
-
-    if (paidIds.length === 0) {
-      setStudents([]);
-      setLoading(false);
-      return;
-    }
-
     let query = supabase
       .from("students")
       .select("*")
-      .in("id", paidIds)
       .order("created_at", { ascending: false });
     if (statusFilter !== "all") query = query.eq("status", statusFilter as Student["status"]);
-    const { data } = await query;
+    const { data, error } = await query;
+    if (error) {
+      console.error("fetch students failed", error);
+      toast.error("Failed to load students");
+    }
     setStudents(data || []);
     setLoading(false);
   };
@@ -86,7 +76,11 @@ const Students = () => {
       phone: newStudent.phone || null,
       background: newStudent.background || null,
     }).select("id").maybeSingle();
-    if (error) { toast.error("Failed to add student"); return; }
+    if (error) {
+      console.error("add student failed", error);
+      toast.error(error.message || "Failed to add student");
+      return;
+    }
 
     // Also create an inquiry record so they appear on the Inquiries page
     const { error: inqErr } = await supabase.from("inquiries").insert({
@@ -98,7 +92,7 @@ const Students = () => {
     });
     if (inqErr) console.error("inquiry insert failed", inqErr);
 
-    toast.success("Student added and tagged as inquiry");
+    toast.success("Student added");
     setNewStudent({ full_name: "", email: "", phone: "", background: "" });
     setAddDialogOpen(false);
     fetchStudents();
@@ -177,7 +171,7 @@ const Students = () => {
       <div className="flex items-start gap-3 rounded-md border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
         <Info className="w-4 h-4 mt-0.5 text-primary shrink-0" />
         <p className="text-foreground">
-          Showing enrolled students only. Unpaid inquiries are managed in the Inquiries section.
+          Showing all students. New leads also appear in the Inquiries section.
         </p>
       </div>
 
