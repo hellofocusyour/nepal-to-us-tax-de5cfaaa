@@ -7,7 +7,7 @@ const PrivacyPolicy = () => {
   useSEO({
     title: "Privacy Policy | Focus Academy — US Tax Course Nepal",
     description:
-      "Read Focus Academy's Privacy Policy: how we collect, use, store, and protect your personal, educational, and payment information when you enroll in our US Taxation training programs.",
+      "How Focus Academy collects, uses, and protects your personal, educational, and payment information when you enroll in our US Taxation training.",
     path: "/privacy-policy",
   });
   return (

@@ -1,10 +1,14 @@
 import { useEffect } from "react";
 
+type FAQItem = { q: string; a: string };
+
 type SEOProps = {
   title: string;
   description: string;
   path: string; // e.g. "/privacy-policy"
   type?: "website" | "article";
+  noIndex?: boolean;
+  faqs?: FAQItem[];
 };
 
 const SITE = "https://academy.focusyourfinance.com";
@@ -40,13 +44,25 @@ const upsertJsonLd = (id: string, data: Record<string, unknown>) => {
   el.textContent = JSON.stringify(data);
 };
 
-export const useSEO = ({ title, description, path, type = "article" }: SEOProps) => {
+const removeJsonLd = (id: string) => {
+  const el = document.head.querySelector<HTMLScriptElement>(`script[data-seo="${id}"]`);
+  if (el) el.remove();
+};
+
+export const useSEO = ({ title, description, path, type = "article", noIndex = false, faqs }: SEOProps) => {
   useEffect(() => {
     const url = `${SITE}${path}`;
     document.title = title;
 
     upsertMeta('meta[name="description"]', "name", "description", description);
-    upsertMeta('meta[name="robots"]', "name", "robots", "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1");
+    upsertMeta(
+      'meta[name="robots"]',
+      "name",
+      "robots",
+      noIndex
+        ? "noindex, nofollow"
+        : "index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1",
+    );
 
     upsertLink("canonical", url);
 
@@ -77,5 +93,19 @@ export const useSEO = ({ title, description, path, type = "article" }: SEOProps)
         url: SITE,
       },
     });
-  }, [title, description, path, type]);
+
+    if (faqs && faqs.length > 0) {
+      upsertJsonLd("faq-jsonld", {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((f) => ({
+          "@type": "Question",
+          name: f.q,
+          acceptedAnswer: { "@type": "Answer", text: f.a },
+        })),
+      });
+    } else {
+      removeJsonLd("faq-jsonld");
+    }
+  }, [title, description, path, type, noIndex, faqs]);
 };
