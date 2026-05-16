@@ -7,8 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Lock, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { useSEO } from "@/hooks/useSEO";
 
 const AdminLogin = () => {
+  useSEO({
+    title: "Admin Login | Focus Academy",
+    description: "Secure admin sign-in for the Focus Academy dashboard.",
+    path: "/admin/login",
+    noIndex: true,
+  });
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
