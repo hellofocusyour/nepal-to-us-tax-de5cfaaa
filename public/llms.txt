@@ -1,0 +1,18 @@
+# Focus Academy
+
+> Nepal's premier US Tax training institute. Become a job-ready US tax preparer in 30 days with IRS Enrolled Agent-led classes, hands-on Form 1040/1120/1065 practice, and remote job support.
+
+Focus Academy is a Kathmandu-based training program that prepares accountants, CA/ACCA students, and finance professionals in Nepal for remote US taxation careers. Instruction is in Neplish (Nepali + English) and covers individual, corporate, and partnership tax returns. Course fee: NPR 20,000 + VAT.
+
+## Pages
+
+- [Home](/): Course overview, curriculum, mentors, pricing, FAQ, and enrollment.
+- [Privacy Policy](/privacy-policy): How we collect, use, and protect personal, educational, and payment information.
+- [Terms of Service](/terms-of-service): Terms governing enrollment and use of the Focus Academy platform.
+- [Refund Policy](/refund-policy): Refund eligibility and process for course fees.
+
+## Contact
+
+- Email: hello@focusyourfinance.com
+- Phone: +977 970-9139754
+- Address: Tinkuney, Kathmandu, Nepal

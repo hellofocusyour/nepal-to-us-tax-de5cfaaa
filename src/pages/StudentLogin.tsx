@@ -28,9 +28,21 @@ const syncStudentRecord = async (email: string, fullName?: string, phone?: strin
   });
 };
 
+import { useSEO } from "@/hooks/useSEO";
+
 const StudentLogin = () => {
   const location = useLocation();
   const initialMode = location.pathname === "/signup" ? false : true;
+  useSEO({
+    title: initialMode
+      ? "Student Login | Focus Academy"
+      : "Create Your Account | Focus Academy",
+    description: initialMode
+      ? "Sign in to your Focus Academy student portal to access classes, materials, and announcements."
+      : "Create your Focus Academy account to enroll in the US Tax Preparer course and access the student portal.",
+    path: location.pathname,
+    noIndex: true,
+  });
   const [isLogin, setIsLogin] = useState(initialMode);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
