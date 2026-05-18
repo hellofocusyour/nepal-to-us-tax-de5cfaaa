@@ -396,9 +396,10 @@ const StudentDashboard = () => {
                             <p className="text-sm font-medium text-foreground truncate">{s.topic}</p>
                             <p className="text-xs text-muted-foreground flex items-center gap-1">
                               <Clock className="w-3 h-3" />
-                              {isToday ? "Today" : format(d, "EEE")}
+                              {isToday ? "Today" : format(d, "EEE")} · {format(d, "h:mm a")}
                             </p>
                           </div>
+
                         </div>
                       );
                     })}
