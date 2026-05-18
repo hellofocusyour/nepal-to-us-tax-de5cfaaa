@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
         "X-Connection-Api-Key": RESEND_API_KEY,
       },
       body: JSON.stringify({
-        from: "Focus Academy <hello@focusyourfinance.com>",
+        from: "Focus Academy <academy@focusyourfinance.com>",
         to: [email],
         subject: "Welcome to Focus Academy 🎉",
         html,

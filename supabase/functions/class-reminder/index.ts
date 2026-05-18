@@ -7,7 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const FROM = "Focus Academy <hello@focusyourfinance.com>";
+const FROM = "Focus Academy <academy@focusyourfinance.com>";
 
 function normalizePhone(raw: string): string | null {
   if (!raw) return null;
