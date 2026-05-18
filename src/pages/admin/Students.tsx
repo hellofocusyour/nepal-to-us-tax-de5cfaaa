@@ -46,7 +46,7 @@ const Students = () => {
     let query = supabase
       .from("students")
       .select("*")
-      .in("status", PAID_STATUSES as unknown as string[])
+      .in("status", PAID_STATUSES as unknown as Student["status"][])
       .order("created_at", { ascending: false });
     if (statusFilter !== "all") query = query.eq("status", statusFilter as Student["status"]);
     const { data, error } = await query;
