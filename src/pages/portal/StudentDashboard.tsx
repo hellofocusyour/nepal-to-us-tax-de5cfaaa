@@ -92,29 +92,6 @@ const StudentDashboard = () => {
           .eq("id", studentData.batch_id)
           .single();
         if (batch) (studentData as StudentData).batch = batch;
-
-        const { data: upcoming } = await supabase
-          .from("class_sessions")
-          .select("topic, session_date")
-          .eq("batch_id", studentData.batch_id)
-          .gte("session_date", new Date().toISOString().split("T")[0])
-          .order("session_date")
-          .limit(4);
-        if (upcoming && upcoming.length > 0) {
-          setNextSession(upcoming[0]);
-          setUpcomingSessions(upcoming);
-        }
-
-        const { data: allSessions } = await supabase
-          .from("class_sessions")
-          .select("session_date")
-          .eq("batch_id", studentData.batch_id);
-        if (allSessions && allSessions.length > 0) {
-          const past = allSessions.filter((s) => new Date(s.session_date) <= new Date()).length;
-          setCompletedCount(past);
-          setTotalCount(allSessions.length);
-          setProgress(Math.round((past / allSessions.length) * 100));
-        }
       }
 
       setStudent(studentData as StudentData);
@@ -123,9 +100,56 @@ const StudentDashboard = () => {
         .from("payments")
         .select("amount, status")
         .eq("student_id", studentData.id);
+      const isPaid = !!payments?.some((p) => p.status === "verified");
       if (payments) {
         setPaid(payments.filter((p) => p.status === "verified").reduce((s, p) => s + Number(p.amount), 0));
         setPendingCount(payments.filter((p) => p.status === "pending_verification").length);
+      }
+
+      // Next Class — from live_class_settings (weekly Mon–Fri)
+      const { data: lcs } = await supabase
+        .from("live_class_settings")
+        .select("class_title, next_class_at, enabled")
+        .order("updated_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (lcs?.enabled && lcs.next_class_at) {
+        const base = new Date(lcs.next_class_at);
+        const now = new Date();
+        const occurrences: { topic: string; session_date: string }[] = [];
+        // Walk forward day by day; include weekdays (Mon–Fri) at same time-of-day
+        const cursor = new Date(base);
+        // If configured time already passed today, start from now
+        if (cursor < now) {
+          cursor.setFullYear(now.getFullYear(), now.getMonth(), now.getDate());
+          if (cursor < now) cursor.setDate(cursor.getDate() + 1);
+        }
+        let safety = 0;
+        while (occurrences.length < 4 && safety < 20) {
+          const day = cursor.getDay(); // 0=Sun..6=Sat
+          if (day >= 1 && day <= 5) {
+            occurrences.push({ topic: lcs.class_title, session_date: cursor.toISOString() });
+          }
+          cursor.setDate(cursor.getDate() + 1);
+          safety++;
+        }
+        if (occurrences.length > 0) {
+          setNextSession(occurrences[0]);
+          setUpcomingSessions(occurrences);
+        }
+      }
+
+      // Sessions Done — modules unlocked (paid users only)
+      if (isPaid) {
+        const { data: modules } = await supabase
+          .from("course_modules")
+          .select("is_unlocked");
+        if (modules && modules.length > 0) {
+          const unlocked = modules.filter((m) => m.is_unlocked).length;
+          setCompletedCount(unlocked);
+          setTotalCount(modules.length);
+          setProgress(Math.round((unlocked / modules.length) * 100));
+        }
       }
 
       const { data: ann } = await supabase
