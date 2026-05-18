@@ -286,7 +286,7 @@ const StudentDashboard = () => {
               value={nextSession?.topic || "—"}
               sub={
                 nextSession
-                  ? format(new Date(nextSession.session_date), "EEE, MMM d")
+                  ? format(new Date(nextSession.session_date), "EEE, MMM d · h:mm a")
                   : "Nothing scheduled"
               }
               gradient="from-violet-500/10 to-violet-500/5"
@@ -294,12 +294,13 @@ const StudentDashboard = () => {
             />
             <StatCard
               icon={Target}
-              label="Sessions Done"
+              label="Modules Unlocked"
               value={`${completedCount}/${totalCount || "—"}`}
               sub={`${progress}% complete`}
               gradient="from-emerald-500/10 to-emerald-500/5"
               iconBg="bg-emerald-500/15 text-emerald-600"
             />
+
             <Card className={`relative overflow-hidden border-border bg-gradient-to-br ${remaining === 0 ? "from-emerald-500/10 to-emerald-500/5" : "from-amber-500/10 to-amber-500/5"}`}>
               <CardContent className="p-5 space-y-3">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${remaining === 0 ? "bg-emerald-500/15 text-emerald-600" : "bg-amber-500/15 text-amber-600"}`}>
