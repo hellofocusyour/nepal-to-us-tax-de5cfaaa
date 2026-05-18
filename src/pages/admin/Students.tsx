@@ -19,9 +19,6 @@ import type { Tables } from "@/integrations/supabase/types";
 type Student = Tables<"students">;
 
 const statusConfig: Record<string, { label: string; emoji: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  inquired: { label: "Inquired", emoji: "🔵", variant: "outline" },
-  contacted: { label: "Contacted", emoji: "🟡", variant: "secondary" },
-  enrolled: { label: "Enrolled", emoji: "🟠", variant: "secondary" },
   payment_received: { label: "Payment Received", emoji: "🟢", variant: "default" },
   installment_2_due: { label: "Installment 2 Due", emoji: "🔵", variant: "outline" },
   fully_paid: { label: "Fully Paid", emoji: "🟢", variant: "default" },
@@ -29,6 +26,8 @@ const statusConfig: Record<string, { label: string; emoji: string; variant: "def
   completed: { label: "Completed", emoji: "🏆", variant: "default" },
   certified: { label: "Certified", emoji: "📜", variant: "default" },
 };
+
+const PAID_STATUSES = ["payment_received", "installment_2_due", "fully_paid", "active_student", "completed", "certified"] as const;
 
 const Students = () => {
   const [students, setStudents] = useState<Student[]>([]);
@@ -47,6 +46,7 @@ const Students = () => {
     let query = supabase
       .from("students")
       .select("*")
+      .in("status", PAID_STATUSES as unknown as Student["status"][])
       .order("created_at", { ascending: false });
     if (statusFilter !== "all") query = query.eq("status", statusFilter as Student["status"]);
     const { data, error } = await query;
@@ -171,7 +171,7 @@ const Students = () => {
       <div className="flex items-start gap-3 rounded-md border border-primary/20 bg-primary/5 px-4 py-3 text-sm">
         <Info className="w-4 h-4 mt-0.5 text-primary shrink-0" />
         <p className="text-foreground">
-          Showing all students. New leads also appear in the Inquiries section.
+          Showing paid students only. Inquiries and unpaid leads appear in the Inquiries section.
         </p>
       </div>
 
