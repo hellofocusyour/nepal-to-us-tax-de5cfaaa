@@ -19,9 +19,6 @@ import type { Tables } from "@/integrations/supabase/types";
 type Student = Tables<"students">;
 
 const statusConfig: Record<string, { label: string; emoji: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  inquired: { label: "Inquired", emoji: "🔵", variant: "outline" },
-  contacted: { label: "Contacted", emoji: "🟡", variant: "secondary" },
-  enrolled: { label: "Enrolled", emoji: "🟠", variant: "secondary" },
   payment_received: { label: "Payment Received", emoji: "🟢", variant: "default" },
   installment_2_due: { label: "Installment 2 Due", emoji: "🔵", variant: "outline" },
   fully_paid: { label: "Fully Paid", emoji: "🟢", variant: "default" },
@@ -29,6 +26,8 @@ const statusConfig: Record<string, { label: string; emoji: string; variant: "def
   completed: { label: "Completed", emoji: "🏆", variant: "default" },
   certified: { label: "Certified", emoji: "📜", variant: "default" },
 };
+
+const PAID_STATUSES = ["payment_received", "installment_2_due", "fully_paid", "active_student", "completed", "certified"] as const;
 
 const Students = () => {
   const [students, setStudents] = useState<Student[]>([]);
