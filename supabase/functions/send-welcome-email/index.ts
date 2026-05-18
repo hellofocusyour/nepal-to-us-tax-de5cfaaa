@@ -114,11 +114,12 @@ Deno.serve(async (req) => {
     const html = HTML_TEMPLATE.replaceAll("{{first_name}}", firstName);
     const text = TEXT_TEMPLATE.replaceAll("{{first_name}}", firstName);
 
-    const res = await fetch("https://api.resend.com/emails", {
+    const res = await fetch("https://connector-gateway.lovable.dev/resend/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${RESEND_API_KEY}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "X-Connection-Api-Key": RESEND_API_KEY,
       },
       body: JSON.stringify({
         from: "Focus Academy <hello@focusyourfinance.com>",
