@@ -8,7 +8,7 @@ const corsHeaders = {
 };
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/resend";
-const FROM = "Focus Academy <hello@focusyourfinance.com>";
+const FROM = "Focus Academy <academy@focusyourfinance.com>";
 
 interface Recipient { id?: string | null; name?: string | null; email: string; inquiry_id?: string | null }
 interface Payload {
@@ -24,7 +24,7 @@ const escapeHtml = (s: string) =>
 
 const LOGO_URL = "https://heupdkfdjdrbdwvzlywf.supabase.co/storage/v1/object/public/email-assets/logo.png";
 const SITE_URL = "https://academy.focusyourfinance.com";
-const SUPPORT_EMAIL = "hello@focusyourfinance.com";
+const SUPPORT_EMAIL = "academy@focusyourfinance.com";
 const SUPPORT_PHONE = "+977 970-9139754";
 const TRACK_BASE = "https://heupdkfdjdrbdwvzlywf.supabase.co/functions/v1/email-track";
 

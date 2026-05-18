@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
   try {
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
+    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY_1") ?? Deno.env.get("RESEND_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!RESEND_API_KEY || !LOVABLE_API_KEY) {
       console.error("Missing RESEND_API_KEY or LOVABLE_API_KEY");
@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
         "X-Connection-Api-Key": RESEND_API_KEY,
       },
       body: JSON.stringify({
-        from: "Focus Academy <hello@focusyourfinance.com>",
+        from: "Focus Academy <academy@focusyourfinance.com>",
         to: [email],
         subject: "Welcome to Focus Academy 🎉",
         html,
