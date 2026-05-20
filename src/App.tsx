@@ -34,6 +34,8 @@ import Inbox from "./pages/admin/Inbox.tsx";
 import Integrations from "./pages/admin/Integrations.tsx";
 import LiveClass from "./pages/admin/LiveClass.tsx";
 import AdminModules from "./pages/admin/Modules.tsx";
+import AdminVideoMaterials from "./pages/admin/VideoMaterials.tsx";
+import StudentVideoMaterials from "./pages/portal/StudentVideoMaterials.tsx";
 
 const queryClient = new QueryClient();
 
@@ -63,6 +65,7 @@ const App = () => (
               <Route path="integrations" element={<Integrations />} />
               <Route path="live-class" element={<LiveClass />} />
               <Route path="modules" element={<AdminModules />} />
+              <Route path="video-materials" element={<AdminVideoMaterials />} />
               <Route path="settings/integrations" element={<Integrations />} />
             </Route>
             <Route path="/portal/login" element={<StudentLogin />} />
@@ -79,6 +82,7 @@ const App = () => (
               <Route path="payments" element={<StudentPayments />} />
               <Route path="inbox" element={<StudentInbox />} />
               <Route path="certificates" element={<StudentCertificates />} />
+              <Route path="video-materials" element={<StudentVideoMaterials />} />
               <Route path="profile" element={<StudentProfile />} />
             </Route>
             <Route path="*" element={<NotFound />} />
