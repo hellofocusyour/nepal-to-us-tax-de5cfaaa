@@ -4,16 +4,17 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CreditCard, Award, BookOpen, LogOut, Menu, X,
-  GraduationCap, User, Megaphone, Users, Inbox as InboxIcon
+  GraduationCap, User, Megaphone, Users, Inbox as InboxIcon, Film
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
-const navItems = [
+const baseNavItems = [
   { label: "Dashboard", href: "/portal", icon: LayoutDashboard },
   { label: "My Batch", href: "/portal/batch", icon: Users },
   { label: "My Courses", href: "/portal/my-courses", icon: BookOpen },
+  { label: "Video Materials", href: "/portal/video-materials", icon: Film, paidOnly: true },
   { label: "Inbox", href: "/portal/inbox", icon: InboxIcon, badgeKey: "inbox" },
   { label: "Announcements", href: "/portal/announcements", icon: Megaphone, badgeKey: "announcements" },
   { label: "Payments", href: "/portal/payments", icon: CreditCard },
@@ -29,6 +30,20 @@ const StudentLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [inboxUnread, setInboxUnread] = useState(0);
+  const [isPaid, setIsPaid] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data: student } = await supabase.from("students")
+        .select("id").eq("user_id", user.id).maybeSingle();
+      if (!student) return;
+      const { data: pays } = await supabase.from("payments")
+        .select("installment_number, status")
+        .eq("student_id", student.id).eq("status", "verified");
+      setIsPaid((pays || []).some((p: any) => p.installment_number === 1));
+    })();
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
