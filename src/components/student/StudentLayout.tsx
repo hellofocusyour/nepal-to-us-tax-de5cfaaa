@@ -126,7 +126,7 @@ const StudentLayout = () => {
           </Button>
         </div>
         <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
-          {navItems.map((item) => {
+          {baseNavItems.filter((i: any) => !i.paidOnly || isPaid).map((item: any) => {
             const isActive = location.pathname === item.href ||
               (item.href !== "/portal" && location.pathname.startsWith(item.href));
             const badgeValue =
