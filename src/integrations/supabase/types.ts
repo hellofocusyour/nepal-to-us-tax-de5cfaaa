@@ -765,6 +765,104 @@ export type Database = {
         }
         Relationships: []
       }
+      video_access_logs: {
+        Row: {
+          id: string
+          opened_at: string
+          user_agent: string | null
+          user_id: string
+          video_id: string
+        }
+        Insert: {
+          id?: string
+          opened_at?: string
+          user_agent?: string | null
+          user_id: string
+          video_id: string
+        }
+        Update: {
+          id?: string
+          opened_at?: string
+          user_agent?: string | null
+          user_id?: string
+          video_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_access_logs_video_id_fkey"
+            columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "video_materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_materials: {
+        Row: {
+          category: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          display_order: number
+          drive_file_id: string
+          duration_minutes: number | null
+          id: string
+          is_published: boolean
+          thumbnail_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number
+          drive_file_id: string
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean
+          thumbnail_url?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          display_order?: number
+          drive_file_id?: string
+          duration_minutes?: number | null
+          id?: string
+          is_published?: boolean
+          thumbnail_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      video_terms_acknowledgments: {
+        Row: {
+          acknowledged_at: string
+          id: string
+          terms_version: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged_at?: string
+          id?: string
+          terms_version?: string
+          user_id: string
+        }
+        Update: {
+          acknowledged_at?: string
+          id?: string
+          terms_version?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -777,6 +875,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_paid_student: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "student"
