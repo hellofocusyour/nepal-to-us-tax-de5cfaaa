@@ -166,15 +166,18 @@ const StudentInbox = () => {
     try {
       await ensureConversation();
       const attachments = await uploadAll();
-      const { error } = await supabase.from("messages").insert({
+      const insertRow: Record<string, unknown> = {
         conversation_key: conversationKey,
         platform: "web",
         direction: "inbound",
         sender_id: user.id,
-        text: trimmed || null,
         message_type: attachments.length > 0 ? "file" : "text",
-        attachments: attachments.length > 0 ? (attachments as unknown as Record<string, unknown>[]) : null,
-      });
+      };
+      if (trimmed) insertRow.text = trimmed;
+      if (attachments.length > 0) insertRow.attachments = attachments;
+      const { error } = await supabase
+        .from("messages")
+        .insert(insertRow as never);
       if (error) throw error;
       const preview = trimmed || `📎 ${attachments.map((a) => a.name).join(", ")}`;
       const { data: conv } = await supabase
