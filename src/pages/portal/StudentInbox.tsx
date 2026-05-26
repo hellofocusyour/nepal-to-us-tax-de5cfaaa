@@ -173,7 +173,7 @@ const StudentInbox = () => {
         sender_id: user.id,
         text: trimmed || null,
         message_type: attachments.length > 0 ? "file" : "text",
-        attachments: attachments.length > 0 ? attachments : null,
+        attachments: attachments.length > 0 ? (attachments as unknown as Record<string, unknown>[]) : null,
       });
       if (error) throw error;
       const preview = trimmed || `📎 ${attachments.map((a) => a.name).join(", ")}`;
