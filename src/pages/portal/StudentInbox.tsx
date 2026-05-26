@@ -55,7 +55,7 @@ const StudentInbox = () => {
         .select("id, direction, text, created_at, attachments")
         .eq("conversation_key", conversationKey)
         .order("created_at", { ascending: true });
-      setMessages((data as Msg[]) ?? []);
+      setMessages(((data as unknown) as Msg[]) ?? []);
     };
     load();
 
