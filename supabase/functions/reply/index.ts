@@ -87,11 +87,19 @@ Deno.serve(async (req) => {
     }
     // web: nothing external
 
+    const { data: senderProfile } = await admin
+      .from("profiles")
+      .select("full_name, email")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const senderName = senderProfile?.full_name?.trim() || senderProfile?.email || "Admin";
+
     await admin.from("messages").insert({
       conversation_key: conversationKey,
       platform,
       direction: "outbound",
       sender_id: userId,
+      sender_name: senderName,
       text,
       external_message_id: externalMessageId,
     });
