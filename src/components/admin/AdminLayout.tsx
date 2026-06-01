@@ -4,31 +4,36 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Users, CreditCard, MessageSquare, Calendar,
   Megaphone, BarChart3, LogOut, Menu, X, GraduationCap, BookOpen,
-  Inbox as InboxIcon, Settings, Video, Layers, Film
+  Inbox as InboxIcon, Settings, Video, Layers, Film, Shield
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AdminSection, useAdminAccess } from "@/hooks/useAdminAccess";
 
-const navItems = [
-  { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "Inbox", href: "/admin/inbox", icon: InboxIcon },
-  { label: "Students", href: "/admin/students", icon: Users },
-  { label: "Inquiries", href: "/admin/inquiries", icon: MessageSquare },
-  { label: "Payments", href: "/admin/payments", icon: CreditCard },
-  { label: "Batches", href: "/admin/batches", icon: Calendar },
-  { label: "Live Class", href: "/admin/live-class", icon: Video },
-  { label: "Modules", href: "/admin/modules", icon: Layers },
-  { label: "Video Materials", href: "/admin/video-materials", icon: Film },
-  { label: "My Courses", href: "/admin/my-courses", icon: BookOpen },
-  { label: "Announcements", href: "/admin/announcements", icon: Megaphone },
-  { label: "Reports", href: "/admin/reports", icon: BarChart3 },
-  { label: "Integrations", href: "/admin/settings/integrations", icon: Settings },
+const navItems: { label: string; href: string; icon: any; section: AdminSection }[] = [
+  { label: "Dashboard", href: "/admin", icon: LayoutDashboard, section: "dashboard" },
+  { label: "Inbox", href: "/admin/inbox", icon: InboxIcon, section: "inbox" },
+  { label: "Students", href: "/admin/students", icon: Users, section: "students" },
+  { label: "Inquiries", href: "/admin/inquiries", icon: MessageSquare, section: "inquiries" },
+  { label: "Payments", href: "/admin/payments", icon: CreditCard, section: "payments" },
+  { label: "Batches", href: "/admin/batches", icon: Calendar, section: "batches" },
+  { label: "Live Class", href: "/admin/live-class", icon: Video, section: "live_class" },
+  { label: "Modules", href: "/admin/modules", icon: Layers, section: "modules" },
+  { label: "Video Materials", href: "/admin/video-materials", icon: Film, section: "video_materials" },
+  { label: "My Courses", href: "/admin/my-courses", icon: BookOpen, section: "my_courses" },
+  { label: "Announcements", href: "/admin/announcements", icon: Megaphone, section: "announcements" },
+  { label: "Reports", href: "/admin/reports", icon: BarChart3, section: "reports" },
+  { label: "Integrations", href: "/admin/settings/integrations", icon: Settings, section: "integrations" },
 ];
 
 const AdminLayout = () => {
   const { user, isAdmin, isLoading, signOut } = useAuth();
+  const { can, isSuperAdmin } = useAdminAccess();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const visibleNav = navItems.filter(i => can(i.section));
+
 
   if (isLoading) {
     return (
@@ -75,8 +80,8 @@ const AdminLayout = () => {
             <X className="w-5 h-5" />
           </Button>
         </div>
-        <nav className="p-4 space-y-1">
-          {navItems.map((item) => {
+        <nav className="p-4 space-y-1 overflow-y-auto max-h-[calc(100vh-12rem)]">
+          {visibleNav.map((item) => {
             const isActive = location.pathname === item.href ||
               (item.href !== "/admin" && location.pathname.startsWith(item.href));
             return (
@@ -96,6 +101,21 @@ const AdminLayout = () => {
               </Link>
             );
           })}
+          {isSuperAdmin && (
+            <Link
+              to="/admin/team"
+              onClick={() => setSidebarOpen(false)}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
+                location.pathname.startsWith("/admin/team")
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+              )}
+            >
+              <Shield className="w-5 h-5" />
+              Team & Access
+            </Link>
+          )}
         </nav>
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
           <Button variant="ghost" className="w-full justify-start gap-3 text-muted-foreground" onClick={signOut}>
