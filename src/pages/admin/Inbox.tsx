@@ -26,6 +26,7 @@ interface Message {
   direction: "inbound" | "outbound";
   text: string | null;
   created_at: string;
+  sender_name: string | null;
 }
 
 const FILTERS: Array<{ key: string; label: string }> = [
@@ -277,6 +278,9 @@ const Inbox = () => {
                       {m.text}
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-1 px-1">
+                      {m.direction === "outbound" && m.sender_name && (
+                        <span className="font-medium">{m.sender_name} · </span>
+                      )}
                       {new Date(m.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </p>
                   </div>

@@ -36,6 +36,7 @@ import LiveClass from "./pages/admin/LiveClass.tsx";
 import AdminModules from "./pages/admin/Modules.tsx";
 import AdminVideoMaterials from "./pages/admin/VideoMaterials.tsx";
 import StudentVideoMaterials from "./pages/portal/StudentVideoMaterials.tsx";
+import Team from "./pages/admin/Team.tsx";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
               <Route path="live-class" element={<LiveClass />} />
               <Route path="modules" element={<AdminModules />} />
               <Route path="video-materials" element={<AdminVideoMaterials />} />
+              <Route path="team" element={<Team />} />
               <Route path="settings/integrations" element={<Integrations />} />
             </Route>
             <Route path="/portal/login" element={<StudentLogin />} />
