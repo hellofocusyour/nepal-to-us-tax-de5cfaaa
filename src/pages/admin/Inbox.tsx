@@ -137,6 +137,7 @@ const Inbox = () => {
       direction: "outbound",
       text,
       created_at: new Date().toISOString(),
+      sender_name: null,
     };
     setMessages((prev) => [...prev, optimistic]);
     setReply("");
