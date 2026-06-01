@@ -44,6 +44,30 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_permissions: {
+        Row: {
+          granted_at: string
+          granted_by: string | null
+          id: string
+          section: Database["public"]["Enums"]["admin_section"]
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          section: Database["public"]["Enums"]["admin_section"]
+          user_id: string
+        }
+        Update: {
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          section?: Database["public"]["Enums"]["admin_section"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       announcements: {
         Row: {
           content: string
@@ -868,6 +892,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      has_admin_section: {
+        Args: {
+          _section: Database["public"]["Enums"]["admin_section"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -876,8 +907,24 @@ export type Database = {
         Returns: boolean
       }
       is_paid_student: { Args: { _user_id: string }; Returns: boolean }
+      is_super_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
+      admin_section:
+        | "dashboard"
+        | "inbox"
+        | "students"
+        | "inquiries"
+        | "payments"
+        | "batches"
+        | "live_class"
+        | "modules"
+        | "video_materials"
+        | "my_courses"
+        | "announcements"
+        | "reports"
+        | "integrations"
+        | "team"
       app_role: "admin" | "student"
       inquiry_status: "new" | "contacted" | "converted" | "dropped"
       payment_method: "bank_transfer" | "fonepay" | "ips"
@@ -1023,6 +1070,22 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      admin_section: [
+        "dashboard",
+        "inbox",
+        "students",
+        "inquiries",
+        "payments",
+        "batches",
+        "live_class",
+        "modules",
+        "video_materials",
+        "my_courses",
+        "announcements",
+        "reports",
+        "integrations",
+        "team",
+      ],
       app_role: ["admin", "student"],
       inquiry_status: ["new", "contacted", "converted", "dropped"],
       payment_method: ["bank_transfer", "fonepay", "ips"],
