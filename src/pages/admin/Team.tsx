@@ -81,8 +81,18 @@ const Team = () => {
           redirect_to: `${window.location.origin}/admin`,
         },
       });
-      if (error) {
-        toast.error(error.message || "Failed to invite admin");
+      const serverErr = (data as any)?.error;
+      if (error || serverErr) {
+        // Try to read the response body from FunctionsHttpError for a clearer message
+        let msg = serverErr || error?.message || "Failed to invite admin";
+        try {
+          const ctx: any = (error as any)?.context;
+          if (ctx && typeof ctx.json === "function") {
+            const body = await ctx.json();
+            if (body?.error) msg = body.error;
+          }
+        } catch {}
+        toast.error(msg);
         return;
       }
       toast.success(
