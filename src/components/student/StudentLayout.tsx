@@ -25,7 +25,7 @@ const baseNavItems = [
 const READ_KEY = "fa_read_announcements";
 
 const StudentLayout = () => {
-  const { user, isLoading, signOut } = useAuth();
+  const { user, isAdmin, isLoading, signOut } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -176,9 +176,18 @@ const StudentLayout = () => {
                 {user.email?.[0]?.toUpperCase()}
               </span>
             </div>
-            <div className="hidden sm:flex flex-col leading-tight">
+            <div className="hidden sm:flex flex-col leading-tight items-start">
               <span className="text-sm text-muted-foreground">{user.email}</span>
-              <span className="text-[11px] font-semibold text-primary">Student</span>
+              <div className="flex gap-1 mt-0.5">
+                <Badge variant="secondary" className="px-1.5 py-0 h-4 text-[10px] font-semibold uppercase tracking-wide">
+                  Student
+                </Badge>
+                {isAdmin && (
+                  <Badge className="px-1.5 py-0 h-4 text-[10px] font-semibold uppercase tracking-wide bg-primary text-primary-foreground">
+                    Admin
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
         </header>

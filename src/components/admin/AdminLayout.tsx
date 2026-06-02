@@ -7,6 +7,7 @@ import {
   Inbox as InboxIcon, Settings, Video, Layers, Film, Shield
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { AdminSection, useAdminAccess } from "@/hooks/useAdminAccess";
 
@@ -139,9 +140,17 @@ const AdminLayout = () => {
                 {user.email?.[0]?.toUpperCase()}
               </span>
             </div>
-            <div className="hidden sm:flex flex-col leading-tight">
+            <div className="hidden sm:flex flex-col leading-tight items-start">
               <span className="text-sm text-muted-foreground">{user.email}</span>
-              <span className="text-[11px] font-semibold text-primary">Admin</span>
+              <Badge
+                variant={isSuperAdmin ? "default" : "secondary"}
+                className={cn(
+                  "mt-0.5 px-1.5 py-0 h-4 text-[10px] font-semibold uppercase tracking-wide",
+                  isSuperAdmin && "bg-primary text-primary-foreground"
+                )}
+              >
+                {isSuperAdmin ? "Super Admin" : "Admin"}
+              </Badge>
             </div>
           </div>
         </header>
