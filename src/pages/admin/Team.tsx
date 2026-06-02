@@ -25,6 +25,7 @@ const Team = () => {
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [newEmail, setNewEmail] = useState("");
+  const [newSections, setNewSections] = useState<Set<AdminSection>>(new Set());
   const [adding, setAdding] = useState(false);
 
   const load = async () => {
@@ -73,19 +74,27 @@ const Team = () => {
     if (!email) return;
     setAdding(true);
     try {
-      const { data: prof } = await supabase.from("profiles").select("user_id").eq("email", email).maybeSingle();
-      if (!prof) {
-        toast.error("No account found with that email. The user must sign up first.");
+      const { data, error } = await supabase.functions.invoke("invite-admin", {
+        body: {
+          email,
+          sections: Array.from(newSections),
+          redirect_to: `${window.location.origin}/admin`,
+        },
+      });
+      if (error) {
+        toast.error(error.message || "Failed to invite admin");
         return;
       }
-      const { error } = await supabase.from("user_roles").insert({ user_id: prof.user_id, role: "admin" });
-      if (error && !error.message.includes("duplicate")) {
-        toast.error(error.message);
-        return;
-      }
-      toast.success("Admin added. Now grant section access below.");
+      toast.success(
+        (data as any)?.invited
+          ? "Invitation email sent. They'll get admin access once they accept."
+          : "Admin access granted. A sign-in link was emailed to them.",
+      );
       setNewEmail("");
+      setNewSections(new Set());
       load();
+    } catch (e: any) {
+      toast.error(e.message);
     } finally { setAdding(false); }
   };
 
@@ -110,17 +119,38 @@ const Team = () => {
       </div>
 
       <Card className="p-4">
-        <h2 className="font-semibold mb-3 flex items-center gap-2"><UserPlus className="w-4 h-4" /> Add admin by email</h2>
+        <h2 className="font-semibold mb-3 flex items-center gap-2"><UserPlus className="w-4 h-4" /> Invite admin by email</h2>
         <div className="flex gap-2">
           <Input
             type="email"
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
-            placeholder="user@example.com (must already have an account)"
+            placeholder="user@example.com"
           />
           <Button onClick={addAdmin} disabled={!newEmail.trim() || adding}>
-            {adding ? "Adding…" : "Add admin"}
+            {adding ? "Sending…" : "Send invite"}
           </Button>
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">
+          If they don't have an account yet, they'll get an invitation email. If they do, they'll receive a sign-in link. Optionally pre-select sections to grant on acceptance.
+        </p>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-3">
+          {ALL_SECTIONS.map((s) => {
+            const checked = newSections.has(s.key);
+            return (
+              <label key={s.key} className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded hover:bg-accent">
+                <Checkbox
+                  checked={checked}
+                  onCheckedChange={() => {
+                    const next = new Set(newSections);
+                    if (checked) next.delete(s.key); else next.add(s.key);
+                    setNewSections(next);
+                  }}
+                />
+                {s.label}
+              </label>
+            );
+          })}
         </div>
       </Card>
 
