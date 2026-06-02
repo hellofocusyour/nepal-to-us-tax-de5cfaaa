@@ -25,7 +25,7 @@ const baseNavItems = [
 const READ_KEY = "fa_read_announcements";
 
 const StudentLayout = () => {
-  const { user, isLoading, signOut } = useAuth();
+  const { user, isAdmin, isLoading, signOut } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
