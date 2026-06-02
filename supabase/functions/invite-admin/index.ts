@@ -40,14 +40,16 @@ Deno.serve(async (req) => {
     const serviceRole = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
     const authHeader = req.headers.get("Authorization") || "";
-    if (!authHeader) return json(401, { error: "Missing Authorization header" });
+    const token = authHeader.replace(/^Bearer\s+/i, "").trim();
+    if (!token) return json(401, { error: "Missing Authorization header" });
 
-    const authed = createClient(supabaseUrl, anonKey, {
-      global: { headers: { Authorization: authHeader } },
+    const admin = createClient(supabaseUrl, serviceRole, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
-    const { data: userRes, error: userErr } = await authed.auth.getUser();
+
+    const { data: userRes, error: userErr } = await admin.auth.getUser(token);
     if (userErr || !userRes?.user) {
+      console.error("getUser failed:", userErr?.message);
       return json(401, { error: "Not signed in. Please sign in again." });
     }
     const caller = userRes.user;
