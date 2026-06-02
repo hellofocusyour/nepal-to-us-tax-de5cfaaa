@@ -39,21 +39,27 @@ const Inquiries = () => {
 
   const fetchInquiries = async () => {
     let query = supabase.from("inquiries").select("*").order("created_at", { ascending: false });
-    if (statusFilter !== "all") query = query.eq("status", statusFilter as Inquiry["status"]);
     if (sourceFilter !== "all") query = query.eq("source", sourceFilter);
     const { data } = await query;
     setInquiries(data || []);
     setLoading(false);
   };
 
-  useEffect(() => { fetchInquiries(); }, [statusFilter, sourceFilter]);
+  useEffect(() => { fetchInquiries(); }, [sourceFilter]);
+
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: inquiries.length, new: 0, contacted: 0, converted: 0, dropped: 0 };
+    inquiries.forEach(i => { counts[i.status] = (counts[i.status] || 0) + 1; });
+    return counts;
+  }, [inquiries]);
 
   const filtered = useMemo(
-    () => inquiries.filter(i =>
-      i.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      i.email.toLowerCase().includes(search.toLowerCase())
-    ),
-    [inquiries, search]
+    () => inquiries.filter(i => {
+      if (statusFilter !== "all" && i.status !== statusFilter) return false;
+      const q = search.toLowerCase();
+      return i.full_name.toLowerCase().includes(q) || i.email.toLowerCase().includes(q);
+    }),
+    [inquiries, search, statusFilter]
   );
 
   const allVisibleSelected = filtered.length > 0 && filtered.every(i => selectedIds.has(i.id));
@@ -79,6 +85,16 @@ const Inquiries = () => {
     fetchInquiries();
   };
 
+  const bulkUpdateStatus = async (status: Inquiry["status"]) => {
+    const ids = Array.from(selectedIds);
+    if (ids.length === 0) return;
+    const { error } = await supabase.from("inquiries").update({ status }).in("id", ids);
+    if (error) { toast.error("Failed to update"); return; }
+    toast.success(`Updated ${ids.length} inquir${ids.length === 1 ? "y" : "ies"} to ${status}`);
+    setSelectedIds(new Set());
+    fetchInquiries();
+  };
+
   const openComposeFor = (recipients: Inquiry[]) => {
     if (recipients.length === 0) return;
     setComposeRecipients(recipients.map(r => ({ name: r.full_name, email: r.email, inquiry_id: r.id })));
@@ -97,6 +113,14 @@ const Inquiries = () => {
 
   const selectedCount = selectedIds.size;
   const selectedInquiries = inquiries.filter(i => selectedIds.has(i.id));
+
+  const statusTabs: { key: string; label: string; cls: string }[] = [
+    { key: "all", label: "All", cls: "bg-muted text-foreground border-border" },
+    { key: "new", label: "New", cls: "bg-primary/10 text-primary border-primary/30" },
+    { key: "contacted", label: "Contacted", cls: "bg-blue-500/10 text-blue-600 border-blue-500/30" },
+    { key: "converted", label: "Converted", cls: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" },
+    { key: "dropped", label: "Dropped", cls: "bg-destructive/10 text-destructive border-destructive/30" },
+  ];
 
   return (
     <div className="space-y-6">
