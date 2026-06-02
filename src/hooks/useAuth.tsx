@@ -38,33 +38,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .eq("user_id", userId);
     const roles = data?.map((r) => r.role) ?? [];
     const hasAdminRole = roles.includes("admin");
+    const studentOnly = !hasAdminRole && roles.includes("student");
     setIsAdmin(hasAdminRole);
-    setIsStudent(!hasAdminRole && roles.includes("student"));
-    return { isAdmin: hasAdminRole, isStudent: !hasAdminRole && roles.includes("student") };
+    setIsStudent(studentOnly);
+    return { isAdmin: hasAdminRole, isStudent: studentOnly };
   };
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await checkRoles(session.user.id);
-        } else {
-          setIsAdmin(false);
-          setIsStudent(false);
-        }
+    let didInit = false;
+
+    const applySession = (session: Session | null) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      if (!session?.user) {
+        setIsAdmin(false);
+        setIsStudent(false);
         setIsLoading(false);
+        return;
+      }
+      // Unblock the UI immediately; resolve roles in the background.
+      setIsLoading(false);
+      checkRoles(session.user.id);
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        didInit = true;
+        applySession(session);
       }
     );
 
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await checkRoles(session.user.id);
-      }
-      setIsLoading(false);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (didInit) return; // onAuthStateChange already handled it
+      applySession(session);
     });
 
     return () => subscription.unsubscribe();
