@@ -8,7 +8,7 @@ interface AuthContextType {
   isAdmin: boolean;
   isStudent: boolean;
   isLoading: boolean;
-  signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
+  signIn: (email: string, password: string) => Promise<{ error: Error | null; isAdmin?: boolean }>;
   signUp: (email: string, password: string, fullName: string, phone?: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -36,8 +36,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .from("user_roles")
       .select("role")
       .eq("user_id", userId);
-    setIsAdmin(data?.some(r => r.role === "admin") ?? false);
-    setIsStudent(data?.some(r => r.role === "student") ?? false);
+    const roles = data?.map((r) => r.role) ?? [];
+    const hasAdminRole = roles.includes("admin");
+    setIsAdmin(hasAdminRole);
+    setIsStudent(!hasAdminRole && roles.includes("student"));
+    return { isAdmin: hasAdminRole, isStudent: !hasAdminRole && roles.includes("student") };
   };
 
   useEffect(() => {
@@ -46,7 +49,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => checkRoles(session.user.id), 0);
+          await checkRoles(session.user.id);
         } else {
           setIsAdmin(false);
           setIsStudent(false);
@@ -68,8 +71,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error: error as Error | null };
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error || !data.user) return { error: error as Error | null };
+    setSession(data.session);
+    setUser(data.user);
+    const roles = await checkRoles(data.user.id);
+    return { error: null, isAdmin: roles.isAdmin };
   };
 
   const signUp = async (email: string, password: string, fullName: string, phone?: string) => {
