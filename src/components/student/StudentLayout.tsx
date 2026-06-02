@@ -176,7 +176,10 @@ const StudentLayout = () => {
                 {user.email?.[0]?.toUpperCase()}
               </span>
             </div>
-            <span className="text-sm text-muted-foreground hidden sm:inline">{user.email}</span>
+            <div className="hidden sm:flex flex-col leading-tight">
+              <span className="text-sm text-muted-foreground">{user.email}</span>
+              <span className="text-[11px] font-semibold text-primary">Student</span>
+            </div>
           </div>
         </header>
 
