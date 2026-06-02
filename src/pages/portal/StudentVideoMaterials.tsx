@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { driveEmbedUrl } from "@/lib/driveUrl";
-import { PlayCircle, Clock, X } from "lucide-react";
+import { PlayCircle, Clock, X, Calendar } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 type Video = {
   id: string;
@@ -20,6 +21,7 @@ type Video = {
   duration_minutes: number | null;
   display_order: number;
   is_published: boolean;
+  created_at: string;
 };
 
 const TERMS_VERSION = "v1";
@@ -177,11 +179,17 @@ const Inner = () => {
                   <CardContent className="py-3">
                     <h3 className="font-semibold text-foreground line-clamp-2">{v.title}</h3>
                     {v.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{v.description}</p>}
-                    {v.duration_minutes && (
-                      <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
-                        <Clock className="w-3 h-3" />{v.duration_minutes} min
+                    <div className="flex items-center gap-3 mt-2 flex-wrap">
+                      {v.duration_minutes && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="w-3 h-3" />{v.duration_minutes} min
+                        </p>
+                      )}
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Calendar className="w-3 h-3" />
+                        {format(new Date(v.created_at), "MMM d, yyyy")}
                       </p>
-                    )}
+                    </div>
                   </CardContent>
                 </Card>
               ))}
