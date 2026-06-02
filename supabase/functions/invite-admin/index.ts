@@ -46,6 +46,9 @@ Deno.serve(async (req) => {
     const admin = createClient(supabaseUrl, serviceRole, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
+    const authMailer = createClient(supabaseUrl, anonKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
 
     const { data: userRes, error: userErr } = await admin.auth.getUser(token);
     if (userErr || !userRes?.user) {
@@ -76,6 +79,7 @@ Deno.serve(async (req) => {
     }
 
     let invited = false;
+    let needsSignInEmail = false;
     if (!authUser) {
       const { data: inv, error: invErr } = await admin.auth.admin.inviteUserByEmail(email, {
         redirectTo,
@@ -85,18 +89,21 @@ Deno.serve(async (req) => {
         const existing = await findUserByEmail(admin, email).catch(() => null);
         if (!existing) return json(500, { error: `Invite failed: ${invErr.message}` });
         authUser = existing;
+        needsSignInEmail = true;
       } else {
         authUser = inv.user;
         invited = true;
       }
     } else {
-      // Existing user: generate a magic link they can use to sign in
-      const { error: linkErr } = await admin.auth.admin.generateLink({
-        type: "magiclink",
+      needsSignInEmail = true;
+    }
+
+    if (needsSignInEmail) {
+      const { error: otpErr } = await authMailer.auth.signInWithOtp({
         email,
-        options: { redirectTo },
+        options: { emailRedirectTo: redirectTo, shouldCreateUser: false },
       });
-      if (linkErr) console.warn("generateLink failed:", linkErr.message);
+      if (otpErr) return json(500, { error: `Sign-in email failed: ${otpErr.message}` });
     }
 
     if (!authUser) return json(500, { error: "Could not resolve user" });
