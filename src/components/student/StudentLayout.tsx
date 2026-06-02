@@ -102,6 +102,7 @@ const StudentLayout = () => {
   }
 
   if (!user) return <Navigate to="/portal/login" replace />;
+  if (isAdmin) return <Navigate to="/admin" replace />;
 
   return (
     <div className="min-h-screen bg-muted flex">
@@ -178,16 +179,9 @@ const StudentLayout = () => {
             </div>
             <div className="hidden sm:flex flex-col leading-tight items-start">
               <span className="text-sm text-muted-foreground">{user.email}</span>
-              <div className="flex gap-1 mt-0.5">
-                <Badge variant="secondary" className="px-1.5 py-0 h-4 text-[10px] font-semibold uppercase tracking-wide">
-                  Student
-                </Badge>
-                {isAdmin && (
-                  <Badge className="px-1.5 py-0 h-4 text-[10px] font-semibold uppercase tracking-wide bg-primary text-primary-foreground">
-                    Admin
-                  </Badge>
-                )}
-              </div>
+              <Badge variant="secondary" className="mt-0.5 px-1.5 py-0 h-4 text-[10px] font-semibold uppercase tracking-wide">
+                Student
+              </Badge>
             </div>
           </div>
         </header>
