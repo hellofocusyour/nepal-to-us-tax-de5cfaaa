@@ -25,9 +25,11 @@ const AdminLogin = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await signIn(email, password);
+    const { error, isAdmin } = await signIn(email, password);
     if (error) {
       toast.error("Invalid credentials. Please try again.");
+    } else if (!isAdmin) {
+      toast.error("This account does not have admin access.");
     } else {
       navigate("/admin");
     }

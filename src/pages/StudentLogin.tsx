@@ -51,22 +51,25 @@ const StudentLogin = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, isAdmin, isLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (user) navigate("/portal?onboarding=1", { replace: true });
-  }, [user, navigate]);
+    if (isLoading || !user) return;
+    navigate(isAdmin ? "/admin" : "/portal?onboarding=1", { replace: true });
+  }, [user, isAdmin, isLoading, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     if (isLogin) {
-      const { error } = await signIn(email, password);
+      const { error, isAdmin } = await signIn(email, password);
       if (error) {
         toast({ title: "Login failed", description: error.message, variant: "destructive" });
+      } else if (isAdmin) {
+        navigate("/admin");
       } else {
         await syncStudentRecord(email);
         navigate("/portal?onboarding=1");

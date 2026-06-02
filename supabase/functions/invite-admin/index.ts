@@ -120,6 +120,13 @@ Deno.serve(async (req) => {
     );
     if (roleErr) console.warn("role upsert:", roleErr.message);
 
+    const { error: studentRoleErr } = await admin
+      .from("user_roles")
+      .delete()
+      .eq("user_id", authUser.id)
+      .eq("role", "student");
+    if (studentRoleErr) console.warn("student role cleanup:", studentRoleErr.message);
+
     if (sections.length > 0) {
       const rows = sections.map((s) => ({
         user_id: authUser.id,
