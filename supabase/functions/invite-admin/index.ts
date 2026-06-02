@@ -64,9 +64,6 @@ Deno.serve(async (req) => {
     const sections = Array.isArray(body.sections) ? body.sections : [];
     if (!email) return json(400, { error: "email required" });
 
-    const admin = createClient(supabaseUrl, serviceRole, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
 
     const origin = req.headers.get("origin") || new URL(req.url).origin;
     const redirectTo = body.redirect_to || `${origin}/admin`;
