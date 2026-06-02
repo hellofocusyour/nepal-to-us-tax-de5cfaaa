@@ -47,18 +47,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     let didInit = false;
 
-    const applySession = (session: Session | null) => {
+    const applySession = async (session: Session | null) => {
       setSession(session);
       setUser(session?.user ?? null);
-      if (!session?.user) {
+      if (session?.user) {
+        await checkRoles(session.user.id);
+      } else {
         setIsAdmin(false);
         setIsStudent(false);
-        setIsLoading(false);
-        return;
       }
-      // Unblock the UI immediately; resolve roles in the background.
       setIsLoading(false);
-      checkRoles(session.user.id);
     };
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -69,7 +67,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (didInit) return; // onAuthStateChange already handled it
+      if (didInit) return;
       applySession(session);
     });
 
