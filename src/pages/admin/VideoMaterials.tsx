@@ -173,7 +173,13 @@ const VideoMaterials = () => {
                     {!v.is_published && <Badge variant="secondary">Draft</Badge>}
                   </div>
                   {v.description && <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{v.description}</p>}
-                  <p className="text-xs text-muted-foreground mt-1 font-mono">{v.drive_file_id}</p>
+                  <div className="flex items-center gap-3 mt-1 flex-wrap">
+                    <p className="text-xs text-muted-foreground font-mono">{v.drive_file_id}</p>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Calendar className="w-3 h-3" />
+                      Uploaded {format(new Date(v.created_at), "MMM d, yyyy")}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex gap-2">
                   <Button size="icon" variant="ghost" asChild>
