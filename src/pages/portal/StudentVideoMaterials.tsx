@@ -7,8 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { driveEmbedUrl } from "@/lib/driveUrl";
-import { PlayCircle, Clock, X } from "lucide-react";
+import { PlayCircle, Clock, X, Calendar } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 type Video = {
   id: string;
