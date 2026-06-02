@@ -21,6 +21,7 @@ type Video = {
   duration_minutes: number | null;
   display_order: number;
   is_published: boolean;
+  created_at: string;
 };
 
 const TERMS_VERSION = "v1";
