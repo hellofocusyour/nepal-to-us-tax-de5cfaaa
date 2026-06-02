@@ -138,37 +138,55 @@ const Inquiries = () => {
 
         <TabsContent value="inquiries" className="space-y-6">
           <Card className="border border-border">
-            <CardContent className="p-4 flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
-            <Input placeholder="Search inquiries..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-full sm:w-44"><SelectValue placeholder="Status" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All statuses</SelectItem>
-              <SelectItem value="new">New</SelectItem>
-              <SelectItem value="contacted">Contacted</SelectItem>
-              <SelectItem value="converted">Converted</SelectItem>
-              <SelectItem value="dropped">Dropped</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={sourceFilter} onValueChange={setSourceFilter}>
-            <SelectTrigger className="w-full sm:w-44"><SelectValue placeholder="Source" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All sources</SelectItem>
-              <SelectItem value="website">Website</SelectItem>
-              <SelectItem value="facebook_ads">Facebook Ads</SelectItem>
-              <SelectItem value="manual">Manual</SelectItem>
-            </SelectContent>
-          </Select>
-        </CardContent>
-      </Card>
+            <CardContent className="p-4 space-y-4">
+              <div className="flex flex-col sm:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                  <Input placeholder="Search inquiries..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
+                </div>
+                <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                  <SelectTrigger className="w-full sm:w-44"><SelectValue placeholder="Source" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All sources</SelectItem>
+                    <SelectItem value="website">Website</SelectItem>
+                    <SelectItem value="facebook_ads">Facebook Ads</SelectItem>
+                    <SelectItem value="manual">Manual</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {statusTabs.map(t => {
+                  const active = statusFilter === t.key;
+                  return (
+                    <button
+                      key={t.key}
+                      onClick={() => setStatusFilter(t.key)}
+                      className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition ${active ? "ring-2 ring-primary/50 " : "opacity-80 hover:opacity-100 "}${t.cls}`}
+                    >
+                      <span className="capitalize">{t.label}</span>
+                      <span className="rounded-full bg-background/60 px-2 py-0.5 text-xs font-semibold">
+                        {statusCounts[t.key] ?? 0}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
 
       {selectedCount > 0 && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-md border border-border bg-muted/40 px-4 py-2">
           <span className="text-sm text-muted-foreground">{selectedCount} selected</span>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Select onValueChange={(v) => bulkUpdateStatus(v as Inquiry["status"])}>
+              <SelectTrigger className="h-9 w-44 text-xs"><SelectValue placeholder="Bulk update status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="new">Mark as New</SelectItem>
+                <SelectItem value="contacted">Mark as Contacted</SelectItem>
+                <SelectItem value="converted">Mark as Converted</SelectItem>
+                <SelectItem value="dropped">Mark as Dropped</SelectItem>
+              </SelectContent>
+            </Select>
             <Button size="sm" variant="outline" onClick={() => openSmsFor(selectedInquiries)}>
               <MessageSquare className="w-4 h-4 mr-2" />
               Send SMS ({selectedInquiries.filter(i => i.phone).length})
