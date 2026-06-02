@@ -74,19 +74,27 @@ const Team = () => {
     if (!email) return;
     setAdding(true);
     try {
-      const { data: prof } = await supabase.from("profiles").select("user_id").eq("email", email).maybeSingle();
-      if (!prof) {
-        toast.error("No account found with that email. The user must sign up first.");
+      const { data, error } = await supabase.functions.invoke("invite-admin", {
+        body: {
+          email,
+          sections: Array.from(newSections),
+          redirect_to: `${window.location.origin}/admin`,
+        },
+      });
+      if (error) {
+        toast.error(error.message || "Failed to invite admin");
         return;
       }
-      const { error } = await supabase.from("user_roles").insert({ user_id: prof.user_id, role: "admin" });
-      if (error && !error.message.includes("duplicate")) {
-        toast.error(error.message);
-        return;
-      }
-      toast.success("Admin added. Now grant section access below.");
+      toast.success(
+        (data as any)?.invited
+          ? "Invitation email sent. They'll get admin access once they accept."
+          : "Admin access granted. A sign-in link was emailed to them.",
+      );
       setNewEmail("");
+      setNewSections(new Set());
       load();
+    } catch (e: any) {
+      toast.error(e.message);
     } finally { setAdding(false); }
   };
 
