@@ -25,6 +25,7 @@ const Team = () => {
   const [admins, setAdmins] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [newEmail, setNewEmail] = useState("");
+  const [newSections, setNewSections] = useState<Set<AdminSection>>(new Set());
   const [adding, setAdding] = useState(false);
 
   const load = async () => {
