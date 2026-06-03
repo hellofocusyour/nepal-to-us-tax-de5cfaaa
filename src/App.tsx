@@ -13,6 +13,7 @@ import Students from "./pages/admin/Students.tsx";
 import Inquiries from "./pages/admin/Inquiries.tsx";
 import Payments from "./pages/admin/Payments.tsx";
 import Batches from "./pages/admin/Batches.tsx";
+import BatchDetail from "./pages/admin/BatchDetail.tsx";
 import Announcements from "./pages/admin/Announcements.tsx";
 import Reports from "./pages/admin/Reports.tsx";
 import StudentLogin from "./pages/StudentLogin.tsx";
@@ -59,6 +60,7 @@ const App = () => (
               <Route path="inquiries" element={<Inquiries />} />
               <Route path="payments" element={<Payments />} />
               <Route path="batches" element={<Batches />} />
+              <Route path="batches/:batchId" element={<BatchDetail />} />
               <Route path="my-courses" element={<AdminMyCourses />} />
               <Route path="announcements" element={<Announcements />} />
               <Route path="reports" element={<Reports />} />

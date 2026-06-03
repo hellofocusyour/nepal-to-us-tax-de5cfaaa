@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -89,7 +90,8 @@ const Batches = () => {
           batches.map((batch) => {
             const status = getBatchStatus(batch);
             return (
-              <Card key={batch.id} className="border border-border">
+              <Link key={batch.id} to={`/admin/batches/${batch.id}`} className="block">
+              <Card className="border border-border hover:border-primary/50 hover:shadow-md transition-all cursor-pointer">
                 <CardContent className="p-5">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-4">
@@ -113,6 +115,7 @@ const Batches = () => {
                   </div>
                 </CardContent>
               </Card>
+              </Link>
             );
           })
         )}

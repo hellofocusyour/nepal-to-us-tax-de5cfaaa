@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
@@ -34,7 +35,7 @@ interface PaymentWithStudent {
   rejection_reason: string | null;
   created_at: string;
   student_id: string;
-  students: { full_name: string; email: string; phone: string | null; payment_plan: string | null } | null;
+  students: { full_name: string; email: string; phone: string | null; payment_plan: string | null; batch_id: string | null } | null;
 }
 
 interface StudentGroup {
@@ -52,6 +53,7 @@ interface StudentGroup {
   pendingTotal: number;
   balance: number;
   overallStatus: "fully_paid" | "partially_paid" | "pending" | "rejected";
+  batchId: string | null;
 }
 
 const statusBadge: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -76,6 +78,8 @@ const Payments = () => {
   const [payments, setPayments] = useState<PaymentWithStudent[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending_verification" | "verified" | "rejected">("all");
+  const [batchFilter, setBatchFilter] = useState<string>("all");
+  const [batches, setBatches] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPayment, setSelectedPayment] = useState<PaymentWithStudent | null>(null);
   const [rejectingPayment, setRejectingPayment] = useState<PaymentWithStudent | null>(null);
@@ -101,7 +105,7 @@ const Payments = () => {
     setLoading(true);
     const { data } = await supabase
       .from("payments")
-      .select("*, students(full_name, email, phone, payment_plan)")
+      .select("*, students(full_name, email, phone, payment_plan, batch_id)")
       .order("created_at", { ascending: false });
     const rows = (data as unknown as PaymentWithStudent[]) || [];
     const resolved = await Promise.all(
@@ -111,7 +115,11 @@ const Payments = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchPayments(); }, []);
+  useEffect(() => {
+    fetchPayments();
+    supabase.from("batches").select("id, name").order("start_date", { ascending: false })
+      .then(({ data }) => setBatches(data || []));
+  }, []);
 
   // Group by student email (fallback student_id)
   const groups = useMemo<StudentGroup[]>(() => {
@@ -161,6 +169,7 @@ const Payments = () => {
         payments: sorted,
         plan, installmentCount, expected, expectedPer,
         totalPaid, pendingTotal, balance, overallStatus,
+        batchId: first.students?.batch_id || null,
       });
     }
     // Most-recently-active groups first
@@ -176,6 +185,9 @@ const Payments = () => {
   const filteredGroups = useMemo(() => {
     const q = search.trim().toLowerCase();
     return groups.filter(g => {
+      if (batchFilter !== "all") {
+        if (batchFilter === "none" ? g.batchId !== null : g.batchId !== batchFilter) return false;
+      }
       // Status filter: group has at least one matching payment
       if (statusFilter !== "all") {
         const hasMatch = g.payments.some(p => p.status === statusFilter);
@@ -187,7 +199,7 @@ const Payments = () => {
       if (g.payments.some(p => (p.transaction_reference || "").toLowerCase().includes(q))) return true;
       return false;
     });
-  }, [groups, search, statusFilter]);
+  }, [groups, search, statusFilter, batchFilter]);
 
   // Status counts: number of students with ≥1 matching payment
   const statusCounts = useMemo(() => {
@@ -277,6 +289,17 @@ const Payments = () => {
             <div className="relative">
               <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
               <Input placeholder="Search by name, email, or reference..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground shrink-0">Batch:</span>
+              <Select value={batchFilter} onValueChange={setBatchFilter}>
+                <SelectTrigger className="w-full sm:w-64"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All batches</SelectItem>
+                  <SelectItem value="none">Unassigned</SelectItem>
+                  {batches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div className="flex flex-wrap gap-2">
               {statusTabs.map(t => (
