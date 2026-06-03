@@ -149,6 +149,7 @@ const Inbox = () => {
       text,
       created_at: new Date().toISOString(),
       sender_name: null,
+      attachments: null,
     };
     setMessages((prev) => [...prev, optimistic]);
     setReply("");
