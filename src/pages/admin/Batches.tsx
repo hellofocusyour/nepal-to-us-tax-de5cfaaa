@@ -90,8 +90,8 @@ const Batches = () => {
           batches.map((batch) => {
             const status = getBatchStatus(batch);
             return (
-              <Card key={batch.id} className="border border-border hover:border-primary/50 hover:shadow-md transition-all cursor-pointer" asChild>
-                <Link to={`/admin/batches/${batch.id}`}>
+              <Link key={batch.id} to={`/admin/batches/${batch.id}`} className="block">
+              <Card className="border border-border hover:border-primary/50 hover:shadow-md transition-all cursor-pointer">
                 <CardContent className="p-5">
                   <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                     <div className="flex items-center gap-4">
