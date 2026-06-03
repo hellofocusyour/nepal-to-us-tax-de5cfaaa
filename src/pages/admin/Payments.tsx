@@ -114,7 +114,11 @@ const Payments = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchPayments(); }, []);
+  useEffect(() => {
+    fetchPayments();
+    supabase.from("batches").select("id, name").order("start_date", { ascending: false })
+      .then(({ data }) => setBatches(data || []));
+  }, []);
 
   // Group by student email (fallback student_id)
   const groups = useMemo<StudentGroup[]>(() => {
