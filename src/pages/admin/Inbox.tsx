@@ -414,7 +414,41 @@ const Inbox = () => {
               </div>
             )}
 
+            {pending.length > 0 && (
+              <div className="px-3 pt-2 flex flex-wrap gap-2 border-t border-border">
+                {pending.map((f, i) => (
+                  <div key={i} className="flex items-center gap-2 rounded-md border border-border bg-muted px-2 py-1 text-xs">
+                    <FileText className="w-3.5 h-3.5" />
+                    <span className="truncate max-w-[160px]">{f.name}</span>
+                    <span className="text-muted-foreground">{formatBytes(f.size)}</span>
+                    <button type="button" onClick={() => removePending(i)} className="text-muted-foreground hover:text-foreground" aria-label="Remove">
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="p-3 border-t border-border flex items-end gap-2">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                accept={ALLOWED_MIME.join(",")}
+                className="hidden"
+                onChange={onPickFiles}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={sending || (selected?.platform !== "web")}
+                aria-label="Attach file"
+                title={selected?.platform !== "web" ? "Attachments only on Web" : "Attach file"}
+              >
+                <Paperclip className="w-4 h-4" />
+              </Button>
               <textarea
                 value={reply}
                 onChange={(e) => setReply(e.target.value)}
@@ -429,7 +463,7 @@ const Inbox = () => {
                 className="flex-1 resize-none rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring max-h-40"
                 maxLength={4000}
               />
-              <Button onClick={send} disabled={!reply.trim() || sending}>
+              <Button onClick={send} disabled={(!reply.trim() && pending.length === 0) || sending}>
                 <Send className="w-4 h-4 mr-1" /> Send
               </Button>
             </div>
