@@ -187,45 +187,101 @@ const Inbox = () => {
     return Date.now() - new Date(lastInbound.created_at).getTime() > 24 * 60 * 60 * 1000;
   }, [selected, messages]);
 
+  const MAX_FILE_BYTES = 5 * 1024 * 1024;
+  const ALLOWED_MIME = [
+    "image/png", "image/jpeg", "image/jpg", "image/webp", "image/gif",
+    "application/pdf", "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "text/plain", "text/csv",
+  ];
+
+  const onPickFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    const valid: File[] = [];
+    for (const f of files) {
+      if (f.size > MAX_FILE_BYTES) { toast.error(`${f.name} exceeds 5MB.`); continue; }
+      if (!ALLOWED_MIME.includes(f.type)) { toast.error(`${f.name} type not allowed.`); continue; }
+      valid.push(f);
+    }
+    setPending((prev) => [...prev, ...valid]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removePending = (idx: number) => setPending((prev) => prev.filter((_, i) => i !== idx));
+
+  const uploadAll = async (userId: string): Promise<Attachment[]> => {
+    if (pending.length === 0) return [];
+    const uploaded: Attachment[] = [];
+    for (const f of pending) {
+      const safeName = f.name.replace(/[^\w.\-]+/g, "_");
+      const path = `${userId}/${Date.now()}_${Math.random().toString(36).slice(2, 8)}_${safeName}`;
+      const { error } = await supabase.storage
+        .from("chat-attachments")
+        .upload(path, f, { contentType: f.type, upsert: false });
+      if (error) {
+        toast.error(`Upload failed: ${f.name}`);
+        throw error;
+      }
+      uploaded.push({ path, name: f.name, size: f.size, type: f.type });
+    }
+    return uploaded;
+  };
+
   const send = async () => {
-    if (!reply.trim() || !selected || sending) return;
-    setSending(true);
     const text = reply.trim();
-    const optimistic: Message = {
-      id: `tmp-${Date.now()}`,
-      conversation_key: selected.conversation_key,
-      platform: selected.platform,
-      direction: "outbound",
-      text,
-      created_at: new Date().toISOString(),
-      sender_name: null,
-      attachments: null,
-    };
-    setMessages((prev) => [...prev, optimistic]);
-    setReply("");
+    if ((!text && pending.length === 0) || !selected || sending) return;
+    setSending(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/reply`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${session?.access_token}`,
-          },
-          body: JSON.stringify({
-            platform: selected.platform,
-            recipient_id: selected.customer_id,
-            text,
-          }),
-        }
-      );
-      if (!res.ok) {
-        const err = await res.json().catch(() => ({}));
-        throw new Error(err.error ?? "Send failed");
+      const userId = session?.user?.id;
+      if (!userId) throw new Error("Not authenticated");
+
+      // For non-web platforms with attachments, block (external APIs not wired for media here)
+      if (selected.platform !== "web" && pending.length > 0) {
+        throw new Error("Attachments only supported on Web conversations.");
       }
+
+      if (selected.platform === "web") {
+        const attachments = await uploadAll(userId);
+        const { data: profile } = await supabase
+          .from("profiles").select("full_name, email").eq("user_id", userId).maybeSingle();
+        const senderName = profile?.full_name?.trim() || profile?.email || "Admin";
+        const row: Record<string, unknown> = {
+          conversation_key: selected.conversation_key,
+          platform: "web",
+          direction: "outbound",
+          sender_id: userId,
+          sender_name: senderName,
+          message_type: attachments.length > 0 ? "file" : "text",
+        };
+        if (text) row.text = text;
+        if (attachments.length > 0) row.attachments = attachments;
+        const { error } = await supabase.from("messages").insert(row as never);
+        if (error) throw error;
+        const preview = text || `📎 ${attachments.map((a) => a.name).join(", ")}`;
+        await supabase.from("conversations").update({
+          last_message_at: new Date().toISOString(),
+          last_message_preview: preview.slice(0, 200),
+        }).eq("conversation_key", selected.conversation_key);
+      } else {
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/reply`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+            body: JSON.stringify({ platform: selected.platform, recipient_id: selected.customer_id, text }),
+          }
+        );
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err.error ?? "Send failed");
+        }
+      }
+      setReply("");
+      setPending([]);
     } catch (err: any) {
-      setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
       toast.error(err.message ?? "Failed to send");
     } finally {
       setSending(false);
