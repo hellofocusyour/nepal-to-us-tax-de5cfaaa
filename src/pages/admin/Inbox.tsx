@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Send, Search, Inbox as InboxIcon, FileText } from "lucide-react";
+import { Send, Search, Inbox as InboxIcon, FileText, Paperclip, X } from "lucide-react";
 import { toast } from "sonner";
 import { Platform, platformMeta, relativeTime } from "@/lib/messaging";
 
