@@ -88,7 +88,7 @@ const Inbox = () => {
         .select("*")
         .eq("conversation_key", selectedKey)
         .order("created_at", { ascending: true });
-      setMessages((data as Message[]) ?? []);
+      setMessages(((data as unknown) as Message[]) ?? []);
     };
     load();
     supabase.from("conversations").update({ unread_count: 0 }).eq("conversation_key", selectedKey).then();
