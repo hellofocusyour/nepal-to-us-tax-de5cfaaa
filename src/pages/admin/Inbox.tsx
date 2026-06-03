@@ -115,6 +115,53 @@ const Inbox = () => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
 
+  // Sign URLs for attachments in chat-attachments bucket
+  useEffect(() => {
+    const paths = messages
+      .flatMap((m) => m.attachments ?? [])
+      .map((a) => a.path)
+      .filter((p) => p && !signedUrls[p]);
+    if (paths.length === 0) return;
+    (async () => {
+      const { data } = await supabase.storage
+        .from("chat-attachments")
+        .createSignedUrls(paths, 60 * 60);
+      if (!data) return;
+      setSignedUrls((prev) => {
+        const next = { ...prev };
+        data.forEach((d) => {
+          if (d.signedUrl && d.path) next[d.path] = d.signedUrl;
+        });
+        return next;
+      });
+    })();
+  }, [messages, signedUrls]);
+
+  const renderAttachment = (a: Attachment) => {
+    const url = signedUrls[a.path];
+    const isImage = a.type.startsWith("image/");
+    if (isImage && url) {
+      return (
+        <a key={a.path} href={url} target="_blank" rel="noreferrer" className="block mt-1">
+          <img src={url} alt={a.name} className="max-w-[240px] max-h-48 rounded-md border border-border object-cover" />
+        </a>
+      );
+    }
+    return (
+      <a
+        key={a.path}
+        href={url ?? "#"}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-1 flex items-center gap-2 rounded-md border border-border bg-background/40 px-2 py-1.5 text-xs hover:bg-background/70"
+      >
+        <FileText className="w-4 h-4 shrink-0" />
+        <span className="truncate max-w-[180px]">{a.name}</span>
+        <span className="text-muted-foreground">{formatBytes(a.size)}</span>
+      </a>
+    );
+  };
+
   const filtered = useMemo(() => {
     return conversations.filter((c) => {
       if (filter === "unread" && c.unread_count <= 0) return false;
