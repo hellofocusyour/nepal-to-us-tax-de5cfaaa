@@ -1,0 +1,1 @@
+UPDATE public.payments SET amount = 800 WHERE id = '055bd8a9-3ae8-4147-9f09-e251cf62eb2b';
