@@ -336,7 +336,8 @@ const Inbox = () => {
                           : "bg-card border border-border rounded-bl-sm"
                       )}
                     >
-                      {m.text}
+                      {m.text && <p className="whitespace-pre-wrap">{m.text}</p>}
+                      {m.attachments?.map(renderAttachment)}
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-1 px-1">
                       {m.direction === "outbound" && m.sender_name && (
