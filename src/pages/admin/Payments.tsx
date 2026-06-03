@@ -34,7 +34,7 @@ interface PaymentWithStudent {
   rejection_reason: string | null;
   created_at: string;
   student_id: string;
-  students: { full_name: string; email: string; phone: string | null } | null;
+  students: { full_name: string; email: string; phone: string | null; payment_plan: string | null } | null;
 }
 
 interface StudentGroup {
@@ -101,7 +101,7 @@ const Payments = () => {
     setLoading(true);
     const { data } = await supabase
       .from("payments")
-      .select("*, students(full_name, email, phone)")
+      .select("*, students(full_name, email, phone, payment_plan)")
       .order("created_at", { ascending: false });
     const rows = (data as unknown as PaymentWithStudent[]) || [];
     const resolved = await Promise.all(
@@ -129,10 +129,13 @@ const Payments = () => {
         (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       );
       const first = sorted[0];
-      // Determine plan: installment if more than one payment OR any installment_number > 1
+      // Plan source of truth: students.payment_plan. Fallback to derivation from rows for legacy data.
+      const studentPlan = (first.students?.payment_plan || "").toLowerCase();
       const maxInstallment = Math.max(...sorted.map(p => p.installment_number || 1));
       const plan: "full" | "installment" =
-        sorted.length > 1 || maxInstallment > 1 ? "installment" : "full";
+        studentPlan === "installment" ? "installment" :
+        studentPlan === "full" ? "full" :
+        (sorted.length > 1 || maxInstallment > 1 ? "installment" : "full");
       const installmentCount = plan === "installment" ? Math.max(2, maxInstallment) : 1;
       const expected = expectedTotal(plan);
       const expectedPer = expectedPerInstallment(plan, installmentCount);
