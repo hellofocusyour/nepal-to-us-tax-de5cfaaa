@@ -34,7 +34,7 @@ interface PaymentWithStudent {
   rejection_reason: string | null;
   created_at: string;
   student_id: string;
-  students: { full_name: string; email: string; phone: string | null; payment_plan: string | null } | null;
+  students: { full_name: string; email: string; phone: string | null; payment_plan: string | null; batch_id: string | null } | null;
 }
 
 interface StudentGroup {
