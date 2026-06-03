@@ -115,6 +115,7 @@ const Batches = () => {
                   </div>
                 </CardContent>
               </Card>
+              </Link>
             );
           })
         )}
