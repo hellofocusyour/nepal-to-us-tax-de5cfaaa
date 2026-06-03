@@ -59,6 +59,7 @@ const App = () => (
               <Route path="inquiries" element={<Inquiries />} />
               <Route path="payments" element={<Payments />} />
               <Route path="batches" element={<Batches />} />
+              <Route path="batches/:batchId" element={<BatchDetail />} />
               <Route path="my-courses" element={<AdminMyCourses />} />
               <Route path="announcements" element={<Announcements />} />
               <Route path="reports" element={<Reports />} />
