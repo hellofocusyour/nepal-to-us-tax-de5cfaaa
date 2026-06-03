@@ -19,6 +19,13 @@ interface Conversation {
   unread_count: number;
 }
 
+interface Attachment {
+  path: string;
+  name: string;
+  size: number;
+  type: string;
+}
+
 interface Message {
   id: string;
   conversation_key: string;
@@ -27,7 +34,11 @@ interface Message {
   text: string | null;
   created_at: string;
   sender_name: string | null;
+  attachments: Attachment[] | null;
 }
+
+const formatBytes = (b: number) =>
+  b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`;
 
 const FILTERS: Array<{ key: string; label: string }> = [
   { key: "all", label: "All" },
