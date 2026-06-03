@@ -290,6 +290,17 @@ const Payments = () => {
               <Search className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
               <Input placeholder="Search by name, email, or reference..." value={search} onChange={e => setSearch(e.target.value)} className="pl-10" />
             </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground shrink-0">Batch:</span>
+              <Select value={batchFilter} onValueChange={setBatchFilter}>
+                <SelectTrigger className="w-full sm:w-64"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All batches</SelectItem>
+                  <SelectItem value="none">Unassigned</SelectItem>
+                  {batches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="flex flex-wrap gap-2">
               {statusTabs.map(t => (
                 <button
