@@ -104,7 +104,7 @@ const Payments = () => {
     setLoading(true);
     const { data } = await supabase
       .from("payments")
-      .select("*, students(full_name, email, phone, payment_plan)")
+      .select("*, students(full_name, email, phone, payment_plan, batch_id)")
       .order("created_at", { ascending: false });
     const rows = (data as unknown as PaymentWithStudent[]) || [];
     const resolved = await Promise.all(
