@@ -20,6 +20,7 @@ const Announcements = () => {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [form, setForm] = useState({ title: "", content: "", target_audience: "all" });
+  const [counts, setCounts] = useState({ all: 0, active: 0, enrolled: 0 });
 
   const fetchAnnouncements = async () => {
     const { data } = await supabase.from("announcements").select("*").order("created_at", { ascending: false });
@@ -27,7 +28,14 @@ const Announcements = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchAnnouncements(); }, []);
+  const fetchCounts = async () => {
+    const { data } = await supabase.from("students").select("status");
+    const rows = data || [];
+    const active = rows.filter((r: any) => r.status === "active_student").length;
+    setCounts({ all: rows.length, active, enrolled: rows.length - active });
+  };
+
+  useEffect(() => { fetchAnnouncements(); fetchCounts(); }, []);
 
   const handleCreate = async () => {
     if (!form.title || !form.content) { toast.error("Title and content required"); return; }
