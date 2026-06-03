@@ -56,10 +56,12 @@ const Inbox = () => {
   const [filter, setFilter] = useState("all");
   const [search, setSearch] = useState("");
   const [reply, setReply] = useState("");
+  const [pending, setPending] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load conversations
   useEffect(() => {
