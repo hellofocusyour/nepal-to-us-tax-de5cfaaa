@@ -78,6 +78,9 @@ const Announcements = () => {
                     <SelectItem value="enrolled">Enrolled Students</SelectItem>
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  This will reach {counts[form.target_audience as "all" | "active" | "enrolled"] ?? 0} student{(counts[form.target_audience as "all" | "active" | "enrolled"] ?? 0) === 1 ? "" : "s"}.
+                </p>
               </div>
               <Button onClick={handleCreate} className="w-full">Send Announcement</Button>
             </div>
