@@ -77,6 +77,8 @@ const Payments = () => {
   const [payments, setPayments] = useState<PaymentWithStudent[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "pending_verification" | "verified" | "rejected">("all");
+  const [batchFilter, setBatchFilter] = useState<string>("all");
+  const [batches, setBatches] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPayment, setSelectedPayment] = useState<PaymentWithStudent | null>(null);
   const [rejectingPayment, setRejectingPayment] = useState<PaymentWithStudent | null>(null);
