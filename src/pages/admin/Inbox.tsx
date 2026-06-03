@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Send, Search, Inbox as InboxIcon } from "lucide-react";
+import { Send, Search, Inbox as InboxIcon, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { Platform, platformMeta, relativeTime } from "@/lib/messaging";
 
@@ -19,6 +19,13 @@ interface Conversation {
   unread_count: number;
 }
 
+interface Attachment {
+  path: string;
+  name: string;
+  size: number;
+  type: string;
+}
+
 interface Message {
   id: string;
   conversation_key: string;
@@ -27,7 +34,11 @@ interface Message {
   text: string | null;
   created_at: string;
   sender_name: string | null;
+  attachments: Attachment[] | null;
 }
+
+const formatBytes = (b: number) =>
+  b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / 1024 / 1024).toFixed(1)} MB`;
 
 const FILTERS: Array<{ key: string; label: string }> = [
   { key: "all", label: "All" },
@@ -47,6 +58,7 @@ const Inbox = () => {
   const [reply, setReply] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Load conversations
@@ -77,7 +89,7 @@ const Inbox = () => {
         .select("*")
         .eq("conversation_key", selectedKey)
         .order("created_at", { ascending: true });
-      setMessages((data as Message[]) ?? []);
+      setMessages(((data as unknown) as Message[]) ?? []);
     };
     load();
     supabase.from("conversations").update({ unread_count: 0 }).eq("conversation_key", selectedKey).then();
@@ -102,6 +114,53 @@ const Inbox = () => {
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
+
+  // Sign URLs for attachments in chat-attachments bucket
+  useEffect(() => {
+    const paths = messages
+      .flatMap((m) => m.attachments ?? [])
+      .map((a) => a.path)
+      .filter((p) => p && !signedUrls[p]);
+    if (paths.length === 0) return;
+    (async () => {
+      const { data } = await supabase.storage
+        .from("chat-attachments")
+        .createSignedUrls(paths, 60 * 60);
+      if (!data) return;
+      setSignedUrls((prev) => {
+        const next = { ...prev };
+        data.forEach((d) => {
+          if (d.signedUrl && d.path) next[d.path] = d.signedUrl;
+        });
+        return next;
+      });
+    })();
+  }, [messages, signedUrls]);
+
+  const renderAttachment = (a: Attachment) => {
+    const url = signedUrls[a.path];
+    const isImage = a.type.startsWith("image/");
+    if (isImage && url) {
+      return (
+        <a key={a.path} href={url} target="_blank" rel="noreferrer" className="block mt-1">
+          <img src={url} alt={a.name} className="max-w-[240px] max-h-48 rounded-md border border-border object-cover" />
+        </a>
+      );
+    }
+    return (
+      <a
+        key={a.path}
+        href={url ?? "#"}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-1 flex items-center gap-2 rounded-md border border-border bg-background/40 px-2 py-1.5 text-xs hover:bg-background/70"
+      >
+        <FileText className="w-4 h-4 shrink-0" />
+        <span className="truncate max-w-[180px]">{a.name}</span>
+        <span className="text-muted-foreground">{formatBytes(a.size)}</span>
+      </a>
+    );
+  };
 
   const filtered = useMemo(() => {
     return conversations.filter((c) => {
@@ -138,6 +197,7 @@ const Inbox = () => {
       text,
       created_at: new Date().toISOString(),
       sender_name: null,
+      attachments: null,
     };
     setMessages((prev) => [...prev, optimistic]);
     setReply("");
@@ -276,7 +336,8 @@ const Inbox = () => {
                           : "bg-card border border-border rounded-bl-sm"
                       )}
                     >
-                      {m.text}
+                      {m.text && <p className="whitespace-pre-wrap">{m.text}</p>}
+                      {m.attachments?.map(renderAttachment)}
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-1 px-1">
                       {m.direction === "outbound" && m.sender_name && (
