@@ -48,12 +48,22 @@ const StudentLayout = () => {
   useEffect(() => {
     if (!user) return;
     const fetchUnread = async () => {
+      const { data: student } = await supabase.from("students")
+        .select("status").eq("user_id", user.id).maybeSingle();
+      const isActive = student?.status === "active_student";
       const { data } = await supabase
         .from("announcements")
-        .select("id")
+        .select("id, target_audience")
         .order("created_at", { ascending: false });
+      const visible = (data || []).filter((a: any) => {
+        const aud = (a.target_audience || "all").toLowerCase();
+        if (aud === "all") return true;
+        if (aud === "active") return isActive;
+        if (aud === "enrolled") return !isActive;
+        return true;
+      });
       const readIds: string[] = JSON.parse(localStorage.getItem(READ_KEY) || "[]");
-      const unread = (data || []).filter(a => !readIds.includes(a.id));
+      const unread = visible.filter(a => !readIds.includes(a.id));
       setUnreadCount(unread.length);
     };
     fetchUnread();

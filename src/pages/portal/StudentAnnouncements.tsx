@@ -53,9 +53,19 @@ const StudentAnnouncements = () => {
   useEffect(() => {
     if (!user) return;
     (async () => {
+      const { data: student } = await supabase.from("students")
+        .select("status").eq("user_id", user.id).maybeSingle();
+      const isActive = student?.status === "active_student";
       const { data } = await supabase.from("announcements")
         .select("*").order("created_at", { ascending: false });
-      if (data) setList(data);
+      const filtered = (data || []).filter(a => {
+        const aud = (a.target_audience || "all").toLowerCase();
+        if (aud === "all") return true;
+        if (aud === "active") return isActive;
+        if (aud === "enrolled") return !isActive;
+        return true;
+      });
+      setList(filtered);
       setReadIds(JSON.parse(localStorage.getItem(READ_KEY) || "[]"));
       setLoading(false);
     })();
