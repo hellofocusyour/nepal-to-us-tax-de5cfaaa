@@ -58,6 +58,7 @@ const Inbox = () => {
   const [reply, setReply] = useState("");
   const [sending, setSending] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Load conversations
