@@ -184,6 +184,9 @@ const Payments = () => {
   const filteredGroups = useMemo(() => {
     const q = search.trim().toLowerCase();
     return groups.filter(g => {
+      if (batchFilter !== "all") {
+        if (batchFilter === "none" ? g.batchId !== null : g.batchId !== batchFilter) return false;
+      }
       // Status filter: group has at least one matching payment
       if (statusFilter !== "all") {
         const hasMatch = g.payments.some(p => p.status === statusFilter);
@@ -195,7 +198,7 @@ const Payments = () => {
       if (g.payments.some(p => (p.transaction_reference || "").toLowerCase().includes(q))) return true;
       return false;
     });
-  }, [groups, search, statusFilter]);
+  }, [groups, search, statusFilter, batchFilter]);
 
   // Status counts: number of students with ≥1 matching payment
   const statusCounts = useMemo(() => {
