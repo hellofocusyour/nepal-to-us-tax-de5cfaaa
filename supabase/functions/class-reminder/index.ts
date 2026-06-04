@@ -43,6 +43,9 @@ function computeNextOccurrence(days: number[], time: string, durationMin: number
     if (new Date(iso).getTime() + durationMin * 60000 > now.getTime()) return iso;
   }
   return null;
+}
+
+
 
 
 Deno.serve(async (req) => {
