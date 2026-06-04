@@ -35,15 +35,31 @@ Deno.serve(async (req) => {
       .limit(1)
       .maybeSingle();
 
-    if (!settings || !settings.enabled || !settings.next_class_at || !settings.meet_link) {
+    if (!settings || !settings.enabled || !settings.meet_link) {
       return new Response(JSON.stringify({ skipped: "not configured" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // Compute effective next class time (honor recurring schedule when enabled)
+    let effectiveNextIso: string | null = settings.next_class_at;
+    if (settings.recurrence_enabled) {
+      effectiveNextIso = computeNextOccurrence(
+        settings.recurrence_days || [],
+        settings.recurrence_time || "19:00",
+        settings.duration_minutes,
+      );
+    }
+    if (!effectiveNextIso) {
+      return new Response(JSON.stringify({ skipped: "no upcoming class" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const now = Date.now();
-    const classTime = new Date(settings.next_class_at).getTime();
+    const classTime = new Date(effectiveNextIso).getTime();
     const reminderAt = classTime - settings.reminder_minutes * 60_000;
+
 
     // Send only if we're inside the reminder window and we haven't already sent for this class.
     const alreadySent = settings.last_reminder_sent_for &&
