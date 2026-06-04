@@ -73,6 +73,7 @@ export type Database = {
           content: string
           created_at: string
           created_by: string | null
+          expires_at: string | null
           id: string
           scheduled_at: string | null
           sent_at: string | null
@@ -83,6 +84,7 @@ export type Database = {
           content: string
           created_at?: string
           created_by?: string | null
+          expires_at?: string | null
           id?: string
           scheduled_at?: string | null
           sent_at?: string | null
@@ -93,6 +95,7 @@ export type Database = {
           content?: string
           created_at?: string
           created_by?: string | null
+          expires_at?: string | null
           id?: string
           scheduled_at?: string | null
           sent_at?: string | null
