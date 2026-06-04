@@ -16,6 +16,7 @@ interface Announcement {
   content: string;
   target_audience: string;
   created_at: string;
+  expires_at: string | null;
 }
 
 type Filter = "all" | "unread" | "class" | "payment" | "general";
@@ -58,7 +59,9 @@ const StudentAnnouncements = () => {
       const isActive = student?.status === "active_student";
       const { data } = await supabase.from("announcements")
         .select("*").order("created_at", { ascending: false });
-      const filtered = (data || []).filter(a => {
+      const now = Date.now();
+      const filtered = (data || []).filter((a: any) => {
+        if (a.expires_at && new Date(a.expires_at).getTime() < now) return false;
         const aud = (a.target_audience || "all").toLowerCase();
         if (aud === "all") return true;
         if (aud === "active") return isActive;
@@ -153,7 +156,10 @@ const StudentAnnouncements = () => {
                       <Badge className={cn(style.pill, "hover:" + style.pill)}>{cat === "class" ? "Class change" : cat}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground line-clamp-2">{a.content}</p>
-                    <p className="text-xs text-muted-foreground">Posted by admin · {relTime(a.created_at)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Posted by admin · {new Date(a.created_at).toLocaleString()} · {relTime(a.created_at)}
+                      {a.expires_at && <span className="ml-1">· Expires {new Date(a.expires_at).toLocaleString()}</span>}
+                    </p>
                   </div>
                 </div>
               </button>
@@ -171,7 +177,10 @@ const StudentAnnouncements = () => {
                   <Megaphone className="w-5 h-5 text-primary" /> {active.title}
                 </DialogTitle>
               </DialogHeader>
-              <p className="text-xs text-muted-foreground">{relTime(active.created_at)}</p>
+              <p className="text-xs text-muted-foreground">
+                {new Date(active.created_at).toLocaleString()}
+                {active.expires_at && <span className="ml-1">· Expires {new Date(active.expires_at).toLocaleString()}</span>}
+              </p>
               <p className="text-sm text-foreground whitespace-pre-wrap">{active.content}</p>
               <Button onClick={() => setActive(null)}>Close</Button>
             </>
