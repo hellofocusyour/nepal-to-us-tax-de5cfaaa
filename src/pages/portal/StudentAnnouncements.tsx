@@ -156,7 +156,10 @@ const StudentAnnouncements = () => {
                       <Badge className={cn(style.pill, "hover:" + style.pill)}>{cat === "class" ? "Class change" : cat}</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground line-clamp-2">{a.content}</p>
-                    <p className="text-xs text-muted-foreground">Posted by admin · {relTime(a.created_at)}</p>
+                    <p className="text-xs text-muted-foreground">
+                      Posted by admin · {new Date(a.created_at).toLocaleString()} · {relTime(a.created_at)}
+                      {a.expires_at && <span className="ml-1">· Expires {new Date(a.expires_at).toLocaleString()}</span>}
+                    </p>
                   </div>
                 </div>
               </button>
