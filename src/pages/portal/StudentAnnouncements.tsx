@@ -177,7 +177,10 @@ const StudentAnnouncements = () => {
                   <Megaphone className="w-5 h-5 text-primary" /> {active.title}
                 </DialogTitle>
               </DialogHeader>
-              <p className="text-xs text-muted-foreground">{relTime(active.created_at)}</p>
+              <p className="text-xs text-muted-foreground">
+                {new Date(active.created_at).toLocaleString()}
+                {active.expires_at && <span className="ml-1">· Expires {new Date(active.expires_at).toLocaleString()}</span>}
+              </p>
               <p className="text-sm text-foreground whitespace-pre-wrap">{active.content}</p>
               <Button onClick={() => setActive(null)}>Close</Button>
             </>
