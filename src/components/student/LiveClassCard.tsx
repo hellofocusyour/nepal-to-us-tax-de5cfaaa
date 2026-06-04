@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Video, Calendar as CalendarIcon, ExternalLink, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+import { computeNextOccurrence } from "@/lib/liveClassSchedule";
+
 interface Settings {
   meet_link: string;
   class_title: string;
@@ -12,7 +14,11 @@ interface Settings {
   next_class_at: string | null;
   duration_minutes: number;
   enabled: boolean;
+  recurrence_enabled?: boolean;
+  recurrence_days?: number[];
+  recurrence_time?: string;
 }
+
 
 function pad(n: number) { return n.toString().padStart(2, "0"); }
 function toGcalUtc(d: Date) {
