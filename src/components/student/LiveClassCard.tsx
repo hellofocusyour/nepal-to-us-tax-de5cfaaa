@@ -81,7 +81,7 @@ const LiveClassCard = () => {
   if (loading || !s || !s.enabled || !effectiveNext || !s.meet_link || !hasAccess) return null;
 
 
-  const start = new Date(s.next_class_at);
+  const start = new Date(effectiveNext);
   const end = new Date(start.getTime() + s.duration_minutes * 60000);
   const isLive = diff !== null && diff <= 0 && Date.now() < end.getTime();
   const isPast = Date.now() >= end.getTime();
