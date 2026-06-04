@@ -490,6 +490,9 @@ export type Database = {
           last_reminder_sent_for: string | null
           meet_link: string
           next_class_at: string | null
+          recurrence_days: number[]
+          recurrence_enabled: boolean
+          recurrence_time: string
           reminder_minutes: number
           updated_at: string
           updated_by: string | null
@@ -504,6 +507,9 @@ export type Database = {
           last_reminder_sent_for?: string | null
           meet_link?: string
           next_class_at?: string | null
+          recurrence_days?: number[]
+          recurrence_enabled?: boolean
+          recurrence_time?: string
           reminder_minutes?: number
           updated_at?: string
           updated_by?: string | null
@@ -518,6 +524,9 @@ export type Database = {
           last_reminder_sent_for?: string | null
           meet_link?: string
           next_class_at?: string | null
+          recurrence_days?: number[]
+          recurrence_enabled?: boolean
+          recurrence_time?: string
           reminder_minutes?: number
           updated_at?: string
           updated_by?: string | null

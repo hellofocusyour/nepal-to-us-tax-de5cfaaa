@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Video, Calendar as CalendarIcon, ExternalLink, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+import { computeNextOccurrence } from "@/lib/liveClassSchedule";
+
 interface Settings {
   meet_link: string;
   class_title: string;
@@ -12,7 +14,11 @@ interface Settings {
   next_class_at: string | null;
   duration_minutes: number;
   enabled: boolean;
+  recurrence_enabled?: boolean;
+  recurrence_days?: number[];
+  recurrence_time?: string;
 }
+
 
 function pad(n: number) { return n.toString().padStart(2, "0"); }
 function toGcalUtc(d: Date) {
@@ -58,19 +64,24 @@ const LiveClassCard = () => {
           .select("installment_number, status").eq("student_id", student.id).eq("status", "verified");
         setHasAccess((pays || []).some(p => p.installment_number === 1));
       }
-      const { data: settings } = await supabase.from("live_class_settings")
-        .select("meet_link, class_title, class_description, next_class_at, duration_minutes, enabled")
+      const { data: settings } = await supabase.from("live_class_settings" as any)
+        .select("meet_link, class_title, class_description, next_class_at, duration_minutes, enabled, recurrence_enabled, recurrence_days, recurrence_time")
         .order("updated_at", { ascending: false }).limit(1).maybeSingle();
-      if (settings) setS(settings as Settings);
+      if (settings) setS(settings as any as Settings);
       setLoading(false);
     })();
   }, []);
 
-  const diff = useCountdown(s?.next_class_at ?? null);
+  const effectiveNext = s?.recurrence_enabled
+    ? computeNextOccurrence(s.recurrence_days || [], s.recurrence_time || "19:00", s.duration_minutes)
+    : (s?.next_class_at ?? null);
 
-  if (loading || !s || !s.enabled || !s.next_class_at || !s.meet_link || !hasAccess) return null;
+  const diff = useCountdown(effectiveNext);
 
-  const start = new Date(s.next_class_at);
+  if (loading || !s || !s.enabled || !effectiveNext || !s.meet_link || !hasAccess) return null;
+
+
+  const start = new Date(effectiveNext);
   const end = new Date(start.getTime() + s.duration_minutes * 60000);
   const isLive = diff !== null && diff <= 0 && Date.now() < end.getTime();
   const isPast = Date.now() >= end.getTime();
