@@ -16,6 +16,7 @@ interface Announcement {
   content: string;
   target_audience: string;
   created_at: string;
+  expires_at: string | null;
 }
 
 type Filter = "all" | "unread" | "class" | "payment" | "general";
