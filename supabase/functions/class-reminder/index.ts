@@ -19,6 +19,32 @@ function normalizePhone(raw: string): string | null {
   return null;
 }
 
+function pad(n: number) { return n.toString().padStart(2, "0"); }
+function nptParts(d: Date) {
+  const fmt = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kathmandu",
+    year: "numeric", month: "2-digit", day: "2-digit",
+    weekday: "short",
+  });
+  const parts = Object.fromEntries(fmt.formatToParts(d).map(p => [p.type, p.value]));
+  const map: Record<string, number> = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+  return { y: parseInt(parts.year), m: parseInt(parts.month), d: parseInt(parts.day), dow: map[parts.weekday as string] };
+}
+function computeNextOccurrence(days: number[], time: string, durationMin: number): string | null {
+  if (!days || days.length === 0) return null;
+  const [hh, mm] = time.split(":").map(Number);
+  if (Number.isNaN(hh) || Number.isNaN(mm)) return null;
+  const now = new Date();
+  for (let i = 0; i < 14; i++) {
+    const probe = new Date(now.getTime() + i * 86400000);
+    const p = nptParts(probe);
+    if (!days.includes(p.dow)) continue;
+    const iso = new Date(`${p.y}-${pad(p.m)}-${pad(p.d)}T${pad(hh)}:${pad(mm)}:00+05:45`).toISOString();
+    if (new Date(iso).getTime() + durationMin * 60000 > now.getTime()) return iso;
+  }
+  return null;
+
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
