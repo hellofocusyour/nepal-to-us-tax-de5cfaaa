@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Megaphone, Plus, Clock, Timer } from "lucide-react";
+import { Megaphone, Plus, Clock, Timer, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -111,6 +111,14 @@ const Announcements = () => {
 
   const isExpired = (a: Announcement) => a.expires_at && new Date(a.expires_at).getTime() < Date.now();
 
+  const handleDelete = async (id: string) => {
+    if (!window.confirm("Delete this announcement?")) return;
+    const { error } = await supabase.from("announcements").delete().eq("id", id);
+    if (error) { toast.error("Failed to delete announcement"); return; }
+    toast.success("Announcement deleted");
+    setAnnouncements(prev => prev.filter(a => a.id !== id));
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -209,6 +217,9 @@ const Announcements = () => {
                       )}
                     </div>
                   </div>
+                  <Button variant="ghost" size="sm" onClick={() => handleDelete(ann.id)} className="shrink-0 text-destructive hover:text-destructive hover:bg-destructive/10">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </CardContent>
             </Card>
