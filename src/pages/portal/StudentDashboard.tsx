@@ -127,13 +127,24 @@ const StudentDashboard = () => {
       sessionStorage.removeItem("fa_pending_onboarding");
 
 
-      // Next Class — from live_class_settings (weekly Mon–Fri)
-      const { data: lcs } = await supabase
-        .from("live_class_settings")
-        .select("class_title, next_class_at, enabled")
-        .order("updated_at", { ascending: false })
-        .limit(1)
-        .maybeSingle();
+      // Next Class — pick batch-specific row first, fall back to global
+      let lcs: any = null;
+      if (studentData.batch_id) {
+        const { data } = await supabase
+          .from("live_class_settings")
+          .select("class_title, next_class_at, enabled")
+          .eq("batch_id", studentData.batch_id)
+          .maybeSingle();
+        lcs = data;
+      }
+      if (!lcs) {
+        const { data } = await supabase
+          .from("live_class_settings")
+          .select("class_title, next_class_at, enabled")
+          .is("batch_id", null)
+          .maybeSingle();
+        lcs = data;
+      }
       if (lcs?.enabled && lcs.next_class_at) {
         const base = new Date(lcs.next_class_at);
         const now = new Date();
