@@ -94,18 +94,23 @@ const Announcements = () => {
 
   const handleCreate = async () => {
     if (!form.title || !form.content) { toast.error("Title and content required"); return; }
+    if (selectedBatches.length === 0) { toast.error("Select at least one batch"); return; }
     const expires_at = computeExpiry(expiryOpt, customExpiry);
     if (expiryOpt === "custom" && !expires_at) { toast.error("Pick a custom expiry date"); return; }
-    const { error } = await supabase.from("announcements").insert({
+    const { data: inserted, error } = await supabase.from("announcements").insert({
       title: form.title,
       content: form.content,
       target_audience: form.target_audience,
       created_by: user?.id,
       expires_at,
-    } as any);
-    if (error) { toast.error("Failed to create"); return; }
+    } as any).select("id").single();
+    if (error || !inserted) { toast.error("Failed to create"); return; }
+    const links = selectedBatches.map(bid => ({ announcement_id: (inserted as any).id, batch_id: bid }));
+    const { error: linkErr } = await (supabase as any).from("announcement_batches").insert(links);
+    if (linkErr) { toast.error("Created but failed to set batch visibility"); }
     toast.success("Announcement created");
     setForm({ title: "", content: "", target_audience: "all" });
+    setSelectedBatches([]);
     setTemplate("none"); setExpiryOpt("none"); setCustomExpiry("");
     setDialogOpen(false);
     fetchAnnouncements();
