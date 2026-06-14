@@ -266,6 +266,7 @@ const VideoMaterials = () => {
                 <Label>Published</Label>
               </div>
             </div>
+            <BatchMultiSelect value={selectedBatches} onChange={setSelectedBatches} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setOpen(false); resetForm(); }}>Cancel</Button>
