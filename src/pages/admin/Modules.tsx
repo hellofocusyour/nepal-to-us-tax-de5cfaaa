@@ -102,14 +102,20 @@ const AdminModules = () => {
                 <Switch checked={m.is_unlocked} onCheckedChange={(v) => toggleUnlock(m, v)} />
               </div>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              {!m.completed_at ? (
-                <Button onClick={() => markCompleteAndUnlockNext(m)}>
-                  <CheckCircle2 className="w-4 h-4 mr-2" />Mark class complete & unlock next
-                </Button>
-              ) : (
-                <Button variant="outline" onClick={() => reopen(m)}>Re-open module</Button>
-              )}
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {!m.completed_at ? (
+                  <Button onClick={() => markCompleteAndUnlockNext(m)}>
+                    <CheckCircle2 className="w-4 h-4 mr-2" />Mark class complete & unlock next
+                  </Button>
+                ) : (
+                  <Button variant="outline" onClick={() => reopen(m)}>Re-open module</Button>
+                )}
+              </div>
+              <BatchMultiSelect
+                value={moduleBatches[m.id] || []}
+                onChange={(ids) => saveBatches(m.id, ids)}
+              />
             </CardContent>
           </Card>
         ))}
