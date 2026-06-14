@@ -167,6 +167,28 @@ const BatchDetail = () => {
     fetchAll();
   };
 
+  const [inviting, setInviting] = useState(false);
+  const pendingInvites = roster.filter(e => !(e.students as any).user_id);
+  const handleSendInvites = async () => {
+    if (!batch) return;
+    if (pendingInvites.length === 0) {
+      toast.info("All students in this batch already have accounts.");
+      return;
+    }
+    if (!window.confirm(`Send invite emails to ${pendingInvites.length} student${pendingInvites.length === 1 ? "" : "s"} who haven't signed up yet?`)) return;
+    setInviting(true);
+    const { data, error } = await supabase.functions.invoke("send-sponsored-invite", {
+      body: { batch_id: batch.id, student_ids: pendingInvites.map(e => e.student_id) },
+    });
+    setInviting(false);
+    if (error) { toast.error(error.message); return; }
+    const sent = (data as any)?.sent ?? 0;
+    const failed = (data as any)?.failed ?? 0;
+    if (failed === 0) toast.success(`Sent ${sent} invite${sent === 1 ? "" : "s"}`);
+    else toast.warning(`Sent ${sent}, failed ${failed}`);
+    fetchAll();
+  };
+
   const filteredAvailable = available.filter(s => {
     const q = search.toLowerCase();
     return !q || s.full_name?.toLowerCase().includes(q) || s.email?.toLowerCase().includes(q);
