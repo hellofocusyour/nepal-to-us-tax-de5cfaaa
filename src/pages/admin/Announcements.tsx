@@ -191,6 +191,11 @@ const Announcements = () => {
                   </p>
                 )}
               </div>
+              <BatchMultiSelect
+                value={selectedBatches}
+                onChange={setSelectedBatches}
+                helpText="Required. Students only see announcements assigned to their batch."
+              />
               <Button onClick={handleCreate} className="w-full">Send Announcement</Button>
             </div>
           </DialogContent>
