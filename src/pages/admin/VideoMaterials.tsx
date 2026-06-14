@@ -49,6 +49,7 @@ const VideoMaterials = () => {
     display_order: "0",
     is_published: true,
   });
+  const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
   const parsedId = parseDriveFileId(form.drive_input);
 
   const load = async () => {
