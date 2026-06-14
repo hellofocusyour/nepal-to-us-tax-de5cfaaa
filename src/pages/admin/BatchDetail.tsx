@@ -287,9 +287,11 @@ const BatchDetail = () => {
                 Add {selected.size > 0 ? `${selected.size} ` : ""}student{selected.size === 1 ? "" : "s"}
               </Button>
             </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
 
       <Card className="border border-border">
         <CardContent className="p-0">
