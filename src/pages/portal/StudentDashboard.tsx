@@ -89,11 +89,24 @@ const StudentDashboard = () => {
       if (studentData.batch_id) {
         const { data: batch } = await supabase
           .from("batches")
-          .select("name, start_date, end_date")
+          .select("name, start_date, end_date, access_granted, sponsor_organization")
           .eq("id", studentData.batch_id)
           .single();
-        if (batch) (studentData as StudentData).batch = batch;
+        if (batch) (studentData as StudentData).batch = batch as any;
       }
+
+      // Detect sponsored / partner-batch access
+      const { data: sponsorRow } = await supabase
+        .from("students")
+        .select("sponsor_organization")
+        .eq("id", studentData.id)
+        .maybeSingle();
+      const batchAny = (studentData as any).batch;
+      const sponsored =
+        !!(sponsorRow as any)?.sponsor_organization ||
+        !!batchAny?.access_granted ||
+        !!batchAny?.sponsor_organization;
+      setHasFullAccess(sponsored);
 
       setStudent(studentData as StudentData);
 
@@ -101,11 +114,18 @@ const StudentDashboard = () => {
         .from("payments")
         .select("amount, status")
         .eq("student_id", studentData.id);
-      const isPaid = !!payments?.some((p) => p.status === "verified");
+      const isPaid = sponsored || !!payments?.some((p) => p.status === "verified");
       if (payments) {
         setPaid(payments.filter((p) => p.status === "verified").reduce((s, p) => s + Number(p.amount), 0));
         setPendingCount(payments.filter((p) => p.status === "pending_verification").length);
       }
+
+      // Only open the onboarding modal for students who actually need to pay
+      if (!sponsored && sessionStorage.getItem("fa_pending_onboarding") === "1") {
+        setPayOpen(true);
+      }
+      sessionStorage.removeItem("fa_pending_onboarding");
+
 
       // Next Class — from live_class_settings (weekly Mon–Fri)
       const { data: lcs } = await supabase
