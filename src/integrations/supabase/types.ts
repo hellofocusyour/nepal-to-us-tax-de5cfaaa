@@ -68,6 +68,39 @@ export type Database = {
         }
         Relationships: []
       }
+      announcement_batches: {
+        Row: {
+          announcement_id: string
+          batch_id: string
+          created_at: string
+        }
+        Insert: {
+          announcement_id: string
+          batch_id: string
+          created_at?: string
+        }
+        Update: {
+          announcement_id?: string
+          batch_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "announcement_batches_announcement_id_fkey"
+            columns: ["announcement_id"]
+            isOneToOne: false
+            referencedRelation: "announcements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "announcement_batches_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       announcements: {
         Row: {
           content: string
@@ -143,6 +176,56 @@ export type Database = {
           },
         ]
       }
+      batch_email_runs: {
+        Row: {
+          batch_id: string | null
+          batch_name: string | null
+          created_at: string
+          failed_count: number
+          id: string
+          recipient_count: number
+          sent_by: string | null
+          sent_count: number
+          status: string
+          subject: string
+          template_key: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          batch_name?: string | null
+          created_at?: string
+          failed_count?: number
+          id?: string
+          recipient_count?: number
+          sent_by?: string | null
+          sent_count?: number
+          status?: string
+          subject: string
+          template_key?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          batch_name?: string | null
+          created_at?: string
+          failed_count?: number
+          id?: string
+          recipient_count?: number
+          sent_by?: string | null
+          sent_count?: number
+          status?: string
+          subject?: string
+          template_key?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "batch_email_runs_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       batch_enrollments: {
         Row: {
           batch_id: string
@@ -181,32 +264,41 @@ export type Database = {
       }
       batches: {
         Row: {
+          access_granted: boolean
           created_at: string
           end_date: string
           enrolled_count: number
           id: string
+          is_partner: boolean
           max_seats: number
           name: string
+          sponsor_organization: string | null
           start_date: string
           updated_at: string
         }
         Insert: {
+          access_granted?: boolean
           created_at?: string
           end_date: string
           enrolled_count?: number
           id?: string
+          is_partner?: boolean
           max_seats?: number
           name: string
+          sponsor_organization?: string | null
           start_date: string
           updated_at?: string
         }
         Update: {
+          access_granted?: boolean
           created_at?: string
           end_date?: string
           enrolled_count?: number
           id?: string
+          is_partner?: boolean
           max_seats?: number
           name?: string
+          sponsor_organization?: string | null
           start_date?: string
           updated_at?: string
         }
@@ -360,6 +452,39 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      document_batches: {
+        Row: {
+          batch_id: string
+          created_at: string
+          document_id: string
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          document_id: string
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          document_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_batches_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "document_batches_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "course_documents"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_logs: {
         Row: {
@@ -589,6 +714,39 @@ export type Database = {
           },
         ]
       }
+      module_batches: {
+        Row: {
+          batch_id: string
+          created_at: string
+          module_id: string
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          module_id: string
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          module_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_batches_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "module_batches_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           admin_notes: string | null
@@ -768,6 +926,7 @@ export type Database = {
           payment_plan: string
           phone: string | null
           profile_id: string | null
+          sponsor_organization: string | null
           status: Database["public"]["Enums"]["student_status"]
           updated_at: string
           user_id: string | null
@@ -783,6 +942,7 @@ export type Database = {
           payment_plan?: string
           phone?: string | null
           profile_id?: string | null
+          sponsor_organization?: string | null
           status?: Database["public"]["Enums"]["student_status"]
           updated_at?: string
           user_id?: string | null
@@ -798,6 +958,7 @@ export type Database = {
           payment_plan?: string
           phone?: string | null
           profile_id?: string | null
+          sponsor_organization?: string | null
           status?: Database["public"]["Enums"]["student_status"]
           updated_at?: string
           user_id?: string | null
@@ -863,6 +1024,39 @@ export type Database = {
           {
             foreignKeyName: "video_access_logs_video_id_fkey"
             columns: ["video_id"]
+            isOneToOne: false
+            referencedRelation: "video_materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      video_batches: {
+        Row: {
+          batch_id: string
+          created_at: string
+          video_material_id: string
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          video_material_id: string
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          video_material_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_batches_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "video_batches_video_material_id_fkey"
+            columns: ["video_material_id"]
             isOneToOne: false
             referencedRelation: "video_materials"
             referencedColumns: ["id"]
@@ -947,6 +1141,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_full_access: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -956,6 +1151,7 @@ export type Database = {
       }
       is_paid_student: { Args: { _user_id: string }; Returns: boolean }
       is_super_admin: { Args: { _user_id: string }; Returns: boolean }
+      student_batch_id: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
       admin_section:

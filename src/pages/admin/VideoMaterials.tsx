@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { parseDriveFileId, driveEmbedUrl } from "@/lib/driveUrl";
 import { Plus, Pencil, Trash2, ExternalLink, Info, X, Calendar } from "lucide-react";
 import { format } from "date-fns";
+import BatchMultiSelect from "@/components/admin/BatchMultiSelect";
 
 type Video = {
   id: string;
@@ -48,6 +49,7 @@ const VideoMaterials = () => {
     display_order: "0",
     is_published: true,
   });
+  const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
   const parsedId = parseDriveFileId(form.drive_input);
 
   const load = async () => {
@@ -73,10 +75,11 @@ const VideoMaterials = () => {
       title: "", description: "", category: "General", drive_input: "",
       thumbnail_url: "", duration_minutes: "", display_order: "0", is_published: true,
     });
+    setSelectedBatches([]);
   };
 
   const openCreate = () => { resetForm(); setOpen(true); };
-  const openEdit = (v: Video) => {
+  const openEdit = async (v: Video) => {
     setEditing(v);
     setForm({
       title: v.title,
@@ -88,6 +91,8 @@ const VideoMaterials = () => {
       display_order: v.display_order.toString(),
       is_published: v.is_published,
     });
+    const { data: links } = await (supabase as any).from("video_batches").select("batch_id").eq("video_material_id", v.id);
+    setSelectedBatches((links || []).map((l: any) => l.batch_id));
     setOpen(true);
   };
 
@@ -107,11 +112,18 @@ const VideoMaterials = () => {
       created_by: user?.id ?? null,
     };
 
-    const { error } = editing
-      ? await supabase.from("video_materials").update(payload).eq("id", editing.id)
-      : await supabase.from("video_materials").insert(payload);
+    const { data: saved, error } = editing
+      ? await supabase.from("video_materials").update(payload).eq("id", editing.id).select("id").single()
+      : await supabase.from("video_materials").insert(payload).select("id").single();
 
-    if (error) return toast.error(error.message);
+    if (error || !saved) return toast.error(error?.message || "Failed");
+    const videoId = (saved as any).id;
+    // Sync batches
+    await (supabase as any).from("video_batches").delete().eq("video_material_id", videoId);
+    if (selectedBatches.length) {
+      await (supabase as any).from("video_batches")
+        .insert(selectedBatches.map(bid => ({ video_material_id: videoId, batch_id: bid })));
+    }
     toast.success(editing ? "Video updated" : "Video added");
     setOpen(false);
     resetForm();
@@ -254,6 +266,7 @@ const VideoMaterials = () => {
                 <Label>Published</Label>
               </div>
             </div>
+            <BatchMultiSelect value={selectedBatches} onChange={setSelectedBatches} />
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => { setOpen(false); resetForm(); }}>Cancel</Button>

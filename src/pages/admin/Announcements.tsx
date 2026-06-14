@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Megaphone, Plus, Clock, Timer, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import BatchMultiSelect from "@/components/admin/BatchMultiSelect";
 
 interface Announcement {
   id: string;
@@ -67,6 +68,7 @@ const Announcements = () => {
   const [expiryOpt, setExpiryOpt] = useState("none");
   const [customExpiry, setCustomExpiry] = useState("");
   const [form, setForm] = useState({ title: "", content: "", target_audience: "all" });
+  const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
   const [counts, setCounts] = useState({ all: 0, active: 0, enrolled: 0 });
 
   const fetchAnnouncements = async () => {
@@ -92,18 +94,23 @@ const Announcements = () => {
 
   const handleCreate = async () => {
     if (!form.title || !form.content) { toast.error("Title and content required"); return; }
+    if (selectedBatches.length === 0) { toast.error("Select at least one batch"); return; }
     const expires_at = computeExpiry(expiryOpt, customExpiry);
     if (expiryOpt === "custom" && !expires_at) { toast.error("Pick a custom expiry date"); return; }
-    const { error } = await supabase.from("announcements").insert({
+    const { data: inserted, error } = await supabase.from("announcements").insert({
       title: form.title,
       content: form.content,
       target_audience: form.target_audience,
       created_by: user?.id,
       expires_at,
-    } as any);
-    if (error) { toast.error("Failed to create"); return; }
+    } as any).select("id").single();
+    if (error || !inserted) { toast.error("Failed to create"); return; }
+    const links = selectedBatches.map(bid => ({ announcement_id: (inserted as any).id, batch_id: bid }));
+    const { error: linkErr } = await (supabase as any).from("announcement_batches").insert(links);
+    if (linkErr) { toast.error("Created but failed to set batch visibility"); }
     toast.success("Announcement created");
     setForm({ title: "", content: "", target_audience: "all" });
+    setSelectedBatches([]);
     setTemplate("none"); setExpiryOpt("none"); setCustomExpiry("");
     setDialogOpen(false);
     fetchAnnouncements();
@@ -184,6 +191,11 @@ const Announcements = () => {
                   </p>
                 )}
               </div>
+              <BatchMultiSelect
+                value={selectedBatches}
+                onChange={setSelectedBatches}
+                helpText="Required. Students only see announcements assigned to their batch."
+              />
               <Button onClick={handleCreate} className="w-full">Send Announcement</Button>
             </div>
           </DialogContent>

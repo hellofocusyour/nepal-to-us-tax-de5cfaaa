@@ -38,6 +38,7 @@ import AdminModules from "./pages/admin/Modules.tsx";
 import AdminVideoMaterials from "./pages/admin/VideoMaterials.tsx";
 import StudentVideoMaterials from "./pages/portal/StudentVideoMaterials.tsx";
 import Team from "./pages/admin/Team.tsx";
+import EmailBatch from "./pages/admin/EmailBatch.tsx";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
               <Route path="modules" element={<AdminModules />} />
               <Route path="video-materials" element={<AdminVideoMaterials />} />
               <Route path="team" element={<Team />} />
+              <Route path="email-batch" element={<EmailBatch />} />
               <Route path="settings/integrations" element={<Integrations />} />
             </Route>
             <Route path="/portal/login" element={<StudentLogin />} />

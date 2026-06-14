@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { CheckCircle2, Lock, Unlock } from "lucide-react";
 import { toast } from "sonner";
+import BatchMultiSelect from "@/components/admin/BatchMultiSelect";
 
 interface Module {
   id: string;
@@ -20,10 +21,15 @@ interface Module {
 const AdminModules = () => {
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
+  const [moduleBatches, setModuleBatches] = useState<Record<string, string[]>>({});
 
   const load = async () => {
     const { data } = await supabase.from("course_modules").select("*").order("module_number");
     setModules((data as Module[]) || []);
+    const { data: links } = await (supabase as any).from("module_batches").select("module_id, batch_id");
+    const map: Record<string, string[]> = {};
+    (links || []).forEach((l: any) => { (map[l.module_id] ||= []).push(l.batch_id); });
+    setModuleBatches(map);
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
@@ -58,6 +64,18 @@ const AdminModules = () => {
     load();
   };
 
+  const saveBatches = async (moduleId: string, batchIds: string[]) => {
+    setModuleBatches(prev => ({ ...prev, [moduleId]: batchIds }));
+    await (supabase as any).from("module_batches").delete().eq("module_id", moduleId);
+    if (batchIds.length) {
+      const { error } = await (supabase as any).from("module_batches")
+        .insert(batchIds.map(bid => ({ module_id: moduleId, batch_id: bid })));
+      if (error) return toast.error(error.message);
+    }
+    toast.success("Batch visibility updated");
+  };
+
+
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
   return (
@@ -84,14 +102,20 @@ const AdminModules = () => {
                 <Switch checked={m.is_unlocked} onCheckedChange={(v) => toggleUnlock(m, v)} />
               </div>
             </CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-              {!m.completed_at ? (
-                <Button onClick={() => markCompleteAndUnlockNext(m)}>
-                  <CheckCircle2 className="w-4 h-4 mr-2" />Mark class complete & unlock next
-                </Button>
-              ) : (
-                <Button variant="outline" onClick={() => reopen(m)}>Re-open module</Button>
-              )}
+            <CardContent className="space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {!m.completed_at ? (
+                  <Button onClick={() => markCompleteAndUnlockNext(m)}>
+                    <CheckCircle2 className="w-4 h-4 mr-2" />Mark class complete & unlock next
+                  </Button>
+                ) : (
+                  <Button variant="outline" onClick={() => reopen(m)}>Re-open module</Button>
+                )}
+              </div>
+              <BatchMultiSelect
+                value={moduleBatches[m.id] || []}
+                onChange={(ids) => saveBatches(m.id, ids)}
+              />
             </CardContent>
           </Card>
         ))}

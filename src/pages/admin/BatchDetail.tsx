@@ -4,15 +4,75 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Plus, Users, Calendar, Trash2, Search } from "lucide-react";
+import { ArrowLeft, Plus, Users, Calendar, Trash2, Search, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
+
+function SponsorAccessCard({ batch, onSaved }: { batch: any; onSaved: () => void }) {
+  const [accessGranted, setAccessGranted] = useState(!!batch.access_granted);
+  const [isPartner, setIsPartner] = useState(!!batch.is_partner);
+  const [sponsor, setSponsor] = useState(batch.sponsor_organization || "");
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    setSaving(true);
+    const trimmed = sponsor.trim() || null;
+    const { error } = await supabase.from("batches").update({
+      access_granted: accessGranted,
+      is_partner: isPartner,
+      sponsor_organization: trimmed,
+    } as any).eq("id", batch.id);
+    if (error) { toast.error(error.message); setSaving(false); return; }
+    // Propagate sponsor to all students in this batch
+    if (trimmed) {
+      await supabase.from("students").update({ sponsor_organization: trimmed } as any).eq("batch_id", batch.id);
+    }
+    toast.success("Sponsored access settings saved");
+    setSaving(false);
+    onSaved();
+  };
+
+  return (
+    <Card className="border border-border">
+      <CardContent className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-5 h-5 text-primary" />
+          <h2 className="font-display font-bold text-foreground">Sponsored / Partner Access</h2>
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <Label className="text-sm font-medium">Grant full access (sponsored / partner batch)</Label>
+            <p className="text-xs text-muted-foreground">Every student in this batch unlocks course content without paying individually.</p>
+          </div>
+          <Switch checked={accessGranted} onCheckedChange={setAccessGranted} />
+        </div>
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <Label className="text-sm font-medium">Partner batch</Label>
+            <p className="text-xs text-muted-foreground">Flag this batch as a partner/sponsored cohort.</p>
+          </div>
+          <Switch checked={isPartner} onCheckedChange={setIsPartner} />
+        </div>
+        <div>
+          <Label className="text-sm font-medium">Sponsoring organization</Label>
+          <Input value={sponsor} onChange={e => setSponsor(e.target.value)} placeholder="e.g. ACCA Organization" />
+          <p className="text-xs text-muted-foreground mt-1">Applied to all students in this batch on save.</p>
+        </div>
+        <Button onClick={save} disabled={saving}>{saving ? "Saving…" : "Save settings"}</Button>
+      </CardContent>
+    </Card>
+  );
+}
+
 
 interface Batch {
   id: string; name: string; start_date: string; end_date: string;
   max_seats: number; enrolled_count: number;
+  access_granted?: boolean; is_partner?: boolean; sponsor_organization?: string | null;
 }
 interface Student {
   id: string; full_name: string; email: string; phone: string | null; status: string;
@@ -144,6 +204,8 @@ const BatchDetail = () => {
           </div>
         </CardContent>
       </Card>
+      <SponsorAccessCard batch={batch} onSaved={fetchAll} />
+
 
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-display font-bold">Roster</h2>
