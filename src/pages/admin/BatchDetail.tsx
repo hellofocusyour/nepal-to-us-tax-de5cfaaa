@@ -13,6 +13,7 @@ import { toast } from "sonner";
 interface Batch {
   id: string; name: string; start_date: string; end_date: string;
   max_seats: number; enrolled_count: number;
+  access_granted?: boolean; is_partner?: boolean; sponsor_organization?: string | null;
 }
 interface Student {
   id: string; full_name: string; email: string; phone: string | null; status: string;
