@@ -1,78 +1,111 @@
-# Payments Admin: Grouped View + Invoices
+# Batch 3 (ACCA) Onboarding — Implementation Plan
 
-Rework `/admin/payments` from a flat row-per-payment table into a per-student grouped view with correct fee math and downloadable invoices.
+Ships in two phases so Batch 1/2 stay safe at every step. 15 ACCA students from the uploaded sheet will be seeded into Batch 3.
 
-## 1. Pricing config (single source of truth)
+## Phase A — Batch visibility + sponsored access + RLS
 
-Extend `src/lib/pricing.ts` (already exists) with the constants you defined:
-- `BASE_PRICE = 20000`, `VAT_RATE = 0.13`, `VAT_AMOUNT = 2600`
-- `FULL_TOTAL = 22600`
-- `INSTALLMENT_SURCHARGE = 500`, `INSTALLMENT_TOTAL = 23100`
-- Helpers: `expectedTotal(plan, n)`, `expectedPerInstallment(plan, n)`
+### 1. Schema changes (migration)
 
-No hardcoding inside components — they import from here.
+Add to `batches`:
+- `access_granted boolean default false`
+- `is_partner boolean default false`
+- `sponsor_organization text` (default for new students in batch)
 
-## 2. Grouping logic (frontend)
+Add to `students`:
+- `sponsor_organization text`
 
-Keep the existing `payments + students(...)` query. Group client-side by **lowercased student email** (fallback to `student_id` if email missing). For each group compute:
+New join tables (each with `(content_id, batch_id)` PK, `created_at`):
+- `course_batches`
+- `module_batches` (→ `course_modules`)
+- `video_batches` (→ `video_materials`)
+- `document_batches` (→ `course_documents`)
+- `announcement_batches` (extends existing audience targeting; existing `target_audience` field kept as fallback)
 
-- `plan`: `"installment"` if any row has `installment_number > 1` OR more than one payment row exists with installment metadata; else `"full"`. Read `N` from the max `installment_number` seen (default 2 for installment plan, 1 for full).
-- `expectedTotal` from pricing helpers
-- `expectedPerInstallment = expectedTotal / N`
-- `totalPaid` = sum of `amount` where `status === "verified"`
-- `pendingTotal` = sum where `status === "pending_verification"`
-- `balanceDue = expectedTotal - totalPaid`
-- `overallStatus`: `fully_paid` (paid ≥ expected), `partially_paid` (paid > 0), `pending` (only pending rows), `rejected` (all rejected), else `pending`
-- Per-row `amountMismatch`: `amount !== expectedPerInstallment` (only flag for installment plan rows; full-plan single payment compared to `FULL_TOTAL`)
+Each gets `GRANT` + RLS: admins manage all, authenticated students read rows for their own batch.
 
-## 3. UI: `src/pages/admin/Payments.tsx`
+### 2. Backfill (same migration)
 
-Replace the flat `<Table>` with a list of `StudentPaymentCard` components. Each card:
+- Assign every existing `course_modules`, `video_materials`, `course_documents`, `announcements`, and course row to **Batch 1 and Batch 2 only** (whatever batches currently exist except the new Batch 3). Batch 3 starts empty.
+- Create Batch 3: `name='Batch 3 — ACCA Edition'`, `start_date=2026-06-15`, `access_granted=true`, `is_partner=true`, `sponsor_organization='ACCA Organization'`.
 
-**Collapsed header row** (click to expand, chevron icon):
-- Name, email
-- Expected / Paid / Balance figures
-- Status badge (Fully Paid / Partially Paid / Pending / Rejected)
-- Slim progress bar (`Total Paid / Expected`)
-- "Generate Invoice" button
+### 3. New access helper (security definer)
 
-**Expanded body**:
-- Summary panel: Plan type, Expected, Paid (approved), Pending, Balance, progress bar
-- Inner table of payments in chronological order with the existing columns (Proof thumbnail, Amount + ⚠️ tooltip on mismatch, Method, Reference, "#X of N", Status, Actions: view/approve/reject/delete)
+```
+public.has_full_access(_user_id uuid) returns boolean
+```
+True if: individually paid (existing `is_paid_student` logic) OR student's batch has `access_granted=true` OR student's `sponsor_organization` is set.
 
-Search bar matches name / email / any reference inside the group.
-Status filter pills (All / Pending / Approved / Rejected with counts of *students who have ≥1 matching payment*) — reuse current `statusTabs` pattern from Inquiries.
+### 4. RLS rewrites
 
-Preserve existing dialogs (detail, reject reason, delete confirm) and signed-URL proof resolution. Preserve `payments-notify` email calls on approve/reject.
+For `course_modules`, `video_materials`, `course_documents`, `announcements`, `courses` (if it exists):
+- Drop/replace existing student SELECT policies.
+- New student SELECT policy: row visible only if there is a matching `*_batches` row for the student's `batch_id`.
+- Admin policies unchanged.
 
-## 4. Invoice generation
+`PaidAccessGate` and `StudentLayout` updated to use `has_full_access` so Batch 3 sees no paywall.
 
-New component `src/components/admin/InvoiceDialog.tsx`:
+### 5. Admin UI — "Visible to batches" multi-select
 
-- Opened from "Generate Invoice" button on each student card
-- Renders a printable invoice (A4-styled div with `@media print` styles)
-- Invoice number: deterministic from student — `INV-2026-<6 hex chars from student id>` (stable without a DB table; persistence noted as a future enhancement so we don't expand scope into a migration unless you want it)
-- Sections:
-  - Header: "Focus Academy" logo/name, address, contact email/phone (from mem brand info)
-  - Invoice # + issue date (today)
-  - Bill To: student name + email
-  - Line items: Course Fee 20,000 / VAT 13% 2,600 / Installment Fee 500 (if plan) / Total Expected
-  - Payments Received: date, reference, method, amount, status
-  - Totals: Amount Paid, Balance Due, status
-  - Footer thank-you note
-- Two actions:
-  - **Download PDF**: `window.print()` against a styled print view (simplest, no new deps, native browser PDF). Avoids adding jspdf/html2canvas.
-  - **Email to student**: invokes existing `send-email` edge function with a rendered HTML body + the same data
+Reusable `<BatchMultiSelect />` component added to the create/edit forms of:
+- `src/pages/admin/Modules.tsx`
+- `src/pages/admin/VideoMaterials.tsx`
+- Documents admin (in `MyCourses` or wherever documents are managed)
+- `src/pages/admin/Announcements.tsx` (alongside existing audience targeting)
+- Course admin (if applicable)
 
-## 5. Out of scope (explicit)
+Saved as chips; selection alone controls sharing vs exclusivity.
 
-- No DB schema migration. Invoice numbers are derived deterministically; if you later want true persistence, we can add an `invoices` table in a follow-up.
-- No changes to payments data model.
-- No changes outside the admin Payments page + pricing config + new InvoiceDialog component.
+### 6. Batch management UI
 
-## Files touched
+`src/pages/admin/BatchDetail.tsx` gains:
+- "Grant full access (sponsored / partner batch)" switch → `access_granted`
+- "Partner batch" switch → `is_partner`
+- "Sponsoring organization" text input → applies to batch + bulk-updates all students in batch
 
-- `src/lib/pricing.ts` — extend constants/helpers
-- `src/pages/admin/Payments.tsx` — full rewrite of view logic (dialogs preserved)
-- `src/components/admin/InvoiceDialog.tsx` — new
-- (maybe) `src/components/admin/StudentPaymentCard.tsx` — extracted card for readability
+### 7. Seed Batch 3 students
+
+Insert 15 ACCA students from the spreadsheet (name, email, phone) into `students` with `batch_id` = Batch 3, `status='active_student'`, `sponsor_organization='ACCA Organization'`. Use existing `enroll-and-invite` edge function so each gets an auth account + welcome email.
+
+Seed the Batch 3 "Introduction" content (single module/announcement) tagged only to Batch 3.
+
+## Phase B — Bulk email to a batch
+
+### 1. Admin page `src/pages/admin/EmailBatch.tsx` (route `/admin/email-batch`)
+
+- Select batch dropdown → shows recipient count
+- Template dropdown (3 seeded templates below) with editable subject + body
+- Live preview with sample variables filled in
+- "Send" → calls new edge function `send-batch-email`
+
+### 2. Edge function `supabase/functions/send-batch-email/index.ts`
+
+- Auth check (admin only via `has_admin_section`)
+- Loads batch students, renders template per recipient with `{{first_name}}`, `{{batch_name}}`, `{{class_date}}`, `{{class_time}}`, `{{join_link}}`, `{{dashboard_url}}`
+- Sends via existing Resend connector
+- Logs each send in `email_logs`; logs the bulk run in new `batch_email_runs` table (batch_id, template_name, subject, recipient_count, status, sent_at, admin_id)
+
+### 3. Seeded templates (in code constants, editable in UI)
+
+- **Classes Start Tomorrow (full)** — long version
+- **Warm reminder** — medium
+- **Short nudge** — short
+(text exactly as you provided)
+
+## Technical notes
+
+- All schema changes go through one migration; RLS swap and backfill happen in the same transaction so no window of broken visibility.
+- `course_batches` only created if a `courses` table exists — otherwise skipped (your current model centers on `course_modules`).
+- Email variables resolved server-side; HTML escaped; idempotency key per (run, recipient).
+- Existing announcement `target_audience` (all/active/enrolled) still respected on top of the batch filter so older un-tagged announcements continue to work.
+
+## Acceptance check after shipping
+
+1. Log in as a Batch 2 student → identical content to before.
+2. Log in as a Batch 3 student → only the Introduction visible, no paywall.
+3. Tag a module to Batch 2 + Batch 3 → both see it.
+4. Direct PostgREST request from Batch 3 user for a Batch 2 module → 0 rows (RLS).
+5. Admin sends "Classes Starting Tomorrow" to Batch 3 → 15 recipients logged.
+
+---
+
+This is a sizable change set. Want me to proceed with Phase A first (you'll be able to verify Batch 1/2 untouched + Batch 3 empty + ACCA students seeded), then Phase B right after? Or ship both in one go?
