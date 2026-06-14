@@ -76,6 +76,7 @@ interface Batch {
 }
 interface Student {
   id: string; full_name: string; email: string; phone: string | null; status: string;
+  user_id: string | null;
 }
 interface Enrollment {
   id: string; student_id: string; enrolled_at: string; students: Student;
