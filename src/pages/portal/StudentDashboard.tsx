@@ -41,11 +41,12 @@ const StudentDashboard = () => {
   const [banner, setBanner] = useState<{ id: string; title: string; content: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [payOpen, setPayOpen] = useState(false);
+  const [hasFullAccess, setHasFullAccess] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("onboarding") === "1") {
-      setPayOpen(true);
+      sessionStorage.setItem("fa_pending_onboarding", "1");
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
@@ -88,11 +89,24 @@ const StudentDashboard = () => {
       if (studentData.batch_id) {
         const { data: batch } = await supabase
           .from("batches")
-          .select("name, start_date, end_date")
+          .select("name, start_date, end_date, access_granted, sponsor_organization")
           .eq("id", studentData.batch_id)
           .single();
-        if (batch) (studentData as StudentData).batch = batch;
+        if (batch) (studentData as StudentData).batch = batch as any;
       }
+
+      // Detect sponsored / partner-batch access
+      const { data: sponsorRow } = await supabase
+        .from("students")
+        .select("sponsor_organization")
+        .eq("id", studentData.id)
+        .maybeSingle();
+      const batchAny = (studentData as any).batch;
+      const sponsored =
+        !!(sponsorRow as any)?.sponsor_organization ||
+        !!batchAny?.access_granted ||
+        !!batchAny?.sponsor_organization;
+      setHasFullAccess(sponsored);
 
       setStudent(studentData as StudentData);
 
@@ -100,11 +114,18 @@ const StudentDashboard = () => {
         .from("payments")
         .select("amount, status")
         .eq("student_id", studentData.id);
-      const isPaid = !!payments?.some((p) => p.status === "verified");
+      const isPaid = sponsored || !!payments?.some((p) => p.status === "verified");
       if (payments) {
         setPaid(payments.filter((p) => p.status === "verified").reduce((s, p) => s + Number(p.amount), 0));
         setPendingCount(payments.filter((p) => p.status === "pending_verification").length);
       }
+
+      // Only open the onboarding modal for students who actually need to pay
+      if (!sponsored && sessionStorage.getItem("fa_pending_onboarding") === "1") {
+        setPayOpen(true);
+      }
+      sessionStorage.removeItem("fa_pending_onboarding");
+
 
       // Next Class — from live_class_settings (weekly Mon–Fri)
       const { data: lcs } = await supabase
@@ -197,7 +218,7 @@ const StudentDashboard = () => {
   const totalDue = student.payment_plan === "installment" ? INSTALLMENT_TOTAL : FULL_PRICE;
   const remaining = Math.max(totalDue - paid, 0);
   const paidPct = totalDue > 0 ? Math.min(Math.round((paid / totalDue) * 100), 100) : 0;
-  const isFirstTime = paid === 0 && pendingCount === 0;
+  const isFirstTime = !hasFullAccess && paid === 0 && pendingCount === 0;
   const daysToNextClass = nextSession
     ? differenceInDays(new Date(nextSession.session_date), new Date())
     : null;
@@ -301,14 +322,19 @@ const StudentDashboard = () => {
               iconBg="bg-emerald-500/15 text-emerald-600"
             />
 
-            <Card className={`relative overflow-hidden border-border bg-gradient-to-br ${remaining === 0 ? "from-emerald-500/10 to-emerald-500/5" : "from-amber-500/10 to-amber-500/5"}`}>
+            <Card className={`relative overflow-hidden border-border bg-gradient-to-br ${hasFullAccess || remaining === 0 ? "from-emerald-500/10 to-emerald-500/5" : "from-amber-500/10 to-amber-500/5"}`}>
               <CardContent className="p-5 space-y-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${remaining === 0 ? "bg-emerald-500/15 text-emerald-600" : "bg-amber-500/15 text-amber-600"}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${hasFullAccess || remaining === 0 ? "bg-emerald-500/15 text-emerald-600" : "bg-amber-500/15 text-amber-600"}`}>
                   <CreditCard className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Payment</p>
-                  {remaining === 0 ? (
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Access</p>
+                  {hasFullAccess ? (
+                    <>
+                      <p className="text-lg font-bold text-emerald-700 mt-1">Sponsored</p>
+                      <p className="text-xs text-muted-foreground">{(student as any).batch?.sponsor_organization || "Full access granted"}</p>
+                    </>
+                  ) : remaining === 0 ? (
                     <>
                       <p className="text-lg font-bold text-emerald-700 mt-1">Paid in full</p>
                       <p className="text-xs text-muted-foreground">Rs. {paid.toLocaleString()}</p>
