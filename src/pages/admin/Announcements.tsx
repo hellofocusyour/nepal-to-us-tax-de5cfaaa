@@ -68,6 +68,7 @@ const Announcements = () => {
   const [expiryOpt, setExpiryOpt] = useState("none");
   const [customExpiry, setCustomExpiry] = useState("");
   const [form, setForm] = useState({ title: "", content: "", target_audience: "all" });
+  const [selectedBatches, setSelectedBatches] = useState<string[]>([]);
   const [counts, setCounts] = useState({ all: 0, active: 0, enrolled: 0 });
 
   const fetchAnnouncements = async () => {
