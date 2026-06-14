@@ -38,6 +38,7 @@ import AdminModules from "./pages/admin/Modules.tsx";
 import AdminVideoMaterials from "./pages/admin/VideoMaterials.tsx";
 import StudentVideoMaterials from "./pages/portal/StudentVideoMaterials.tsx";
 import Team from "./pages/admin/Team.tsx";
+import EmailBatch from "./pages/admin/EmailBatch.tsx";
 
 const queryClient = new QueryClient();
 
