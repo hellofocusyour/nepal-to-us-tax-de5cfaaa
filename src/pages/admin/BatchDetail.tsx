@@ -230,14 +230,26 @@ const BatchDetail = () => {
       <SponsorAccessCard batch={batch} onSaved={fetchAll} />
 
 
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-display font-bold">Roster</h2>
-        <Dialog open={pickerOpen} onOpenChange={(o) => { setPickerOpen(o); if (!o) { setSelected(new Set()); setSearch(""); } }}>
-          <DialogTrigger asChild>
-            <Button disabled={isFull} title={isFull ? `Batch is full — capacity ${batch.max_seats}` : undefined}>
-              <Plus className="w-4 h-4 mr-2" /> Add Students
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="text-lg font-display font-bold">Roster</h2>
+          {pendingInvites.length > 0 && (
+            <p className="text-xs text-muted-foreground mt-0.5">{pendingInvites.length} student{pendingInvites.length === 1 ? "" : "s"} haven't signed up yet</p>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {pendingInvites.length > 0 && (
+            <Button variant="outline" onClick={handleSendInvites} disabled={inviting}>
+              <Mail className="w-4 h-4 mr-2" />
+              {inviting ? "Sending…" : `Send invite emails (${pendingInvites.length})`}
             </Button>
-          </DialogTrigger>
+          )}
+          <Dialog open={pickerOpen} onOpenChange={(o) => { setPickerOpen(o); if (!o) { setSelected(new Set()); setSearch(""); } }}>
+            <DialogTrigger asChild>
+              <Button disabled={isFull} title={isFull ? `Batch is full — capacity ${batch.max_seats}` : undefined}>
+                <Plus className="w-4 h-4 mr-2" /> Add Students
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add Students to {batch.name}</DialogTitle>
