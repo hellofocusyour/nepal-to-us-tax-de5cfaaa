@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Plus, Users, Calendar, Trash2, Search, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Plus, Users, Calendar, Trash2, Search, ShieldCheck, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 function SponsorAccessCard({ batch, onSaved }: { batch: any; onSaved: () => void }) {
