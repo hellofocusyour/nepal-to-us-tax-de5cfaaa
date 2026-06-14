@@ -37,12 +37,21 @@ Deno.serve(async (req) => {
     if (!mod) return json({ error: "module not found" }, 404);
 
     if (!isAdmin) {
-      const { data: student } = await admin.from("students").select("id").eq("user_id", user.id).maybeSingle();
+      const { data: student } = await admin.from("students")
+        .select("id, batch_id, sponsor_organization").eq("user_id", user.id).maybeSingle();
       if (!student) return json({ error: "no student record" }, 403);
-      const { data: pays } = await admin.from("payments")
-        .select("installment_number, status").eq("student_id", student.id).eq("status", "verified");
-      const paid = (pays || []).some((p: any) => p.installment_number === 1);
-      if (!paid) return json({ error: "payment required" }, 403);
+      let hasAccess = !!(student as any).sponsor_organization;
+      if (!hasAccess && (student as any).batch_id) {
+        const { data: batch } = await admin.from("batches")
+          .select("access_granted, sponsor_organization").eq("id", (student as any).batch_id).maybeSingle();
+        if ((batch as any)?.access_granted || (batch as any)?.sponsor_organization) hasAccess = true;
+      }
+      if (!hasAccess) {
+        const { data: pays } = await admin.from("payments")
+          .select("installment_number, status").eq("student_id", student.id).eq("status", "verified");
+        hasAccess = (pays || []).some((p: any) => p.installment_number === 1);
+      }
+      if (!hasAccess) return json({ error: "payment required" }, 403);
       if (!mod.is_unlocked) return json({ error: "module locked" }, 403);
     }
 
