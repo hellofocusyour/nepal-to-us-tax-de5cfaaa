@@ -218,7 +218,7 @@ const StudentDashboard = () => {
   const totalDue = student.payment_plan === "installment" ? INSTALLMENT_TOTAL : FULL_PRICE;
   const remaining = Math.max(totalDue - paid, 0);
   const paidPct = totalDue > 0 ? Math.min(Math.round((paid / totalDue) * 100), 100) : 0;
-  const isFirstTime = paid === 0 && pendingCount === 0;
+  const isFirstTime = !hasFullAccess && paid === 0 && pendingCount === 0;
   const daysToNextClass = nextSession
     ? differenceInDays(new Date(nextSession.session_date), new Date())
     : null;
