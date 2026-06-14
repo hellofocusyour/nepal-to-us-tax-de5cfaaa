@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Megaphone, Plus, Clock, Timer, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
+import BatchMultiSelect from "@/components/admin/BatchMultiSelect";
 
 interface Announcement {
   id: string;
