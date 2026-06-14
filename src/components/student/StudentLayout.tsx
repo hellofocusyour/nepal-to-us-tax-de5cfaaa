@@ -36,11 +36,18 @@ const StudentLayout = () => {
     if (!user) return;
     (async () => {
       const { data: student } = await supabase.from("students")
-        .select("id").eq("user_id", user.id).maybeSingle();
+        .select("id, batch_id, sponsor_organization").eq("user_id", user.id).maybeSingle();
       if (!student) return;
+      const s: any = student;
+      if (s.sponsor_organization) { setIsPaid(true); return; }
+      if (s.batch_id) {
+        const { data: batch } = await supabase.from("batches")
+          .select("access_granted").eq("id", s.batch_id).maybeSingle();
+        if ((batch as any)?.access_granted) { setIsPaid(true); return; }
+      }
       const { data: pays } = await supabase.from("payments")
         .select("installment_number, status")
-        .eq("student_id", student.id).eq("status", "verified");
+        .eq("student_id", s.id).eq("status", "verified");
       setIsPaid((pays || []).some((p: any) => p.installment_number === 1));
     })();
   }, [user]);
