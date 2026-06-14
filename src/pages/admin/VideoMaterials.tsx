@@ -112,11 +112,18 @@ const VideoMaterials = () => {
       created_by: user?.id ?? null,
     };
 
-    const { error } = editing
-      ? await supabase.from("video_materials").update(payload).eq("id", editing.id)
-      : await supabase.from("video_materials").insert(payload);
+    const { data: saved, error } = editing
+      ? await supabase.from("video_materials").update(payload).eq("id", editing.id).select("id").single()
+      : await supabase.from("video_materials").insert(payload).select("id").single();
 
-    if (error) return toast.error(error.message);
+    if (error || !saved) return toast.error(error?.message || "Failed");
+    const videoId = (saved as any).id;
+    // Sync batches
+    await (supabase as any).from("video_batches").delete().eq("video_material_id", videoId);
+    if (selectedBatches.length) {
+      await (supabase as any).from("video_batches")
+        .insert(selectedBatches.map(bid => ({ video_material_id: videoId, batch_id: bid })));
+    }
     toast.success(editing ? "Video updated" : "Video added");
     setOpen(false);
     resetForm();
