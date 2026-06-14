@@ -64,6 +64,18 @@ const AdminModules = () => {
     load();
   };
 
+  const saveBatches = async (moduleId: string, batchIds: string[]) => {
+    setModuleBatches(prev => ({ ...prev, [moduleId]: batchIds }));
+    await (supabase as any).from("module_batches").delete().eq("module_id", moduleId);
+    if (batchIds.length) {
+      const { error } = await (supabase as any).from("module_batches")
+        .insert(batchIds.map(bid => ({ module_id: moduleId, batch_id: bid })));
+      if (error) return toast.error(error.message);
+    }
+    toast.success("Batch visibility updated");
+  };
+
+
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
   return (
