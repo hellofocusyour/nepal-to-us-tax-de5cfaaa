@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { parseDriveFileId, driveEmbedUrl } from "@/lib/driveUrl";
 import { Plus, Pencil, Trash2, ExternalLink, Info, X, Calendar } from "lucide-react";
 import { format } from "date-fns";
+import BatchMultiSelect from "@/components/admin/BatchMultiSelect";
 
 type Video = {
   id: string;
