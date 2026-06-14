@@ -606,6 +606,7 @@ export type Database = {
       }
       live_class_settings: {
         Row: {
+          batch_id: string | null
           class_description: string | null
           class_title: string
           created_at: string
@@ -623,6 +624,7 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          batch_id?: string | null
           class_description?: string | null
           class_title?: string
           created_at?: string
@@ -640,6 +642,7 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          batch_id?: string | null
           class_description?: string | null
           class_title?: string
           created_at?: string
@@ -656,7 +659,15 @@ export type Database = {
           updated_at?: string
           updated_by?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "live_class_settings_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {

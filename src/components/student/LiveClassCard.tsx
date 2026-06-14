@@ -58,15 +58,40 @@ const LiveClassCard = () => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { setLoading(false); return; }
-      const { data: student } = await supabase.from("students").select("id").eq("user_id", user.id).maybeSingle();
+      const { data: student } = await supabase.from("students")
+        .select("id, batch_id, sponsor_organization").eq("user_id", user.id).maybeSingle();
+      let access = false;
+      let batchId: string | null = null;
       if (student) {
-        const { data: pays } = await supabase.from("payments")
-          .select("installment_number, status").eq("student_id", student.id).eq("status", "verified");
-        setHasAccess((pays || []).some(p => p.installment_number === 1));
+        batchId = (student as any).batch_id ?? null;
+        if ((student as any).sponsor_organization) access = true;
+        else {
+          if (batchId) {
+            const { data: b } = await supabase.from("batches").select("access_granted").eq("id", batchId).maybeSingle();
+            if ((b as any)?.access_granted) access = true;
+          }
+          if (!access) {
+            const { data: pays } = await supabase.from("payments")
+              .select("installment_number, status").eq("student_id", (student as any).id).eq("status", "verified");
+            access = (pays || []).some(p => p.installment_number === 1);
+          }
+        }
       }
-      const { data: settings } = await supabase.from("live_class_settings" as any)
-        .select("meet_link, class_title, class_description, next_class_at, duration_minutes, enabled, recurrence_enabled, recurrence_days, recurrence_time")
-        .order("updated_at", { ascending: false }).limit(1).maybeSingle();
+      setHasAccess(access);
+
+      const cols = "meet_link, class_title, class_description, next_class_at, duration_minutes, enabled, recurrence_enabled, recurrence_days, recurrence_time";
+      // Prefer the row for the student's batch, fall back to the global (null batch_id) row
+      let settings: any = null;
+      if (batchId) {
+        const { data } = await supabase.from("live_class_settings" as any)
+          .select(cols).eq("batch_id", batchId).maybeSingle();
+        settings = data;
+      }
+      if (!settings) {
+        const { data } = await supabase.from("live_class_settings" as any)
+          .select(cols).is("batch_id", null).maybeSingle();
+        settings = data;
+      }
       if (settings) setS(settings as any as Settings);
       setLoading(false);
     })();

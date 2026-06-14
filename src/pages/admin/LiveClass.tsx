@@ -7,12 +7,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Video, Save, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { computeNextOccurrence, DAY_LABELS } from "@/lib/liveClassSchedule";
 
 interface Settings {
-  id: string;
+  id?: string;
+  batch_id: string | null;
   meet_link: string;
   class_title: string;
   class_description: string | null;
@@ -23,8 +25,25 @@ interface Settings {
   last_reminder_sent_for: string | null;
   recurrence_enabled: boolean;
   recurrence_days: number[];
-  recurrence_time: string; // "HH:MM" NPT
+  recurrence_time: string;
 }
+
+interface BatchOpt { id: string; name: string; }
+
+const GLOBAL = "__global__";
+const DEFAULTS: Omit<Settings, "batch_id"> = {
+  meet_link: "",
+  class_title: "Live Class",
+  class_description: "",
+  next_class_at: null,
+  duration_minutes: 90,
+  reminder_minutes: 30,
+  enabled: true,
+  last_reminder_sent_for: null,
+  recurrence_enabled: true,
+  recurrence_days: [1, 2, 3, 4],
+  recurrence_time: "19:00",
+};
 
 function isoToNepalLocal(iso: string | null): string {
   if (!iso) return "";
@@ -44,26 +63,43 @@ function nepalLocalToIso(local: string): string | null {
 }
 
 const LiveClass = () => {
+  const [batches, setBatches] = useState<BatchOpt[]>([]);
+  const [selectedBatch, setSelectedBatch] = useState<string>(GLOBAL);
   const [s, setS] = useState<Settings | null>(null);
   const [localTime, setLocalTime] = useState("");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const load = async () => {
-    const { data } = await supabase.from("live_class_settings" as any)
-      .select("*").order("updated_at", { ascending: false }).limit(1).maybeSingle();
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase.from("batches").select("id, name").order("start_date", { ascending: false });
+      setBatches((data || []) as BatchOpt[]);
+    })();
+  }, []);
+
+  const loadFor = async (batchKey: string) => {
+    setLoading(true);
+    const batch_id = batchKey === GLOBAL ? null : batchKey;
+    let query = supabase.from("live_class_settings" as any).select("*");
+    query = batch_id ? query.eq("batch_id", batch_id) : query.is("batch_id", null);
+    const { data } = await query.maybeSingle();
     if (data) {
       const d = data as any as Settings;
-      // Defaults if columns are freshly added
       d.recurrence_days = d.recurrence_days ?? [1, 2, 3, 4];
       d.recurrence_time = d.recurrence_time ?? "19:00";
       d.recurrence_enabled = d.recurrence_enabled ?? false;
+      d.batch_id = batch_id;
       setS(d);
       setLocalTime(isoToNepalLocal(d.next_class_at));
+    } else {
+      // No row yet for this batch — seed an in-memory draft
+      setS({ ...DEFAULTS, batch_id });
+      setLocalTime("");
     }
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+
+  useEffect(() => { loadFor(selectedBatch); }, [selectedBatch]);
 
   const previewNext = useMemo(() => {
     if (!s?.recurrence_enabled) return null;
@@ -85,25 +121,30 @@ const LiveClass = () => {
       newIso = nepalLocalToIso(localTime);
     }
     const resetReminder = newIso !== s.next_class_at;
-    const { error } = await supabase.from("live_class_settings" as any)
-      .update({
-        meet_link: s.meet_link.trim(),
-        class_title: s.class_title.trim(),
-        class_description: s.class_description,
-        next_class_at: newIso,
-        duration_minutes: s.duration_minutes,
-        reminder_minutes: s.reminder_minutes,
-        enabled: s.enabled,
-        recurrence_enabled: s.recurrence_enabled,
-        recurrence_days: s.recurrence_days,
-        recurrence_time: s.recurrence_time,
-        ...(resetReminder ? { last_reminder_sent_for: null } : {}),
-      } as any)
-      .eq("id", s.id);
+    const payload: any = {
+      batch_id: s.batch_id,
+      meet_link: s.meet_link.trim(),
+      class_title: s.class_title.trim(),
+      class_description: s.class_description,
+      next_class_at: newIso,
+      duration_minutes: s.duration_minutes,
+      reminder_minutes: s.reminder_minutes,
+      enabled: s.enabled,
+      recurrence_enabled: s.recurrence_enabled,
+      recurrence_days: s.recurrence_days,
+      recurrence_time: s.recurrence_time,
+      ...(resetReminder ? { last_reminder_sent_for: null } : {}),
+    };
+    let error;
+    if (s.id) {
+      ({ error } = await supabase.from("live_class_settings" as any).update(payload).eq("id", s.id));
+    } else {
+      ({ error } = await supabase.from("live_class_settings" as any).insert(payload));
+    }
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Live class settings saved");
-    load();
+    loadFor(selectedBatch);
   };
 
   const sendNow = async () => {
@@ -119,8 +160,7 @@ const LiveClass = () => {
     setS({ ...s, recurrence_days: Array.from(set).sort() });
   };
 
-  if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
-  if (!s) return <p className="text-muted-foreground">No settings found.</p>;
+  if (loading || !s) return <div className="flex items-center justify-center h-64"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
   return (
     <div className="max-w-3xl space-y-6">
@@ -128,20 +168,31 @@ const LiveClass = () => {
         <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground flex items-center gap-2">
           <Video className="w-7 h-7 text-primary" /> Live Class
         </h1>
-        <p className="text-muted-foreground">Manage the Google Meet link, recurring schedule, and reminders shown to paid students.</p>
+        <p className="text-muted-foreground">Configure the Google Meet link, recurring schedule and reminders per batch. The "Default (all other batches)" row is used as a fallback for any batch without its own settings.</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>Class details</span>
-            <div className="flex items-center gap-2 text-sm font-normal">
-              <Switch checked={s.enabled} onCheckedChange={(v) => setS({ ...s, enabled: v })} />
-              <span>{s.enabled ? "Enabled" : "Disabled"}</span>
-            </div>
+          <CardTitle className="flex items-center justify-between gap-3 flex-wrap">
+            <span>Settings for</span>
+            <Select value={selectedBatch} onValueChange={setSelectedBatch}>
+              <SelectTrigger className="w-[280px]"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value={GLOBAL}>Default (all other batches)</SelectItem>
+                {batches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="flex items-center justify-between gap-2 p-3 rounded-lg bg-muted/40">
+            <div>
+              <Label className="text-sm">Enable for this batch</Label>
+              <p className="text-xs text-muted-foreground">When off, students in this batch won't see the live class card.</p>
+            </div>
+            <Switch checked={s.enabled} onCheckedChange={(v) => setS({ ...s, enabled: v })} />
+          </div>
+
           <div>
             <Label>Class title</Label>
             <Input value={s.class_title} onChange={e => setS({ ...s, class_title: e.target.value })} />
@@ -162,7 +213,6 @@ const LiveClass = () => {
             </div>
           </div>
 
-          {/* Recurring schedule */}
           <div className="rounded-lg border p-4 space-y-4 bg-muted/30">
             <div className="flex items-center justify-between">
               <div>
@@ -237,7 +287,7 @@ const LiveClass = () => {
           <div>
             <Label>Reminder lead time (minutes before class)</Label>
             <Input type="number" value={s.reminder_minutes} onChange={e => setS({ ...s, reminder_minutes: parseInt(e.target.value) || 30 })} />
-            <p className="text-xs text-muted-foreground mt-1">Email + SMS will be sent to all paid students this many minutes before the class starts.</p>
+            <p className="text-xs text-muted-foreground mt-1">Email + SMS will be sent to students in this batch this many minutes before class starts.</p>
           </div>
           {s.last_reminder_sent_for && (
             <p className="text-xs text-muted-foreground">
