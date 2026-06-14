@@ -98,7 +98,7 @@ const BatchDetail = () => {
     if (!batchId) return;
     const [{ data: b }, { data: e }, { data: unassigned }, { data: other }] = await Promise.all([
       supabase.from("batches").select("*").eq("id", batchId).maybeSingle(),
-      supabase.from("batch_enrollments").select("id, student_id, enrolled_at, students(id, full_name, email, phone, status)").eq("batch_id", batchId),
+      supabase.from("batch_enrollments").select("id, student_id, enrolled_at, students(id, full_name, email, phone, status, user_id)").eq("batch_id", batchId),
       supabase.from("students").select("id, full_name, email, phone, status").is("batch_id", null).order("full_name"),
       supabase.from("batches").select("*").neq("id", batchId).order("start_date", { ascending: false }),
     ]);
