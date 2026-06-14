@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { CheckCircle2, Lock, Unlock } from "lucide-react";
 import { toast } from "sonner";
+import BatchMultiSelect from "@/components/admin/BatchMultiSelect";
 
 interface Module {
   id: string;
@@ -20,10 +21,15 @@ interface Module {
 const AdminModules = () => {
   const [modules, setModules] = useState<Module[]>([]);
   const [loading, setLoading] = useState(true);
+  const [moduleBatches, setModuleBatches] = useState<Record<string, string[]>>({});
 
   const load = async () => {
     const { data } = await supabase.from("course_modules").select("*").order("module_number");
     setModules((data as Module[]) || []);
+    const { data: links } = await (supabase as any).from("module_batches").select("module_id, batch_id");
+    const map: Record<string, string[]> = {};
+    (links || []).forEach((l: any) => { (map[l.module_id] ||= []).push(l.batch_id); });
+    setModuleBatches(map);
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
