@@ -322,14 +322,19 @@ const StudentDashboard = () => {
               iconBg="bg-emerald-500/15 text-emerald-600"
             />
 
-            <Card className={`relative overflow-hidden border-border bg-gradient-to-br ${remaining === 0 ? "from-emerald-500/10 to-emerald-500/5" : "from-amber-500/10 to-amber-500/5"}`}>
+            <Card className={`relative overflow-hidden border-border bg-gradient-to-br ${hasFullAccess || remaining === 0 ? "from-emerald-500/10 to-emerald-500/5" : "from-amber-500/10 to-amber-500/5"}`}>
               <CardContent className="p-5 space-y-3">
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${remaining === 0 ? "bg-emerald-500/15 text-emerald-600" : "bg-amber-500/15 text-amber-600"}`}>
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${hasFullAccess || remaining === 0 ? "bg-emerald-500/15 text-emerald-600" : "bg-amber-500/15 text-amber-600"}`}>
                   <CreditCard className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Payment</p>
-                  {remaining === 0 ? (
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide">Access</p>
+                  {hasFullAccess ? (
+                    <>
+                      <p className="text-lg font-bold text-emerald-700 mt-1">Sponsored</p>
+                      <p className="text-xs text-muted-foreground">{(student as any).batch?.sponsor_organization || "Full access granted"}</p>
+                    </>
+                  ) : remaining === 0 ? (
                     <>
                       <p className="text-lg font-bold text-emerald-700 mt-1">Paid in full</p>
                       <p className="text-xs text-muted-foreground">Rs. {paid.toLocaleString()}</p>
