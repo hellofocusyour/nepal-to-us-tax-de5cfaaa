@@ -75,10 +75,11 @@ const VideoMaterials = () => {
       title: "", description: "", category: "General", drive_input: "",
       thumbnail_url: "", duration_minutes: "", display_order: "0", is_published: true,
     });
+    setSelectedBatches([]);
   };
 
   const openCreate = () => { resetForm(); setOpen(true); };
-  const openEdit = (v: Video) => {
+  const openEdit = async (v: Video) => {
     setEditing(v);
     setForm({
       title: v.title,
@@ -90,6 +91,8 @@ const VideoMaterials = () => {
       display_order: v.display_order.toString(),
       is_published: v.is_published,
     });
+    const { data: links } = await (supabase as any).from("video_batches").select("batch_id").eq("video_material_id", v.id);
+    setSelectedBatches((links || []).map((l: any) => l.batch_id));
     setOpen(true);
   };
 
