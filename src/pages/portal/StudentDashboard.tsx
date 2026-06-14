@@ -41,11 +41,12 @@ const StudentDashboard = () => {
   const [banner, setBanner] = useState<{ id: string; title: string; content: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [payOpen, setPayOpen] = useState(false);
+  const [hasFullAccess, setHasFullAccess] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("onboarding") === "1") {
-      setPayOpen(true);
+      sessionStorage.setItem("fa_pending_onboarding", "1");
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, []);
