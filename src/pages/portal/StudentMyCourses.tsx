@@ -62,9 +62,18 @@ const StudentMyCourses = () => {
   }, []);
 
   const checkAccess = async (uid: string) => {
-    const { data: student } = await supabase.from("students").select("id").eq("user_id", uid).maybeSingle();
+    const { data: student } = await supabase.from("students")
+      .select("id, batch_id, sponsor_organization").eq("user_id", uid).maybeSingle();
     if (!student) return null;
     setStudentId(student.id);
+    if ((student as any).sponsor_organization) { setHasAccess(true); return student.id; }
+    if ((student as any).batch_id) {
+      const { data: batch } = await supabase.from("batches")
+        .select("access_granted, sponsor_organization").eq("id", (student as any).batch_id).maybeSingle();
+      if ((batch as any)?.access_granted || (batch as any)?.sponsor_organization) {
+        setHasAccess(true); return student.id;
+      }
+    }
     const { data: pays } = await supabase.from("payments")
       .select("installment_number, status").eq("student_id", student.id).eq("status", "verified");
     setHasAccess((pays || []).some(p => p.installment_number === 1));
