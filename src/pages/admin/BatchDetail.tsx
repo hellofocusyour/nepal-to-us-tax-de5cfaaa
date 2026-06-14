@@ -145,6 +145,8 @@ const BatchDetail = () => {
           </div>
         </CardContent>
       </Card>
+      <SponsorAccessCard batch={batch} onSaved={fetchAll} />
+
 
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-display font-bold">Roster</h2>
