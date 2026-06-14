@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Plus, Users, Calendar, Trash2, Search, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Plus, Users, Calendar, Trash2, Search, ShieldCheck, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 function SponsorAccessCard({ batch, onSaved }: { batch: any; onSaved: () => void }) {
@@ -76,6 +76,7 @@ interface Batch {
 }
 interface Student {
   id: string; full_name: string; email: string; phone: string | null; status: string;
+  user_id: string | null;
 }
 interface Enrollment {
   id: string; student_id: string; enrolled_at: string; students: Student;
@@ -97,7 +98,7 @@ const BatchDetail = () => {
     if (!batchId) return;
     const [{ data: b }, { data: e }, { data: unassigned }, { data: other }] = await Promise.all([
       supabase.from("batches").select("*").eq("id", batchId).maybeSingle(),
-      supabase.from("batch_enrollments").select("id, student_id, enrolled_at, students(id, full_name, email, phone, status)").eq("batch_id", batchId),
+      supabase.from("batch_enrollments").select("id, student_id, enrolled_at, students(id, full_name, email, phone, status, user_id)").eq("batch_id", batchId),
       supabase.from("students").select("id, full_name, email, phone, status").is("batch_id", null).order("full_name"),
       supabase.from("batches").select("*").neq("id", batchId).order("start_date", { ascending: false }),
     ]);
@@ -167,6 +168,28 @@ const BatchDetail = () => {
     fetchAll();
   };
 
+  const [inviting, setInviting] = useState(false);
+  const pendingInvites = roster.filter(e => !(e.students as any).user_id);
+  const handleSendInvites = async () => {
+    if (!batch) return;
+    if (pendingInvites.length === 0) {
+      toast.info("All students in this batch already have accounts.");
+      return;
+    }
+    if (!window.confirm(`Send invite emails to ${pendingInvites.length} student${pendingInvites.length === 1 ? "" : "s"} who haven't signed up yet?`)) return;
+    setInviting(true);
+    const { data, error } = await supabase.functions.invoke("send-sponsored-invite", {
+      body: { batch_id: batch.id, student_ids: pendingInvites.map(e => e.student_id) },
+    });
+    setInviting(false);
+    if (error) { toast.error(error.message); return; }
+    const sent = (data as any)?.sent ?? 0;
+    const failed = (data as any)?.failed ?? 0;
+    if (failed === 0) toast.success(`Sent ${sent} invite${sent === 1 ? "" : "s"}`);
+    else toast.warning(`Sent ${sent}, failed ${failed}`);
+    fetchAll();
+  };
+
   const filteredAvailable = available.filter(s => {
     const q = search.toLowerCase();
     return !q || s.full_name?.toLowerCase().includes(q) || s.email?.toLowerCase().includes(q);
@@ -207,14 +230,26 @@ const BatchDetail = () => {
       <SponsorAccessCard batch={batch} onSaved={fetchAll} />
 
 
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-display font-bold">Roster</h2>
-        <Dialog open={pickerOpen} onOpenChange={(o) => { setPickerOpen(o); if (!o) { setSelected(new Set()); setSearch(""); } }}>
-          <DialogTrigger asChild>
-            <Button disabled={isFull} title={isFull ? `Batch is full — capacity ${batch.max_seats}` : undefined}>
-              <Plus className="w-4 h-4 mr-2" /> Add Students
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="text-lg font-display font-bold">Roster</h2>
+          {pendingInvites.length > 0 && (
+            <p className="text-xs text-muted-foreground mt-0.5">{pendingInvites.length} student{pendingInvites.length === 1 ? "" : "s"} haven't signed up yet</p>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {pendingInvites.length > 0 && (
+            <Button variant="outline" onClick={handleSendInvites} disabled={inviting}>
+              <Mail className="w-4 h-4 mr-2" />
+              {inviting ? "Sending…" : `Send invite emails (${pendingInvites.length})`}
             </Button>
-          </DialogTrigger>
+          )}
+          <Dialog open={pickerOpen} onOpenChange={(o) => { setPickerOpen(o); if (!o) { setSelected(new Set()); setSearch(""); } }}>
+            <DialogTrigger asChild>
+              <Button disabled={isFull} title={isFull ? `Batch is full — capacity ${batch.max_seats}` : undefined}>
+                <Plus className="w-4 h-4 mr-2" /> Add Students
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add Students to {batch.name}</DialogTitle>
@@ -252,9 +287,11 @@ const BatchDetail = () => {
                 Add {selected.size > 0 ? `${selected.size} ` : ""}student{selected.size === 1 ? "" : "s"}
               </Button>
             </div>
-          </DialogContent>
-        </Dialog>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
 
       <Card className="border border-border">
         <CardContent className="p-0">
