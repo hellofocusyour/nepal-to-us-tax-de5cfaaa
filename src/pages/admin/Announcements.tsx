@@ -78,13 +78,18 @@ const Announcements = () => {
   };
 
   const fetchCounts = async () => {
-    const { data } = await supabase.from("students").select("status");
+    let query = supabase.from("students").select("status, batch_id");
+    if (selectedBatches.length > 0) {
+      query = query.in("batch_id", selectedBatches);
+    }
+    const { data } = await query;
     const rows = data || [];
     const active = rows.filter((r: any) => r.status === "active_student").length;
     setCounts({ all: rows.length, active, enrolled: rows.length - active });
   };
 
-  useEffect(() => { fetchAnnouncements(); fetchCounts(); }, []);
+  useEffect(() => { fetchAnnouncements(); }, []);
+  useEffect(() => { fetchCounts(); }, [selectedBatches]);
 
   const applyTemplate = (key: string) => {
     setTemplate(key);
