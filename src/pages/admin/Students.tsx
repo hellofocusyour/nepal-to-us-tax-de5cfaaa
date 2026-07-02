@@ -311,6 +311,10 @@ const Students = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="email">
+          <EmailHistory />
+        </TabsContent>
+
         <TabsContent value="sms">
           <SmsHistory />
         </TabsContent>
@@ -321,6 +325,13 @@ const Students = () => {
         onOpenChange={setSmsOpen}
         recipients={smsRecipients}
       />
+
+      <EmailComposeModal
+        open={emailOpen}
+        onOpenChange={setEmailOpen}
+        recipients={emailRecipients}
+      />
+
 
       {/* Student Detail Dialog */}
       <Dialog open={!!selectedStudent} onOpenChange={(open) => !open && setSelectedStudent(null)}>
