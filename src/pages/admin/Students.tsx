@@ -12,7 +12,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SmsComposeModal, type SmsRecipient } from "@/components/admin/SmsComposeModal";
 import { SmsHistory } from "@/components/admin/SmsHistory";
-import { Search, Plus, Eye, Info, MessageSquare } from "lucide-react";
+import { EmailComposeModal, type EmailRecipient } from "@/components/admin/EmailComposeModal";
+import { EmailHistory } from "@/components/admin/EmailHistory";
+import { Search, Plus, Eye, Info, MessageSquare, Mail } from "lucide-react";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -40,6 +42,8 @@ const Students = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [smsOpen, setSmsOpen] = useState(false);
   const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [emailRecipients, setEmailRecipients] = useState<EmailRecipient[]>([]);
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -130,6 +134,15 @@ const Students = () => {
     setSmsRecipients(withPhone.map(r => ({ name: r.full_name, phone: r.phone!, student_id: r.id })));
     setSmsOpen(true);
   };
+  const openEmailFor = (recipients: Student[]) => {
+    const withEmail = recipients.filter(r => r.email && r.email.trim());
+    if (withEmail.length === 0) {
+      toast.error("Selected students have no email addresses");
+      return;
+    }
+    setEmailRecipients(withEmail.map(r => ({ name: r.full_name, email: r.email })));
+    setEmailOpen(true);
+  };
   const selectedStudents = students.filter(s => selectedIds.has(s.id));
 
   return (
@@ -178,6 +191,7 @@ const Students = () => {
       <Tabs defaultValue="students" className="space-y-6">
         <TabsList>
           <TabsTrigger value="students">Students</TabsTrigger>
+          <TabsTrigger value="email">Email History</TabsTrigger>
           <TabsTrigger value="sms">SMS History</TabsTrigger>
         </TabsList>
 
@@ -204,10 +218,16 @@ const Students = () => {
           {selectedIds.size > 0 && (
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-md border border-border bg-muted/40 px-4 py-2">
               <span className="text-sm text-muted-foreground">{selectedIds.size} selected</span>
-              <Button size="sm" variant="outline" onClick={() => openSmsFor(selectedStudents)}>
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Send SMS ({selectedStudents.filter(s => s.phone).length})
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => openEmailFor(selectedStudents)}>
+                  <Mail className="w-4 h-4 mr-2" />
+                  Send Email ({selectedStudents.filter(s => s.email).length})
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => openSmsFor(selectedStudents)}>
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Send SMS ({selectedStudents.filter(s => s.phone).length})
+                </Button>
+              </div>
             </div>
           )}
 
@@ -264,6 +284,15 @@ const Students = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
+                                onClick={() => openEmailFor([student])}
+                                disabled={!student.email}
+                                title={student.email ? "Send Email" : "No email"}
+                              >
+                                <Mail className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => openSmsFor([student])}
                                 disabled={!student.phone}
                                 title={student.phone ? "Send SMS" : "No phone number"}
@@ -282,6 +311,10 @@ const Students = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="email">
+          <EmailHistory />
+        </TabsContent>
+
         <TabsContent value="sms">
           <SmsHistory />
         </TabsContent>
@@ -292,6 +325,13 @@ const Students = () => {
         onOpenChange={setSmsOpen}
         recipients={smsRecipients}
       />
+
+      <EmailComposeModal
+        open={emailOpen}
+        onOpenChange={setEmailOpen}
+        recipients={emailRecipients}
+      />
+
 
       {/* Student Detail Dialog */}
       <Dialog open={!!selectedStudent} onOpenChange={(open) => !open && setSelectedStudent(null)}>
