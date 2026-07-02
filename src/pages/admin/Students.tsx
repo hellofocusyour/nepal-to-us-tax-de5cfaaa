@@ -218,10 +218,16 @@ const Students = () => {
           {selectedIds.size > 0 && (
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 rounded-md border border-border bg-muted/40 px-4 py-2">
               <span className="text-sm text-muted-foreground">{selectedIds.size} selected</span>
-              <Button size="sm" variant="outline" onClick={() => openSmsFor(selectedStudents)}>
-                <MessageSquare className="w-4 h-4 mr-2" />
-                Send SMS ({selectedStudents.filter(s => s.phone).length})
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => openEmailFor(selectedStudents)}>
+                  <Mail className="w-4 h-4 mr-2" />
+                  Send Email ({selectedStudents.filter(s => s.email).length})
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => openSmsFor(selectedStudents)}>
+                  <MessageSquare className="w-4 h-4 mr-2" />
+                  Send SMS ({selectedStudents.filter(s => s.phone).length})
+                </Button>
+              </div>
             </div>
           )}
 
