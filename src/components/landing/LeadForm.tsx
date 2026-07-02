@@ -24,7 +24,7 @@ const LeadForm = () => {
     ]);
 
     if (existingInquiry || existingStudent) {
-      setEmailError("This email is already registered — please sign in instead.");
+      setEmailError("This email is already registered - please sign in instead.");
       setLoading(false);
       return;
     }
@@ -41,7 +41,7 @@ const LeadForm = () => {
     if (error) {
       const msg = (error as any)?.message?.toLowerCase?.() || "";
       if (msg.includes("duplicate") || msg.includes("unique") || msg.includes("already")) {
-        setEmailError("This email is already registered — please sign in instead.");
+        setEmailError("This email is already registered - please sign in instead.");
       } else {
         toast.error("Something went wrong. Please try again.");
       }

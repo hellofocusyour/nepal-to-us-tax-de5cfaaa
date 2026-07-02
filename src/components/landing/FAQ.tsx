@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: "What payment options are available?",
-    a: "The fee is a flat NPR 20,000 — no VAT, no hidden fees. You can pay in full or split it into 2 easy installments of NPR 10,000 at no extra cost.",
+    a: "The fee is a flat NPR 20,000 - no VAT, no hidden fees. You can pay in full or split it into 2 easy installments of NPR 10,000 at no extra cost.",
   },
   {
     q: "Will I receive a certificate?",

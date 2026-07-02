@@ -6,7 +6,7 @@ import { useSEO } from "@/hooks/useSEO";
 
 const PricingPage = () => {
   useSEO({
-    title: "Pricing — Flat NPR 20,000 | Focus Academy",
+    title: "Pricing - Flat NPR 20,000 | Focus Academy",
     description:
       "Flat NPR 20,000 all-inclusive. Live classes, recorded videos, notes, certificate, WhatsApp community and job referral support. Installment option available.",
     path: "/pricing",

@@ -15,7 +15,7 @@ import { BookOpen, Users, Wallet, HelpCircle, ArrowRight } from "lucide-react";
 const explore = [
   { to: "/about", icon: Users, title: "About Us", desc: "Meet the mentors and the mission behind Focus Academy." },
   { to: "/curriculum", icon: BookOpen, title: "Curriculum", desc: "22 days, 4 modules, real US tax forms. See what you'll build." },
-  { to: "/pricing", icon: Wallet, title: "Pricing & Enroll", desc: "Flat NPR 20,000 — installment friendly. Reserve your seat." },
+  { to: "/pricing", icon: Wallet, title: "Pricing & Enroll", desc: "Flat NPR 20,000 - installment friendly. Reserve your seat." },
   { to: "/faq", icon: HelpCircle, title: "FAQ", desc: "Answers about eligibility, language, certificates & jobs." },
 ];
 
@@ -26,7 +26,7 @@ const Index = () => {
   }, [pathname]);
 
   useSEO({
-    title: "US Tax Course Nepal — Job-Ready in 22 Days | Focus Academy",
+    title: "US Tax Course Nepal - Job-Ready in 22 Days | Focus Academy",
     description:
       "Nepal's premier US Tax training. Become a job-ready US tax preparer in 22 days with IRS Enrolled Agent-led classes, hands-on Form practices, and remote job support. Flat NPR 20,000.",
     path: "/",
@@ -46,7 +46,7 @@ const Index = () => {
             Explore
           </span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
-            Everything you need to decide — in one place.
+            Everything you need to decide - in one place.
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
             Dive deeper into the program, meet the mentors, review pricing, or get your questions answered.

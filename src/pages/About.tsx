@@ -8,14 +8,14 @@ import { Link } from "react-router-dom";
 
 const values = [
   { icon: Target, title: "Job-First Curriculum", desc: "Every module maps to a real task you'll do on day one at a US CPA firm." },
-  { icon: Globe2, title: "Global Career, Local Roots", desc: "Learn in Neplish so complex US tax law finally clicks — then work from anywhere in Nepal." },
+  { icon: Globe2, title: "Global Career, Local Roots", desc: "Learn in Neplish so complex US tax law finally clicks - then work from anywhere in Nepal." },
   { icon: HeartHandshake, title: "Mentor-Led, Not Recorded", desc: "Live classes with an IRS Enrolled Agent and a working US tax preparer. Real answers, real time." },
   { icon: GraduationCap, title: "Alumni Network That Hires", desc: "Top performers get first shot at Focus Academy roles and referrals to partner firms." },
 ];
 
 const About = () => {
   useSEO({
-    title: "About Focus Academy — Nepal's US Tax Training Institute",
+    title: "About Focus Academy - Nepal's US Tax Training Institute",
     description:
       "Focus Academy is Nepal's premier US Tax training institute. Learn our mission, meet our IRS Enrolled Agent mentors, and see why students trust us for global careers.",
     path: "/about",
@@ -26,20 +26,20 @@ const About = () => {
     <PageShell
       eyebrow="About Focus Academy"
       title="From Nepal to the Global Tax Market"
-      subtitle="We're building Nepal's most trusted pathway into US taxation — one mentor-led cohort at a time."
+      subtitle="We're building Nepal's most trusted pathway into US taxation - one mentor-led cohort at a time."
     >
       <SectionWrapper>
         <div className="max-w-3xl mx-auto">
           <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">Our Mission</h2>
           <div className="space-y-5 text-base md:text-lg text-muted-foreground leading-relaxed">
             <p>
-              Thousands of Nepali accountants, CA/ACCA students, and finance graduates are ready for the world — but the world doesn't always know how to reach them. Focus Academy exists to close that gap.
+              Thousands of Nepali accountants, CA/ACCA students, and finance graduates are ready for the world - but the world doesn't always know how to reach them. Focus Academy exists to close that gap.
             </p>
             <p>
               We teach US taxation the way it's actually practiced inside American CPA firms: hands-on with Form 1040, 1120, and 1065, taught in Neplish so nothing gets lost in translation, and led by an IRS Enrolled Agent who does this work every day.
             </p>
             <p>
-              In 22 days you don't just "learn US tax" — you become someone a US firm can hire. That's the promise.
+              In 22 days you don't just "learn US tax" - you become someone a US firm can hire. That's the promise.
             </p>
           </div>
         </div>

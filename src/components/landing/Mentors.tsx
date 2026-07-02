@@ -20,7 +20,7 @@ interface MentorCardProps {
 
 const MentorCard = ({ image, name, role, title, intro, highlights }: MentorCardProps) => (
   <div className="group rounded-2xl bg-primary-foreground/5 backdrop-blur-sm border border-primary-foreground/10 hover:border-gold/40 transition-colors duration-300 overflow-hidden flex flex-col">
-    {/* Clean image — no overlay, no text on top */}
+    {/* Clean image - no overlay, no text on top */}
     <div className="aspect-[4/3] overflow-hidden bg-gradient-to-br from-primary/30 to-primary/10 border-b border-primary-foreground/10">
       <img
         src={image}
@@ -44,7 +44,7 @@ const MentorCard = ({ image, name, role, title, intro, highlights }: MentorCardP
         <h3 className="font-display text-xl sm:text-2xl font-bold text-primary-foreground leading-tight">{title}</h3>
       </div>
 
-      {/* Intro — sits right under title */}
+      {/* Intro - sits right under title */}
       <p className="text-sm sm:text-base text-primary-foreground/75 leading-relaxed">{intro}</p>
 
       {/* Highlights */}

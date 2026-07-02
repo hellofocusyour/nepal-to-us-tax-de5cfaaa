@@ -6,7 +6,7 @@ import { useSEO } from "@/hooks/useSEO";
 
 const RefundPolicy = () => {
   useSEO({
-    title: "Refund Policy | Focus Academy — US Tax Course Nepal",
+    title: "Refund Policy | Focus Academy - US Tax Course Nepal",
     description:
       "Focus Academy Refund Policy: all course payments are final and non-refundable. Read the full policy, exceptions, and contact details before enrolling.",
     path: "/refund-policy",
