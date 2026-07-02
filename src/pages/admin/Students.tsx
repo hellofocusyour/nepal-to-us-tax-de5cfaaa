@@ -42,6 +42,8 @@ const Students = () => {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [smsOpen, setSmsOpen] = useState(false);
   const [smsRecipients, setSmsRecipients] = useState<SmsRecipient[]>([]);
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [emailRecipients, setEmailRecipients] = useState<EmailRecipient[]>([]);
 
   const fetchStudents = async () => {
     setLoading(true);
