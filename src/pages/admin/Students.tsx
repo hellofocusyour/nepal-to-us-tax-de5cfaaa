@@ -191,6 +191,7 @@ const Students = () => {
       <Tabs defaultValue="students" className="space-y-6">
         <TabsList>
           <TabsTrigger value="students">Students</TabsTrigger>
+          <TabsTrigger value="email">Email History</TabsTrigger>
           <TabsTrigger value="sms">SMS History</TabsTrigger>
         </TabsList>
 
