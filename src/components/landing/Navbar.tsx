@@ -1,53 +1,61 @@
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import logoImg from "@/assets/logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
-  { label: "Career Breakthroughs", href: "#outcomes" },
-  { label: "Curriculum", href: "#curriculum" },
-  { label: "Mentors", href: "#mentors" },
-  { label: "Pricing", href: "#pricing" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Home", to: "/" },
+  { label: "About", to: "/about" },
+  { label: "Curriculum", to: "/curriculum" },
+  { label: "Pricing", to: "/pricing" },
+  { label: "FAQ", to: "/faq" },
 ];
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
+  const location = useLocation();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-md border-b border-border">
       <div className="container mx-auto flex items-center justify-between h-16 px-4">
-        <a href="#" className="flex items-center gap-2 font-display text-xl font-bold text-primary">
+        <Link to="/" className="flex items-center gap-2 font-display text-xl font-bold text-primary">
           <img src={logoImg} alt="Focus Academy Logo" className="h-10 w-20 object-contain" />
           Focus <span className="text-secondary">Academy</span>
-        </a>
+        </Link>
         <div className="hidden md:flex items-center gap-8">
           {navLinks.map((l) => (
-            <a
-              key={l.href}
-              href={l.href}
-              className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+            <NavLink
+              key={l.to}
+              to={l.to}
+              end={l.to === "/"}
+              className={({ isActive }) =>
+                `text-sm font-medium transition-colors ${
+                  isActive ? "text-primary" : "text-muted-foreground hover:text-primary"
+                }`
+              }
             >
               {l.label}
-            </a>
+            </NavLink>
           ))}
           <Link
             to="/login"
             className="inline-flex items-center justify-center rounded-md border border-primary bg-transparent px-4 py-2 text-[13px] font-semibold text-primary hover:bg-primary/5 transition-colors"
-            style={{ borderRadius: "6px" }}
           >
             Sign In
           </Link>
           <Link
             to="/signup"
-            className="inline-flex items-center justify-center bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
-            style={{ borderRadius: "6px", marginLeft: "8px" }}
+            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
           >
             Sign Up
           </Link>
         </div>
-        <button className="md:hidden text-foreground" onClick={() => setOpen(!open)}>
+        <button
+          className="md:hidden text-foreground"
+          onClick={() => setOpen(!open)}
+          aria-label="Toggle menu"
+        >
           {open ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
@@ -64,41 +72,46 @@ const Navbar = () => {
                 <Link
                   to="/login"
                   onClick={() => setOpen(false)}
-                  className="flex-1 inline-flex items-center justify-center border border-primary bg-transparent px-4 py-2 text-[13px] font-semibold text-primary"
-                  style={{ borderRadius: "6px" }}
+                  className="flex-1 inline-flex items-center justify-center rounded-md border border-primary bg-transparent px-4 py-2 text-[13px] font-semibold text-primary"
                 >
                   Sign In
                 </Link>
                 <Link
                   to="/signup"
                   onClick={() => setOpen(false)}
-                  className="flex-1 inline-flex items-center justify-center bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground"
-                  style={{ borderRadius: "6px" }}
+                  className="flex-1 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-[13px] font-semibold text-primary-foreground"
                 >
                   Sign Up
                 </Link>
               </div>
               {navLinks.map((l) => (
-                <a
-                  key={l.href}
-                  href={l.href}
+                <NavLink
+                  key={l.to}
+                  to={l.to}
+                  end={l.to === "/"}
                   onClick={() => setOpen(false)}
-                  className="text-sm font-medium text-muted-foreground hover:text-primary py-2"
+                  className={({ isActive }) =>
+                    `text-sm font-medium py-2 ${
+                      isActive ? "text-primary" : "text-muted-foreground hover:text-primary"
+                    }`
+                  }
                 >
                   {l.label}
-                </a>
+                </NavLink>
               ))}
-              <a
-                href="#pricing"
+              <Link
+                to="/pricing"
                 onClick={() => setOpen(false)}
                 className="inline-flex items-center justify-center rounded-lg bg-secondary px-5 py-2.5 text-sm font-semibold text-secondary-foreground"
               >
                 Enroll Now
-              </a>
+              </Link>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
+      {/* used so eslint doesn't warn about unused location */}
+      <span className="hidden" aria-hidden>{location.pathname}</span>
     </nav>
   );
 };

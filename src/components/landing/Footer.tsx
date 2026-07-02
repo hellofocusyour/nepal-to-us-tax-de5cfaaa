@@ -17,29 +17,29 @@ const Footer = () => (
           <p className="font-bold text-primary-foreground text-sm mb-3">Quick Links</p>
           <ul className="space-y-2 text-sm">
             <li>
-              <a href="#outcomes" className="hover:text-primary-foreground transition-colors">
-                Career Breakthroughs
-              </a>
+              <Link to="/about" className="hover:text-primary-foreground transition-colors">
+                About
+              </Link>
             </li>
             <li>
-              <a href="#curriculum" className="hover:text-primary-foreground transition-colors">
+              <Link to="/curriculum" className="hover:text-primary-foreground transition-colors">
                 Curriculum
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="#mentors" className="hover:text-primary-foreground transition-colors">
-                Mentors
-              </a>
-            </li>
-            <li>
-              <a href="#pricing" className="hover:text-primary-foreground transition-colors">
+              <Link to="/pricing" className="hover:text-primary-foreground transition-colors">
                 Pricing
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="#faq" className="hover:text-primary-foreground transition-colors">
+              <Link to="/faq" className="hover:text-primary-foreground transition-colors">
                 FAQ
-              </a>
+              </Link>
+            </li>
+            <li>
+              <Link to="/login" className="hover:text-primary-foreground transition-colors">
+                Student Sign In
+              </Link>
             </li>
           </ul>
         </div>
