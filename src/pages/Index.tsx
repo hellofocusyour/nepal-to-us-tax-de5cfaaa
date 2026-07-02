@@ -1,40 +1,36 @@
+import { useEffect } from "react";
+import { useLocation, Link } from "react-router-dom";
 import Navbar from "@/components/landing/Navbar";
 import Hero from "@/components/landing/Hero";
 import Outcomes from "@/components/landing/Outcomes";
 import CourseStats from "@/components/landing/CourseStats";
-import Curriculum from "@/components/landing/Curriculum";
-import LearningObjectives from "@/components/landing/LearningObjectives";
-import TargetAudience from "@/components/landing/TargetAudience";
-import Mentors from "@/components/landing/Mentors";
 import SocialProof from "@/components/landing/SocialProof";
-import Pricing from "@/components/landing/Pricing";
-import AfterCourse from "@/components/landing/AfterCourse";
-import FAQ from "@/components/landing/FAQ";
 import FinalCTA from "@/components/landing/FinalCTA";
-import LeadForm from "@/components/landing/LeadForm";
 import Footer from "@/components/landing/Footer";
 import WhatsAppButton from "@/components/landing/WhatsAppButton";
-import ChatInquiryButton from "@/components/landing/ChatInquiryButton";
+import SectionWrapper from "@/components/landing/SectionWrapper";
 import { useSEO } from "@/hooks/useSEO";
+import { BookOpen, Users, Wallet, HelpCircle, ArrowRight } from "lucide-react";
 
-const FAQS = [
-  { q: "Who is eligible for this course?", a: "Anyone interested in learning US taxation - freshers, accountants, CA/ACCA students, or working professionals. No prior US tax knowledge is required." },
-  { q: "What language is the course taught in?", a: "The course is taught in Neplish - a mix of Nepali and English - making it easy to understand complex tax concepts." },
-  { q: "Do I need any prerequisites?", a: "No. We include a basic accounting module to get you up to speed. You just need a laptop and willingness to learn." },
-  { q: "Is this useful for CA/ACCA students?", a: "Absolutely! This course adds a highly practical, globally-relevant skill to complement your CA/ACCA studies." },
-  { q: "What payment options are available?", a: "The fee is NPR 20,000 + VAT. You can pay in full or in 2 installments (with NPR 500 additional)." },
-  { q: "Will I receive a certificate?", a: "Yes, upon successful completion you'll receive a Focus Academy certificate that you can add to your resume and LinkedIn." },
-  { q: "Do you help with job placement?", a: "Top performers get priority consideration for positions at Focus Academy, and we provide job referral support to our alumni network." },
+const explore = [
+  { to: "/about", icon: Users, title: "About Us", desc: "Meet the mentors and the mission behind Focus Academy." },
+  { to: "/curriculum", icon: BookOpen, title: "Curriculum", desc: "30 days, 4 modules, real US tax forms. See what you'll build." },
+  { to: "/pricing", icon: Wallet, title: "Pricing & Enroll", desc: "Flat NPR 20,000 — installment friendly. Reserve your seat." },
+  { to: "/faq", icon: HelpCircle, title: "FAQ", desc: "Answers about eligibility, language, certificates & jobs." },
 ];
 
 const Index = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+  }, [pathname]);
+
   useSEO({
     title: "US Tax Course Nepal — Job-Ready in 30 Days | Focus Academy",
     description:
-      "Nepal's premier US Tax training. Become a job-ready US tax preparer in 30 days with IRS Enrolled Agent-led classes, hands-on Form practices, and remote job support.",
+      "Nepal's premier US Tax training. Become a job-ready US tax preparer in 30 days with IRS Enrolled Agent-led classes, hands-on Form practices, and remote job support. Flat NPR 20,000.",
     path: "/",
     type: "website",
-    faqs: FAQS,
   });
 
   return (
@@ -43,18 +39,44 @@ const Index = () => {
       <Hero />
       <Outcomes />
       <CourseStats />
-      <LearningObjectives />
-      <Pricing />
-      <TargetAudience />
-      <Curriculum />
-      <Mentors />
+
+      <SectionWrapper>
+        <div className="text-center mb-12">
+          <span className="inline-block rounded-full bg-gold/10 border border-gold/30 px-4 py-1.5 text-xs font-semibold tracking-wider uppercase text-secondary mb-4">
+            Explore
+          </span>
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-3">
+            Everything you need to decide — in one place.
+          </h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Dive deeper into the program, meet the mentors, review pricing, or get your questions answered.
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto">
+          {explore.map((e) => (
+            <Link
+              key={e.to}
+              to={e.to}
+              className="group rounded-2xl bg-card border border-border p-6 card-shadow hover:border-secondary/40 hover:-translate-y-1 transition-all"
+            >
+              <div className="w-11 h-11 rounded-lg flex items-center justify-center mb-4"
+                   style={{ background: "var(--gold-gradient)" }}>
+                <e.icon size={22} className="text-gold-foreground" />
+              </div>
+              <h3 className="font-display text-lg font-bold text-foreground mb-2">{e.title}</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-4">{e.desc}</p>
+              <span className="inline-flex items-center gap-1 text-sm font-semibold text-secondary">
+                Learn more <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+              </span>
+            </Link>
+          ))}
+        </div>
+      </SectionWrapper>
+
       <SocialProof />
-      <AfterCourse />
-      <FAQ />
       <FinalCTA />
       <Footer />
       <WhatsAppButton />
-      {/* <ChatInquiryButton /> hidden for now */}
     </>
   );
 };
