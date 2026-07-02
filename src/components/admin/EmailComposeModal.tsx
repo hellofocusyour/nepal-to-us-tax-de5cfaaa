@@ -36,7 +36,7 @@ const TEMPLATES: Record<
 
 We noticed you reached out about the US Tax Course at Focus Academy. Our next batch starts May 15 and we'd love to have you join — only a few seats remain.
 
-What you get in 30 days:
+What you get in 22 days:
 - Trained by an EA (Enrolled Agent) — the highest IRS-recognized credential
 - Live classes in Neplish (Nepali + English) — no language barrier
 - Hands-on practice with real US tax forms: 1040, W-2, 1099
@@ -58,7 +58,7 @@ We've arranged surprise live sessions with a CPA from the USA.
 
 Real American tax professionals joining live to share how US tax filing works from the inside — the cases, the edge scenarios, the things textbooks won't tell you. These sessions are only announced to enrolled students.
 
-Here's what you get in 30 days:
+Here's what you get in 22 days:
 - Trained by an EA (Enrolled Agent) — the highest IRS-recognized credential
 - Live classes in Neplish (Nepali + English) — no language barrier
 - Hands-on practice with real US tax forms: 1040, W-2, 1099
@@ -109,7 +109,7 @@ Who teaches you matters. Ours:
 - Lead mentor: Enrolled Agent (EA) — IRS-recognized credential, not just a certificate
 - Surprise sessions: Live classes with a CPA from the USA — real-world filings, real stories
 
-In 30 days you'll be able to:
+In 22 days you'll be able to:
 - Prepare and file 1040, W-2, and 1099 forms with confidence
 - Understand how the US tax system actually works — not just theory
 - Position yourself for remote tax prep jobs and freelance opportunities

@@ -10,9 +10,9 @@ import { Link } from "react-router-dom";
 
 const CurriculumPage = () => {
   useSEO({
-    title: "US Tax Curriculum — 30 Day Program | Focus Academy",
+    title: "US Tax Curriculum — 22 Day Program | Focus Academy",
     description:
-      "A 30-day mentor-led curriculum covering Form 1040, 1120, 1065, payroll, and QuickBooks. Built for job-ready US tax preparers from Nepal.",
+      "A 22-day mentor-led curriculum covering Form 1040, 1120, 1065, payroll, and QuickBooks. Built for job-ready US tax preparers from Nepal.",
     path: "/curriculum",
     type: "website",
   });
@@ -20,7 +20,7 @@ const CurriculumPage = () => {
   return (
     <PageShell
       eyebrow="Curriculum"
-      title="30 Days. 4 Modules. One Job-Ready You."
+      title="22 Days. 4 Modules. One Job-Ready You."
       subtitle="Every session is built around a real form, a real client scenario, and a real skill you can put on your resume."
     >
       <LearningObjectives />
