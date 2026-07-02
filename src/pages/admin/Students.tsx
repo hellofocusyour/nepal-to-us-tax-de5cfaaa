@@ -134,6 +134,15 @@ const Students = () => {
     setSmsRecipients(withPhone.map(r => ({ name: r.full_name, phone: r.phone!, student_id: r.id })));
     setSmsOpen(true);
   };
+  const openEmailFor = (recipients: Student[]) => {
+    const withEmail = recipients.filter(r => r.email && r.email.trim());
+    if (withEmail.length === 0) {
+      toast.error("Selected students have no email addresses");
+      return;
+    }
+    setEmailRecipients(withEmail.map(r => ({ name: r.full_name, email: r.email })));
+    setEmailOpen(true);
+  };
   const selectedStudents = students.filter(s => selectedIds.has(s.id));
 
   return (
