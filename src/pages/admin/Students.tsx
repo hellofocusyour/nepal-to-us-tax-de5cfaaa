@@ -284,6 +284,15 @@ const Students = () => {
                               <Button
                                 variant="ghost"
                                 size="sm"
+                                onClick={() => openEmailFor([student])}
+                                disabled={!student.email}
+                                title={student.email ? "Send Email" : "No email"}
+                              >
+                                <Mail className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
                                 onClick={() => openSmsFor([student])}
                                 disabled={!student.phone}
                                 title={student.phone ? "Send SMS" : "No phone number"}
