@@ -31,7 +31,7 @@ const Hero = () => (
         </p>
         <div className="mb-12 flex flex-col gap-4 sm:flex-row sm:justify-center">
           <a
-            href="#pricing"
+            href="/pricing"
             className="inline-flex items-center justify-center rounded-lg px-8 py-3.5 text-base font-bold text-gold-foreground transition-opacity hover:opacity-90"
             style={{ background: "var(--gold-gradient)" }}
           >

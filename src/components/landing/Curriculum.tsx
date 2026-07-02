@@ -221,7 +221,7 @@ const Curriculum = () => {
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <a
-            href="#pricing"
+            href="/pricing"
             className="inline-flex items-center px-7 py-3 rounded-full bg-primary text-white font-semibold text-sm hover:bg-primary/90 transition-colors"
           >
             Enroll in Curriculum
