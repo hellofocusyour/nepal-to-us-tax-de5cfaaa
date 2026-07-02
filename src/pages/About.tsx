@@ -39,7 +39,7 @@ const About = () => {
               We teach US taxation the way it's actually practiced inside American CPA firms: hands-on with Form 1040, 1120, and 1065, taught in Neplish so nothing gets lost in translation, and led by an IRS Enrolled Agent who does this work every day.
             </p>
             <p>
-              In 30 days you don't just "learn US tax" — you become someone a US firm can hire. That's the promise.
+              In 22 days you don't just "learn US tax" — you become someone a US firm can hire. That's the promise.
             </p>
           </div>
         </div>
@@ -77,7 +77,7 @@ const About = () => {
             Ready to see the curriculum?
           </h3>
           <p className="text-muted-foreground mb-6">
-            30 days, 4 modules, hands-on practice with real US tax forms.
+            22 days, 4 modules, hands-on practice with real US tax forms.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/curriculum"

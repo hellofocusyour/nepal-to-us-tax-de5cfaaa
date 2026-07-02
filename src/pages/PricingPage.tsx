@@ -17,7 +17,7 @@ const PricingPage = () => {
     <PageShell
       eyebrow="Pricing & Enrollment"
       title="One flat fee. Everything included."
-      subtitle="NPR 20,000 covers all 30 days of live training, materials, mentorship, community, and job support. No VAT. No surprises."
+      subtitle="NPR 20,000 covers all 22 days of live training, materials, mentorship, community, and job support. No VAT. No surprises."
     >
       <Pricing />
       <AfterCourse />

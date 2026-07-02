@@ -1,7 +1,7 @@
 // Focus Academy course pricing — single source of truth.
 // Flat NPR 20,000 all-inclusive. No VAT, no installment surcharge.
 
-export const COURSE_NAME = "US Tax Preparer — 30 Day Program";
+export const COURSE_NAME = "US Tax Preparer — 22 Day Program";
 
 export const BASE_PRICE = 20000;
 export const VAT_RATE = 0;

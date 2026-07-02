@@ -8,7 +8,7 @@ const FinalCTA = () => (
         Your global career starts here.
       </h2>
       <p className="text-lg text-primary-foreground/80 mb-8 leading-relaxed">
-        30 days. One decision. One skill that pays for itself.
+        22 days. One decision. One skill that pays for itself.
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <a

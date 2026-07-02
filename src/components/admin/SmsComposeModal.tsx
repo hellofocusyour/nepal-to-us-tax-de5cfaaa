@@ -37,7 +37,7 @@ const TEMPLATES: Record<TemplateKey, { label: string; body: string }> = {
   follow_up: {
     label: "Inquiry Follow-up",
     body:
-      "Hi from Focus Academy! Still interested in our US Tax Course (30 Days, taught in Neplish)? Reply YES and we'll share batch & fee details.",
+      "Hi from Focus Academy! Still interested in our US Tax Course (22 Days, taught in Neplish)? Reply YES and we'll share batch & fee details.",
   },
   payment_reminder: {
     label: "Payment Reminder",

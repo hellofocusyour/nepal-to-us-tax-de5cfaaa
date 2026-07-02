@@ -5,7 +5,7 @@ const stats = [
   {
     icon: CalendarDays,
     label: "Duration",
-    value: "30 Days",
+    value: "22 Days",
     cardClass: "border-[#cfe7f2] bg-[#f4fbfe] text-navy hover:border-primary/35 hover:bg-[#e8f6fc]",
     iconClass: "bg-primary/10 text-primary",
     mutedClass: "text-navy/65",
