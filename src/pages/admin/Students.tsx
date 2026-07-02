@@ -12,7 +12,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SmsComposeModal, type SmsRecipient } from "@/components/admin/SmsComposeModal";
 import { SmsHistory } from "@/components/admin/SmsHistory";
-import { Search, Plus, Eye, Info, MessageSquare } from "lucide-react";
+import { EmailComposeModal, type EmailRecipient } from "@/components/admin/EmailComposeModal";
+import { EmailHistory } from "@/components/admin/EmailHistory";
+import { Search, Plus, Eye, Info, MessageSquare, Mail } from "lucide-react";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
