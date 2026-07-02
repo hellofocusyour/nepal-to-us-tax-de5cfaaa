@@ -75,7 +75,7 @@ const Curriculum = () => {
         </p>
       </div>
 
-      {/* Grid wrapper — all levels */}
+      {/* Grid wrapper - all levels */}
       <div className="space-y-4">
         {/* Row 1: Level 1 + Level 2 */}
         <div className="grid md:grid-cols-2 gap-4">
@@ -128,7 +128,7 @@ const Curriculum = () => {
           </div>
         </div>
 
-        {/* Row 2: Level 3 — full width 3-col */}
+        {/* Row 2: Level 3 - full width 3-col */}
         <div className="rounded-xl border border-orange-100 bg-white shadow-sm overflow-hidden">
           <div className="flex flex-wrap items-center gap-2.5 px-4 py-3 bg-orange-50 border-b border-orange-100">
             <span className="bg-orange-500 text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-widest">
@@ -159,10 +159,10 @@ const Curriculum = () => {
           </div>
         </div>
 
-        {/* Row 3: Level 4 — Expert left + Bonus right, true 50/50 with matching content density */}
+        {/* Row 3: Level 4 - Expert left + Bonus right, true 50/50 with matching content density */}
         <div className="rounded-xl border border-primary/20 bg-white shadow-sm overflow-hidden">
           <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-border">
-            {/* Expert — teal */}
+            {/* Expert - teal */}
             <div className="flex flex-col">
               <div className="flex items-center gap-2.5 px-4 py-3 bg-primary border-b border-primary/80">
                 <span className="bg-secondary text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-widest">
@@ -189,7 +189,7 @@ const Curriculum = () => {
               </div>
             </div>
 
-            {/* Bonus — accent */}
+            {/* Bonus - accent */}
             <div className="flex flex-col">
               <div className="flex items-center gap-2.5 px-4 py-3 bg-accent border-b border-primary/10">
                 <span className="bg-secondary text-white text-[10px] font-extrabold px-2.5 py-0.5 rounded-full uppercase tracking-widest">

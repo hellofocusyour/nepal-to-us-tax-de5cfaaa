@@ -5,7 +5,7 @@ import { useSEO } from "@/hooks/useSEO";
 
 const PrivacyPolicy = () => {
   useSEO({
-    title: "Privacy Policy | Focus Academy — US Tax Course Nepal",
+    title: "Privacy Policy | Focus Academy - US Tax Course Nepal",
     description:
       "How Focus Academy collects, uses, and protects your personal, educational, and payment information when you enroll in our US Taxation training.",
     path: "/privacy-policy",

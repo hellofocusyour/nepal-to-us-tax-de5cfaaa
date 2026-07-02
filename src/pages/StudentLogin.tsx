@@ -90,7 +90,7 @@ const StudentLogin = () => {
       // Allow signup if record exists only as an inquiry without a linked user, or no record at all.
       // Block if a student already has a user account linked.
       if (existingStudent?.user_id) {
-        setEmailError("This email is already registered — please sign in instead.");
+        setEmailError("This email is already registered - please sign in instead.");
         setLoading(false);
         return;
       }
@@ -99,7 +99,7 @@ const StudentLogin = () => {
       if (error) {
         const msg = error.message?.toLowerCase() || "";
         if (msg.includes("already") || msg.includes("registered") || msg.includes("exists")) {
-          setEmailError("This email is already registered — please sign in instead.");
+          setEmailError("This email is already registered - please sign in instead.");
         } else {
           toast({ title: "Signup failed", description: error.message, variant: "destructive" });
         }

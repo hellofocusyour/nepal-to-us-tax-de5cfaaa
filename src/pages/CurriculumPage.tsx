@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 
 const CurriculumPage = () => {
   useSEO({
-    title: "US Tax Curriculum — 22 Day Program | Focus Academy",
+    title: "US Tax Curriculum - 22 Day Program | Focus Academy",
     description:
       "A 22-day mentor-led curriculum covering Form 1040, 1120, 1065, payroll, and QuickBooks. Built for job-ready US tax preparers from Nepal.",
     path: "/curriculum",
@@ -34,7 +34,7 @@ const CurriculumPage = () => {
              style={{ background: "var(--hero-gradient)" }}>
           <h3 className="font-display text-2xl md:text-3xl font-bold mb-3">Seats fill quickly each batch.</h3>
           <p className="text-primary-foreground/80 mb-6">
-            Reserve yours today — flat NPR 20,000 with an installment option.
+            Reserve yours today - flat NPR 20,000 with an installment option.
           </p>
           <Link
             to="/pricing"

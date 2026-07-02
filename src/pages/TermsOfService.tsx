@@ -5,7 +5,7 @@ import { useSEO } from "@/hooks/useSEO";
 
 const TermsOfService = () => {
   useSEO({
-    title: "Terms of Service | Focus Academy — US Tax Course Nepal",
+    title: "Terms of Service | Focus Academy - US Tax Course Nepal",
     description:
       "Focus Academy Terms of Service: enrollment rules, payment terms, code of conduct, intellectual property, and conditions for using our US Tax training platform.",
     path: "/terms-of-service",
