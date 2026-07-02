@@ -32,12 +32,12 @@ const Pricing = () => (
       <div className="p-8 text-center" style={{ background: "var(--gold-gradient)" }}>
         <p className="text-sm font-bold text-gold-foreground/80 uppercase tracking-wider mb-2">Course Fee</p>
         <p className="font-display text-5xl font-extrabold text-gold-foreground">NPR 20,000</p>
-        <p className="text-sm text-gold-foreground/80 mt-1">+ VAT</p>
+        <p className="text-sm text-gold-foreground/80 mt-1">Flat fee — all inclusive</p>
       </div>
       <div className="p-8">
         <div className="bg-gold-light rounded-lg p-4 mb-6 text-center">
           <p className="text-sm font-semibold text-foreground">💳 Installment Option Available</p>
-          <p className="text-xs text-muted-foreground mt-1">2 installments (NPR 500 additional)</p>
+          <p className="text-xs text-muted-foreground mt-1">Split into 2 payments of NPR 10,000 — no extra charge</p>
         </div>
         <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">What's Included</p>
         <ul className="space-y-3 mb-8">
