@@ -26,11 +26,12 @@ const Index = () => {
   }, [pathname]);
 
   useSEO({
-    title: "US Tax Course Nepal - Job-Ready in 22 Days | Focus Academy",
+    title: "US Tax Course Nepal | Tax Preparation Training - Focus Academy",
     description:
-      "Nepal's premier US Tax training. Become a job-ready US tax preparer in 22 days with IRS Enrolled Agent-led classes, hands-on Form practices, and remote job support. Flat NPR 20,000.",
+      "Nepal's #1 US Tax Course and Tax Preparation training. Become a job-ready US tax preparer in 22 days with IRS Enrolled Agent mentors. Flat NPR 20,000, remote jobs.",
     path: "/",
     type: "website",
+    faqs: HOME_FAQS,
   });
 
   return (

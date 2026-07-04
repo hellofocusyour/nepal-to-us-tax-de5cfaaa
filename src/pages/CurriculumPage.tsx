@@ -10,9 +10,9 @@ import { Link } from "react-router-dom";
 
 const CurriculumPage = () => {
   useSEO({
-    title: "US Tax Curriculum - 22 Day Program | Focus Academy",
+    title: "US Tax Course Nepal Curriculum - 22 Days | Focus Academy",
     description:
-      "A 22-day mentor-led curriculum covering Form 1040, 1120, 1065, payroll, and QuickBooks. Built for job-ready US tax preparers from Nepal.",
+      "Nepal's most complete US Tax Preparation curriculum: 22 days of live mentor-led training on Form 1040, 1120, 1065, payroll and QuickBooks. Get job-ready fast.",
     path: "/curriculum",
     type: "website",
   });

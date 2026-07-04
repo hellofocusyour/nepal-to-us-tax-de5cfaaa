@@ -15,9 +15,9 @@ const FAQS = [
 
 const FAQPage = () => {
   useSEO({
-    title: "FAQ - Focus Academy US Tax Course",
+    title: "US Tax Course Nepal FAQ | Tax Preparation Training",
     description:
-      "Answers to common questions about eligibility, language, prerequisites, payment options, certificates, and job placement for Focus Academy's US Tax course.",
+      "FAQs on Nepal's leading US Tax Course: eligibility, Neplish language, NPR 20,000 fee, installments, certificates and remote tax preparer job support.",
     path: "/faq",
     type: "website",
     faqs: FAQS,
