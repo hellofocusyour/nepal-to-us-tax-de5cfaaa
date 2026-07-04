@@ -19,6 +19,13 @@ const explore = [
   { to: "/faq", icon: HelpCircle, title: "FAQ", desc: "Answers about eligibility, language, certificates & jobs." },
 ];
 
+const HOME_FAQS = [
+  { q: "What is the US Tax Course at Focus Academy?", a: "A 22-day live, mentor-led US Tax Preparation training in Nepal covering Form 1040, 1120, 1065, payroll and QuickBooks - taught in Neplish by an IRS Enrolled Agent." },
+  { q: "How much does the US Tax Course in Nepal cost?", a: "A flat NPR 20,000, all-inclusive. You can pay in full or split into 2 easy installments of NPR 10,000 at no extra cost." },
+  { q: "Do I need prior tax knowledge to enroll?", a: "No. The course includes a basic accounting refresher and starts from fundamentals. Freshers, CA/ACCA students and working professionals can all join." },
+  { q: "Will this help me get a remote US tax preparer job?", a: "Yes. Top performers get priority hiring at Focus Academy and referral support to partner US CPA firms for remote roles from Nepal." },
+];
+
 const Index = () => {
   const { pathname } = useLocation();
   useEffect(() => {
@@ -26,11 +33,12 @@ const Index = () => {
   }, [pathname]);
 
   useSEO({
-    title: "US Tax Course Nepal - Job-Ready in 22 Days | Focus Academy",
+    title: "US Tax Course Nepal | Tax Preparation Training - Focus Academy",
     description:
-      "Nepal's premier US Tax training. Become a job-ready US tax preparer in 22 days with IRS Enrolled Agent-led classes, hands-on Form practices, and remote job support. Flat NPR 20,000.",
+      "Nepal's #1 US Tax Course and Tax Preparation training. Become a job-ready US tax preparer in 22 days with IRS Enrolled Agent mentors. Flat NPR 20,000, remote jobs.",
     path: "/",
     type: "website",
+    faqs: HOME_FAQS,
   });
 
   return (

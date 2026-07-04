@@ -15,9 +15,9 @@ const values = [
 
 const About = () => {
   useSEO({
-    title: "About Focus Academy - Nepal's US Tax Training Institute",
+    title: "About Focus Academy - US Tax Course & Tax Prep Nepal",
     description:
-      "Focus Academy is Nepal's premier US Tax training institute. Learn our mission, meet our IRS Enrolled Agent mentors, and see why students trust us for global careers.",
+      "Focus Academy is Nepal's premier US Tax Course and Tax Preparation training institute. Meet our IRS Enrolled Agent mentors powering global remote careers.",
     path: "/about",
     type: "website",
   });

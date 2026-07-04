@@ -6,9 +6,9 @@ import { useSEO } from "@/hooks/useSEO";
 
 const PricingPage = () => {
   useSEO({
-    title: "Pricing - Flat NPR 20,000 | Focus Academy",
+    title: "US Tax Course Nepal Pricing - NPR 20,000 | Focus Academy",
     description:
-      "Flat NPR 20,000 all-inclusive. Live classes, recorded videos, notes, certificate, WhatsApp community and job referral support. Installment option available.",
+      "Nepal's most affordable US Tax Preparation training: flat NPR 20,000 all-inclusive. Live classes, notes, certificate, job referrals. Easy installment option.",
     path: "/pricing",
     type: "website",
   });
