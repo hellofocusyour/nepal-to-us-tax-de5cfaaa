@@ -45,7 +45,7 @@ const Team = () => {
       email: p.email,
       full_name: p.full_name,
       sections: byUser[p.user_id] ?? [],
-      isSuper: p.email?.toLowerCase() === "hello@focusyourfinance.com",
+      isSuper: p.email?.toLowerCase() === "academy@focusyourfinance.com",
     })));
     setLoading(false);
   };

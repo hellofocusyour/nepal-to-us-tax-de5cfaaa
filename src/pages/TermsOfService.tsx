@@ -115,9 +115,9 @@ const TermsOfService = () => {
           <section>
             <h2 className="font-display text-2xl font-bold text-primary mb-3">11. Contact</h2>
             <ul className="space-y-1 text-muted-foreground">
-              <li>📧 hello@focusyourfinance.com</li>
+              <li>📧 academy@focusyourfinance.com</li>
               <li>📱 +977 970-9139754</li>
-              <li>📍 Tinkuney, Kathmandu, Nepal</li>
+              <li>📍 Tinkune, Kathmandu, Nepal</li>
             </ul>
           </section>
 

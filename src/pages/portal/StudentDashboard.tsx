@@ -469,14 +469,14 @@ const StudentDashboard = () => {
               <p className="text-xs text-muted-foreground mt-0.5">Full course outline</p>
             </Link>
             <a
-              href="mailto:hello@focusyourfinance.com"
+              href="mailto:academy@focusyourfinance.com"
               className="group p-5 rounded-xl border border-border bg-card hover:border-primary/50 hover:shadow-md transition-all"
             >
               <div className="w-10 h-10 rounded-lg bg-emerald-500/15 text-emerald-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Mail className="w-5 h-5" />
               </div>
               <p className="font-semibold text-foreground text-sm">Get Support</p>
-              <p className="text-xs text-muted-foreground mt-0.5 truncate">hello@focusyourfinance.com</p>
+              <p className="text-xs text-muted-foreground mt-0.5 truncate">academy@focusyourfinance.com</p>
             </a>
           </div>
         </>

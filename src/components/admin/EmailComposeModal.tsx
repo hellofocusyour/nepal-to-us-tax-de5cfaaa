@@ -618,7 +618,7 @@ export const EmailComposeModal = ({
                 )}
                 <div style={{ borderTop: "1px solid #e5e7eb", padding: "20px 32px", fontSize: 13, color: "#475569" }}>
                   <div style={{ fontWeight: 600, color: "#0c4a6e", marginBottom: 6 }}>Need help?</div>
-                  <div>📧 hello@focusyourfinance.com</div>
+                  <div>📧 academy@focusyourfinance.com</div>
                   <div>📞 +977 970-9139754</div>
                 </div>
                 <div style={{ background: "#0c4a6e", padding: "14px 32px", textAlign: "center", color: "#cbd5e1", fontSize: 12 }}>

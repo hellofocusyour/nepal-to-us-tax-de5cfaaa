@@ -103,9 +103,9 @@ const PrivacyPolicy = () => {
               If you have any questions about this Privacy Policy, please contact us:
             </p>
             <ul className="mt-3 space-y-1 text-muted-foreground">
-              <li>📧 hello@focusyourfinance.com</li>
+              <li>📧 academy@focusyourfinance.com</li>
               <li>📱 +977 970-9139754</li>
-              <li>📍 Tinkuney, Kathmandu, Nepal</li>
+              <li>📍 Tinkune, Kathmandu, Nepal</li>
             </ul>
           </section>
 
