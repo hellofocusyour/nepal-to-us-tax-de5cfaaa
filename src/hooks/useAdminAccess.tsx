@@ -23,14 +23,17 @@ export const ALL_SECTIONS: { key: AdminSection; label: string }[] = [
   { key: "integrations", label: "Integrations" },
 ];
 
-const SUPER_ADMIN_EMAIL = "academy@focusyourfinance.com";
+const SUPER_ADMIN_EMAILS = [
+  "academy@focusyourfinance.com",
+  "hello@focusyourfinance.com",
+];
 
 export const useAdminAccess = () => {
   const { user, isAdmin } = useAuth();
   const [sections, setSections] = useState<Set<AdminSection>>(new Set());
   const [loading, setLoading] = useState(true);
 
-  const isSuperAdmin = !!user?.email && user.email.toLowerCase() === SUPER_ADMIN_EMAIL;
+  const isSuperAdmin = !!user?.email && SUPER_ADMIN_EMAILS.includes(user.email.toLowerCase());
 
   useEffect(() => {
     if (!user) { setLoading(false); return; }
