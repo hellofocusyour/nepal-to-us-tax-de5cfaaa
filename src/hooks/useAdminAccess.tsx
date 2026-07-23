@@ -23,7 +23,7 @@ export const ALL_SECTIONS: { key: AdminSection; label: string }[] = [
   { key: "integrations", label: "Integrations" },
 ];
 
-const SUPER_ADMIN_EMAIL = "hello@focusyourfinance.com";
+const SUPER_ADMIN_EMAIL = "academy@focusyourfinance.com";
 
 export const useAdminAccess = () => {
   const { user, isAdmin } = useAuth();

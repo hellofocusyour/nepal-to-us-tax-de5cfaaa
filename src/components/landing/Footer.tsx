@@ -46,8 +46,8 @@ const Footer = () => (
         <div>
           <p className="font-bold text-primary-foreground text-sm mb-3">Contact</p>
           <ul className="space-y-2 text-sm">
-            <li>📍 Tinkuney, Kathmandu, Nepal</li>
-            <li>📧 hello@focusyourfinance.com</li>
+            <li>📍 Tinkune, Kathmandu, Nepal</li>
+            <li>📧 academy@focusyourfinance.com</li>
             <li>📱 +977 970-9139754</li>
           </ul>
         </div>
