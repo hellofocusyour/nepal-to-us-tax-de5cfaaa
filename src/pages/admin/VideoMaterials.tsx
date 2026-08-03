@@ -65,6 +65,13 @@ const VideoMaterials = () => {
     setLoading(false);
   };
 
+
+  const sortedVideos = [...videos].sort((a, b) =>
+    sortOrder === "newest"
+      ? new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      : new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
+
   useEffect(() => {
     load();
     if (!sessionStorage.getItem(SESSION_DISMISS_KEY)) setReminderOpen(true);
