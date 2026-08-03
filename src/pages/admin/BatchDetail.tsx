@@ -68,6 +68,52 @@ function SponsorAccessCard({ batch, onSaved }: { batch: any; onSaved: () => void
   );
 }
 
+function BatchDetailsCard({ batch, onSaved }: { batch: any; onSaved: () => void }) {
+  const [name, setName] = useState(batch.name || "");
+  const [startDate, setStartDate] = useState(batch.start_date || "");
+  const [endDate, setEndDate] = useState(batch.end_date || "");
+  const [maxSeats, setMaxSeats] = useState(String(batch.max_seats ?? 30));
+  const [instructor, setInstructor] = useState(batch.instructor_name || "");
+  const [saving, setSaving] = useState(false);
+
+  const save = async () => {
+    if (!name.trim() || !startDate || !endDate) return toast.error("Name and dates are required");
+    setSaving(true);
+    const { error } = await supabase.from("batches").update({
+      name: name.trim(),
+      start_date: startDate,
+      end_date: endDate,
+      max_seats: parseInt(maxSeats) || 30,
+      instructor_name: instructor.trim() || null,
+    } as any).eq("id", batch.id);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success("Batch details saved");
+    onSaved();
+  };
+
+  return (
+    <Card className="border border-border">
+      <CardContent className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <Calendar className="w-5 h-5 text-primary" />
+          <h2 className="font-display font-bold text-foreground">Batch details</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div><Label className="text-sm font-medium">Batch name</Label><Input value={name} onChange={e => setName(e.target.value)} /></div>
+          <div><Label className="text-sm font-medium">Tutor / Instructor name</Label><Input value={instructor} onChange={e => setInstructor(e.target.value)} placeholder="e.g. CA Ramesh Sharma" /></div>
+          <div><Label className="text-sm font-medium">Start date</Label><Input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} /></div>
+          <div><Label className="text-sm font-medium">End date</Label><Input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} /></div>
+          <div><Label className="text-sm font-medium">Max seats</Label><Input type="number" value={maxSeats} onChange={e => setMaxSeats(e.target.value)} /></div>
+        </div>
+        <Button onClick={save} disabled={saving}>{saving ? "Saving…" : "Save details"}</Button>
+      </CardContent>
+    </Card>
+  );
+}
+
+
+
 
 interface Batch {
   id: string; name: string; start_date: string; end_date: string;
@@ -227,7 +273,9 @@ const BatchDetail = () => {
           </div>
         </CardContent>
       </Card>
+      <BatchDetailsCard batch={batch} onSaved={fetchAll} />
       <SponsorAccessCard batch={batch} onSaved={fetchAll} />
+
 
 
       <div className="flex items-center justify-between gap-3 flex-wrap">

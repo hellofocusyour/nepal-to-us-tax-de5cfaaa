@@ -14,8 +14,18 @@ interface BatchInfo {
   end_date: string;
   enrolled_count: number;
   classmateCount: number;
+  instructor_name: string | null;
+  classDays: number[];
+  classTime: string;
   nextSession?: { topic: string; session_date: string };
 }
+
+const formatTime = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  const d = new Date();
+  d.setHours(h || 0, m || 0, 0, 0);
+  return d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+};
 
 const StudentBatch = () => {
   const { user } = useAuth();
@@ -30,7 +40,7 @@ const StudentBatch = () => {
       if (!student?.batch_id) { setLoading(false); return; }
 
       const { data: b } = await supabase.from("batches")
-        .select("name, start_date, end_date, enrolled_count")
+        .select("name, start_date, end_date, enrolled_count, instructor_name")
         .eq("id", student.batch_id).single();
       if (!b) { setLoading(false); return; }
 
@@ -40,17 +50,25 @@ const StudentBatch = () => {
         .gte("session_date", new Date().toISOString().split("T")[0])
         .order("session_date").limit(1).maybeSingle();
 
+      const { data: lcs } = await supabase.from("live_class_settings")
+        .select("recurrence_days, recurrence_time")
+        .eq("batch_id", student.batch_id).maybeSingle();
+
       setBatch({
         name: b.name,
         start_date: b.start_date,
         end_date: b.end_date,
         enrolled_count: b.enrolled_count,
+        instructor_name: (b as any).instructor_name ?? null,
         classmateCount: Math.max((b.enrolled_count || 1) - 1, 0),
+        classDays: lcs?.recurrence_days?.length ? lcs.recurrence_days : [1, 2, 3, 4],
+        classTime: formatTime(lcs?.recurrence_time || "19:00"),
         nextSession: nxt || undefined,
       });
       setLoading(false);
     })();
   }, [user]);
+
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
 
@@ -70,9 +88,9 @@ const StudentBatch = () => {
   const weeksLeft = Math.max(Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 7)), 0);
   const fmt = (d: string) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
-  // class days demo: Mon, Wed, Fri at 7pm
-  const classDays = [1, 3, 5];
-  const classTime = "7:00 PM";
+  const classDays = batch.classDays;
+  const classTime = batch.classTime;
+
 
   return (
     <PaidAccessGate>
@@ -99,7 +117,7 @@ const StudentBatch = () => {
                 <GraduationCap className="w-7 h-7" />
               </div>
               <div className="flex-1">
-                <h3 className="font-display font-semibold text-foreground">Lead Mentor</h3>
+                <h3 className="font-display font-semibold text-foreground">{batch.instructor_name || "Lead Mentor"}</h3>
                 <p className="text-xs text-muted-foreground">Lead instructor</p>
               </div>
             </div>

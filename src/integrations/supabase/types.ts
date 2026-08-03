@@ -269,6 +269,7 @@ export type Database = {
           end_date: string
           enrolled_count: number
           id: string
+          instructor_name: string | null
           is_partner: boolean
           max_seats: number
           name: string
@@ -282,6 +283,7 @@ export type Database = {
           end_date: string
           enrolled_count?: number
           id?: string
+          instructor_name?: string | null
           is_partner?: boolean
           max_seats?: number
           name: string
@@ -295,6 +297,7 @@ export type Database = {
           end_date?: string
           enrolled_count?: number
           id?: string
+          instructor_name?: string | null
           is_partner?: boolean
           max_seats?: number
           name?: string

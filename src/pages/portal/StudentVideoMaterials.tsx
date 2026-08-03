@@ -72,8 +72,7 @@ const Inner = () => {
         .from("video_materials")
         .select("*")
         .eq("is_published", true)
-        .order("category")
-        .order("display_order");
+        .order("created_at", { ascending: false });
       if (error) toast.error(error.message);
       setVideos((data as Video[]) || []);
       setLoading(false);
