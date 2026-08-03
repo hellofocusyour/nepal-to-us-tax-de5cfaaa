@@ -143,6 +143,15 @@ const Batches = () => {
                         <Users className="w-4 h-4" />
                         {batch.enrolled_count}/{batch.max_seats}
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmText(""); setDeleteTarget(batch); }}
+                        aria-label={`Delete ${batch.name}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -152,8 +161,30 @@ const Batches = () => {
           })
         )}
       </div>
+
+      <Dialog open={!!deleteTarget} onOpenChange={(o) => { if (!o) { setDeleteTarget(null); setConfirmText(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete batch</DialogTitle>
+            <DialogDescription>
+              This permanently deletes "{deleteTarget?.name}", its enrollments, sessions, live class settings and
+              content assignments. Students are kept but unassigned. Type <strong>DELETE</strong> to confirm.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder="Type DELETE" />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => { setDeleteTarget(null); setConfirmText(""); }}>Cancel</Button>
+              <Button variant="destructive" disabled={confirmText !== "DELETE" || deleting} onClick={handleDelete}>
+                {deleting ? "Deleting..." : "Delete batch"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+
 };
 
 export default Batches;
