@@ -50,6 +50,34 @@ const Batches = () => {
     fetchBatches();
   };
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const id = deleteTarget.id;
+    try {
+      await supabase.from("batch_enrollments").delete().eq("batch_id", id);
+      await supabase.from("announcement_batches").delete().eq("batch_id", id);
+      await supabase.from("document_batches").delete().eq("batch_id", id);
+      await supabase.from("module_batches").delete().eq("batch_id", id);
+      await supabase.from("video_batches").delete().eq("batch_id", id);
+      await supabase.from("class_sessions").delete().eq("batch_id", id);
+      await supabase.from("live_class_settings").delete().eq("batch_id", id);
+      await supabase.from("students").update({ batch_id: null }).eq("batch_id", id);
+      await supabase.from("batch_email_runs").update({ batch_id: null }).eq("batch_id", id);
+      const { error } = await supabase.from("batches").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Batch deleted");
+      setDeleteTarget(null);
+      setConfirmText("");
+      fetchBatches();
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to delete batch");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+
   const getBatchStatus = (batch: Batch) => {
     const now = new Date();
     const start = new Date(batch.start_date);
