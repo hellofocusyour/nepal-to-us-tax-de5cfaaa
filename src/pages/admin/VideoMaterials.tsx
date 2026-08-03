@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { parseDriveFileId, driveEmbedUrl } from "@/lib/driveUrl";
@@ -36,6 +37,7 @@ const VideoMaterials = () => {
   const [videos, setVideos] = useState<Video[]>([]);
   const [loading, setLoading] = useState(true);
   const [reminderOpen, setReminderOpen] = useState(false);
+  const [sortOrder, setSortOrder] = useState<"newest" | "oldest">("newest");
 
   const [editing, setEditing] = useState<Video | null>(null);
   const [open, setOpen] = useState(false);
@@ -62,6 +64,13 @@ const VideoMaterials = () => {
     setVideos((data as Video[]) || []);
     setLoading(false);
   };
+
+
+  const sortedVideos = [...videos].sort((a, b) =>
+    sortOrder === "newest"
+      ? new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      : new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  );
 
   useEffect(() => {
     load();
@@ -165,7 +174,18 @@ const VideoMaterials = () => {
           <h1 className="text-2xl font-display font-bold text-foreground">Video Materials</h1>
           <p className="text-sm text-muted-foreground">Manage Google Drive videos visible to paid students.</p>
         </div>
-        <Button onClick={openCreate}><Plus className="w-4 h-4 mr-2" />Add Video</Button>
+        <div className="flex items-center gap-2">
+          <Select value={sortOrder} onValueChange={(v) => setSortOrder(v as "newest" | "oldest")}>
+            <SelectTrigger className="w-[190px]">
+              <SelectValue placeholder="Sort by date" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Upload date: Newest first</SelectItem>
+              <SelectItem value="oldest">Upload date: Oldest first</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={openCreate}><Plus className="w-4 h-4 mr-2" />Add Video</Button>
+        </div>
       </div>
 
       {loading ? (
@@ -174,7 +194,7 @@ const VideoMaterials = () => {
         <Card><CardContent className="py-16 text-center text-muted-foreground">No videos yet. Add your first one.</CardContent></Card>
       ) : (
         <div className="grid gap-3">
-          {videos.map((v) => (
+          {sortedVideos.map((v) => (
             <Card key={v.id}>
               <CardContent className="py-4 flex items-center gap-4">
                 <div className="flex-1 min-w-0">
