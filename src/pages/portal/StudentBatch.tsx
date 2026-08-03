@@ -117,7 +117,7 @@ const StudentBatch = () => {
                 <GraduationCap className="w-7 h-7" />
               </div>
               <div className="flex-1">
-                <h3 className="font-display font-semibold text-foreground">Lead Mentor</h3>
+                <h3 className="font-display font-semibold text-foreground">{batch.instructor_name || "Lead Mentor"}</h3>
                 <p className="text-xs text-muted-foreground">Lead instructor</p>
               </div>
             </div>
