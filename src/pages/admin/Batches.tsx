@@ -5,10 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Calendar, Users } from "lucide-react";
+import { Plus, Calendar, Users, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Tables } from "@/integrations/supabase/types";
 
@@ -18,7 +18,11 @@ const Batches = () => {
   const [batches, setBatches] = useState<Batch[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<Batch | null>(null);
+  const [confirmText, setConfirmText] = useState("");
+  const [deleting, setDeleting] = useState(false);
   const [newBatch, setNewBatch] = useState({ name: "", start_date: "", end_date: "", max_seats: "30" });
+
 
   const fetchBatches = async () => {
     const { data } = await supabase.from("batches").select("*").order("start_date", { ascending: false });
@@ -45,6 +49,34 @@ const Batches = () => {
     setDialogOpen(false);
     fetchBatches();
   };
+
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    const id = deleteTarget.id;
+    try {
+      await supabase.from("batch_enrollments").delete().eq("batch_id", id);
+      await supabase.from("announcement_batches").delete().eq("batch_id", id);
+      await supabase.from("document_batches").delete().eq("batch_id", id);
+      await supabase.from("module_batches").delete().eq("batch_id", id);
+      await supabase.from("video_batches").delete().eq("batch_id", id);
+      await supabase.from("class_sessions").delete().eq("batch_id", id);
+      await supabase.from("live_class_settings").delete().eq("batch_id", id);
+      await supabase.from("students").update({ batch_id: null }).eq("batch_id", id);
+      await supabase.from("batch_email_runs").update({ batch_id: null }).eq("batch_id", id);
+      const { error } = await supabase.from("batches").delete().eq("id", id);
+      if (error) throw error;
+      toast.success("Batch deleted");
+      setDeleteTarget(null);
+      setConfirmText("");
+      fetchBatches();
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to delete batch");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
 
   const getBatchStatus = (batch: Batch) => {
     const now = new Date();
@@ -111,6 +143,15 @@ const Batches = () => {
                         <Users className="w-4 h-4" />
                         {batch.enrolled_count}/{batch.max_seats}
                       </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmText(""); setDeleteTarget(batch); }}
+                        aria-label={`Delete ${batch.name}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -120,8 +161,30 @@ const Batches = () => {
           })
         )}
       </div>
+
+      <Dialog open={!!deleteTarget} onOpenChange={(o) => { if (!o) { setDeleteTarget(null); setConfirmText(""); } }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete batch</DialogTitle>
+            <DialogDescription>
+              This permanently deletes "{deleteTarget?.name}", its enrollments, sessions, live class settings and
+              content assignments. Students are kept but unassigned. Type <strong>DELETE</strong> to confirm.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input value={confirmText} onChange={(e) => setConfirmText(e.target.value)} placeholder="Type DELETE" />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => { setDeleteTarget(null); setConfirmText(""); }}>Cancel</Button>
+              <Button variant="destructive" disabled={confirmText !== "DELETE" || deleting} onClick={handleDelete}>
+                {deleting ? "Deleting..." : "Delete batch"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
+
 };
 
 export default Batches;
