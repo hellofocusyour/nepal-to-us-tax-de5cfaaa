@@ -88,9 +88,9 @@ const StudentBatch = () => {
   const weeksLeft = Math.max(Math.ceil((end.getTime() - now.getTime()) / (1000 * 60 * 60 * 24 * 7)), 0);
   const fmt = (d: string) => new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
-  // class days demo: Mon, Wed, Fri at 7pm
-  const classDays = [1, 3, 5];
-  const classTime = "7:00 PM";
+  const classDays = batch.classDays;
+  const classTime = batch.classTime;
+
 
   return (
     <PaidAccessGate>
