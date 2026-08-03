@@ -273,7 +273,9 @@ const BatchDetail = () => {
           </div>
         </CardContent>
       </Card>
+      <BatchDetailsCard batch={batch} onSaved={fetchAll} />
       <SponsorAccessCard batch={batch} onSaved={fetchAll} />
+
 
 
       <div className="flex items-center justify-between gap-3 flex-wrap">
