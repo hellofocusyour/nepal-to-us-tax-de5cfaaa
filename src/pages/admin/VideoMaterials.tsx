@@ -194,7 +194,7 @@ const VideoMaterials = () => {
         <Card><CardContent className="py-16 text-center text-muted-foreground">No videos yet. Add your first one.</CardContent></Card>
       ) : (
         <div className="grid gap-3">
-          {videos.map((v) => (
+          {sortedVideos.map((v) => (
             <Card key={v.id}>
               <CardContent className="py-4 flex items-center gap-4">
                 <div className="flex-1 min-w-0">
