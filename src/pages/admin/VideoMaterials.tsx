@@ -57,8 +57,7 @@ const VideoMaterials = () => {
     const { data, error } = await supabase
       .from("video_materials")
       .select("*")
-      .order("category")
-      .order("display_order");
+      .order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     setVideos((data as Video[]) || []);
     setLoading(false);
