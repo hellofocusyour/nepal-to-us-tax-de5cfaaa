@@ -58,6 +58,8 @@ const StudentDashboard = () => {
         .from("students")
         .select("id, full_name, status, batch_id, payment_plan")
         .eq("user_id", user.id)
+        .order("created_at", { ascending: true })
+        .limit(1)
         .maybeSingle();
 
       if (!studentData && user.email) {
@@ -80,6 +82,8 @@ const StudentDashboard = () => {
           .from("students")
           .select("id, full_name, status, batch_id, payment_plan")
           .eq("user_id", user.id)
+          .order("created_at", { ascending: true })
+          .limit(1)
           .maybeSingle();
         studentData = createdStudent;
       }
