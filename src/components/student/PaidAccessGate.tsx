@@ -17,7 +17,7 @@ const PaidAccessGate = ({ children }: Props) => {
 
   const checkAccess = async (uid: string) => {
     const { data: student } = await supabase.from("students")
-      .select("id, batch_id, sponsor_organization").eq("user_id", uid).maybeSingle();
+      .select("id, batch_id, sponsor_organization").eq("user_id", uid).order("created_at", { ascending: true }).limit(1).maybeSingle();
     if (!student) { setLoading(false); return null; }
     setStudentId((student as any).id);
 

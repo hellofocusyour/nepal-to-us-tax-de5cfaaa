@@ -36,7 +36,7 @@ const StudentLayout = () => {
     if (!user) return;
     (async () => {
       const { data: student } = await supabase.from("students")
-        .select("id, batch_id, sponsor_organization").eq("user_id", user.id).maybeSingle();
+        .select("id, batch_id, sponsor_organization").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
       if (!student) return;
       const s: any = student;
       if (s.sponsor_organization) { setIsPaid(true); return; }
@@ -56,7 +56,7 @@ const StudentLayout = () => {
     if (!user) return;
     const fetchUnread = async () => {
       const { data: student } = await supabase.from("students")
-        .select("status").eq("user_id", user.id).maybeSingle();
+        .select("status").eq("user_id", user.id).order("created_at", { ascending: true }).limit(1).maybeSingle();
       const isActive = student?.status === "active_student";
       const { data } = await supabase
         .from("announcements")
