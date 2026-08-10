@@ -97,3 +97,20 @@
 html {
   scroll-behavior: smooth;
 }
+
+/* react-pdf: make embedded PDF hyperlinks clickable */
+.react-pdf__Page__annotations.annotationLayer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+.react-pdf__Page__annotations .linkAnnotation > a,
+.react-pdf__Page__annotations a {
+  pointer-events: auto;
+  cursor: pointer;
+}
+.react-pdf__Page__textContent.textLayer a {
+  pointer-events: auto;
+  cursor: pointer;
+}
