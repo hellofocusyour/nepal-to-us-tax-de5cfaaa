@@ -93,12 +93,14 @@ const ModuleViewer = ({ moduleNumber, onClose }: Props) => {
             onLoadSuccess={({ numPages: n }) => setNumPages(n)}
             onLoadError={(e) => { toast.error("Failed to render PDF"); console.error(e); }}
             loading={<div className="text-white/70 mt-10">Loading…</div>}
+            externalLinkTarget="_blank"
+            externalLinkRel="noopener noreferrer"
           >
             <Page
               pageNumber={pageNum}
               scale={scale}
-              renderTextLayer={false}
-              renderAnnotationLayer={false}
+              renderTextLayer={true}
+              renderAnnotationLayer={true}
             />
           </Document>
         )}
