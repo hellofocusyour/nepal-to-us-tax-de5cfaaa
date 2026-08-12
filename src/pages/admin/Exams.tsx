@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import BatchMultiSelect from "@/components/admin/BatchMultiSelect";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -132,18 +133,12 @@ const Exams = () => {
     load();
   };
 
-  const toggleBatchUnlock = async (exam: Exam, batchId: string, unlocked: boolean) => {
-    if (unlocked) {
-      const { error } = await supabase.from("exam_batches")
-        .delete().eq("exam_id", exam.id).eq("batch_id", batchId);
-      if (error) return toast.error(error.message);
-    } else {
-      const { error } = await supabase.from("exam_batches")
-        .insert({ exam_id: exam.id, batch_id: batchId });
-      if (error) return toast.error(error.message);
-    }
-    load();
+  const saveExamBatches = async (examId: string, ids: string[]) => {
+    setExamBatches(prev => ({ ...prev, [examId]: ids }));
+    await syncBatches(examId, ids);
+    toast.success(ids.length ? "Batch access updated" : "Unlocked for all batches");
   };
+
 
 
   const togglePublish = async (e: Exam) => {
@@ -252,28 +247,14 @@ const Exams = () => {
                   <p className="text-xs text-muted-foreground mt-2">
                     Unlocked for: {unlockedLabel(e.id)} · {e.duration_minutes} min · pass {e.pass_percentage}%
                   </p>
-                  {batches.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {batches.map((b) => {
-                        const unlocked = (examBatches[e.id] ?? []).includes(b.id);
-                        return (
-                          <button
-                            key={b.id}
-                            type="button"
-                            onClick={() => toggleBatchUnlock(e, b.id, unlocked)}
-                            className={
-                              "text-xs px-2 py-1 rounded-full border transition-colors " +
-                              (unlocked
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background text-muted-foreground border-border hover:bg-accent")
-                            }
-                          >
-                            {unlocked ? "🔓 " : "🔒 "}{b.name}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+                  <div className="mt-4 max-w-md">
+                    <BatchMultiSelect
+                      label="Unlocked for batches"
+                      helpText="Select none to unlock for every batch. Students only see this exam if their batch is selected."
+                      value={examBatches[e.id] ?? []}
+                      onChange={(ids) => saveExamBatches(e.id, ids)}
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-2 mr-2">
@@ -313,29 +294,12 @@ const Exams = () => {
               <Textarea value={form.description} onChange={(ev) => setForm({ ...form, description: ev.target.value })} />
             </div>
             <div>
-              <Label>Unlock for batches</Label>
-              <p className="text-xs text-muted-foreground mb-2">
-                Select none to make it available to every batch.
-              </p>
-              <div className="grid grid-cols-2 gap-2">
-                {batches.map((b) => {
-                  const checked = (form.batches as string[]).includes(b.id);
-                  return (
-                    <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded hover:bg-accent">
-                      <Checkbox
-                        checked={checked}
-                        onCheckedChange={() => setForm({
-                          ...form,
-                          batches: checked
-                            ? (form.batches as string[]).filter((id) => id !== b.id)
-                            : [...(form.batches as string[]), b.id],
-                        })}
-                      />
-                      {b.name}
-                    </label>
-                  );
-                })}
-              </div>
+              <BatchMultiSelect
+                label="Unlocked for batches"
+                helpText="Select none to make it available to every batch."
+                value={form.batches as string[]}
+                onChange={(ids) => setForm({ ...form, batches: ids })}
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>

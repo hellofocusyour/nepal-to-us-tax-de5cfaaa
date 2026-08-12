@@ -41,6 +41,7 @@ const StudentExams = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [secondsLeft, setSecondsLeft] = useState(0);
+  const [deadline, setDeadline] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const load = async () => {
@@ -62,17 +63,17 @@ const StudentExams = () => {
   useEffect(() => { load(); }, [user]);
 
   useEffect(() => {
-    if (!active || secondsLeft <= 0) return;
-    const t = setInterval(() => setSecondsLeft(s => s - 1), 1000);
+    if (!active || !deadline) return;
+    const tick = () => {
+      const left = Math.max(0, Math.round((deadline - Date.now()) / 1000));
+      setSecondsLeft(left);
+      if (left === 0) submit(true);
+    };
+    tick();
+    const t = setInterval(tick, 1000);
     return () => clearInterval(t);
-  }, [active, secondsLeft]);
-
-  useEffect(() => {
-    if (active && secondsLeft === 0 && questions.length > 0) {
-      submit(true);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [secondsLeft]);
+  }, [active, deadline]);
 
   const start = async (exam: Exam) => {
     const { data, error } = await supabase.rpc("get_exam_questions", { _exam_id: exam.id });
@@ -85,6 +86,7 @@ const StudentExams = () => {
     setAnswers({});
     setActive(exam);
     setSecondsLeft(exam.duration_minutes * 60);
+    setDeadline(Date.now() + exam.duration_minutes * 60 * 1000);
   };
 
   const submit = async (auto = false) => {
@@ -102,6 +104,7 @@ const StudentExams = () => {
     if (error) return toast.error(error.message);
     toast.success(auto ? "Time is up — exam submitted" : "Exam submitted");
     setActive(null);
+    setDeadline(null);
     setQuestions([]);
     load();
   };
@@ -144,7 +147,7 @@ const StudentExams = () => {
           <Button onClick={() => submit(false)} disabled={submitting}>
             {submitting ? "Submitting…" : "Submit exam"}
           </Button>
-          <Button variant="outline" onClick={() => { setActive(null); setQuestions([]); }}>
+          <Button variant="outline" onClick={() => { setActive(null); setDeadline(null); setQuestions([]); }}>
             Cancel
           </Button>
         </div>
