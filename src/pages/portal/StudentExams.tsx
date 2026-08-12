@@ -43,6 +43,10 @@ const StudentExams = () => {
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [deadline, setDeadline] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [review, setReview] = useState<Exam | null>(null);
+  const [reviewQuestions, setReviewQuestions] = useState<(Question & { correct_index: number })[]>([]);
+  const [reviewAnswers, setReviewAnswers] = useState<Record<string, number>>({});
+
 
   const load = async () => {
     if (!user) return;
