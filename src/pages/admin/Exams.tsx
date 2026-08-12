@@ -55,6 +55,7 @@ const Exams = () => {
   const [exams, setExams] = useState<Exam[]>([]);
   const [batches, setBatches] = useState<{ id: string; name: string }[]>([]);
   const [examBatches, setExamBatches] = useState<Record<string, string[]>>({});
+  const [examRetakes, setExamRetakes] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
 
   const [examDialog, setExamDialog] = useState(false);
