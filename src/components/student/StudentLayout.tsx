@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CreditCard, Award, BookOpen, LogOut, Menu, X,
-  GraduationCap, User, Megaphone, Users, Inbox as InboxIcon, Film
+  GraduationCap, User, Megaphone, Users, Inbox as InboxIcon, Film, FileQuestion
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
