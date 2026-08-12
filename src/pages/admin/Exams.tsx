@@ -252,28 +252,14 @@ const Exams = () => {
                   <p className="text-xs text-muted-foreground mt-2">
                     Unlocked for: {unlockedLabel(e.id)} · {e.duration_minutes} min · pass {e.pass_percentage}%
                   </p>
-                  {batches.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {batches.map((b) => {
-                        const unlocked = (examBatches[e.id] ?? []).includes(b.id);
-                        return (
-                          <button
-                            key={b.id}
-                            type="button"
-                            onClick={() => toggleBatchUnlock(e, b.id, unlocked)}
-                            className={
-                              "text-xs px-2 py-1 rounded-full border transition-colors " +
-                              (unlocked
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background text-muted-foreground border-border hover:bg-accent")
-                            }
-                          >
-                            {unlocked ? "🔓 " : "🔒 "}{b.name}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+                  <div className="mt-4 max-w-md">
+                    <BatchMultiSelect
+                      label="Unlocked for batches"
+                      helpText="Select none to unlock for every batch. Students only see this exam if their batch is selected."
+                      value={examBatches[e.id] ?? []}
+                      onChange={(ids) => saveExamBatches(e.id, ids)}
+                    />
+                  </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-2 mr-2">
