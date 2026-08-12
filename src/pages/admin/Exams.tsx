@@ -110,11 +110,44 @@ const Exams = () => {
   };
 
   const syncBatches = async (examId: string, selected: string[]) => {
+    const keepRetakes = examRetakes[examId] ?? [];
     await supabase.from("exam_batches").delete().eq("exam_id", examId);
     if (selected.length) {
-      await supabase.from("exam_batches")
-        .insert(selected.map((batch_id) => ({ exam_id: examId, batch_id })));
+      await supabase.from("exam_batches").insert(
+        selected.map((batch_id) => ({
+          exam_id: examId,
+          batch_id,
+          allow_retakes: keepRetakes.includes(batch_id),
+        }))
+      );
     }
+    setExamRetakes(prev => ({
+      ...prev,
+      [examId]: keepRetakes.filter(id => selected.includes(id)),
+    }));
+  };
+
+  const toggleGlobalRetake = async (e: Exam) => {
+    const next = !e.allow_retakes;
+    setExams(prev => prev.map(x => (x.id === e.id ? { ...x, allow_retakes: next } : x)));
+    const { error } = await supabase.from("exams").update({ allow_retakes: next }).eq("id", e.id);
+    if (error) { toast.error(error.message); return load(); }
+    toast.success(next ? "Retakes enabled for all students" : "Retakes closed");
+  };
+
+  const toggleBatchRetake = async (examId: string, batchId: string) => {
+    const current = examRetakes[examId] ?? [];
+    const next = current.includes(batchId)
+      ? current.filter(id => id !== batchId)
+      : [...current, batchId];
+    setExamRetakes(prev => ({ ...prev, [examId]: next }));
+    const { error } = await supabase.from("exam_batches")
+      .update({ allow_retakes: next.includes(batchId) })
+      .eq("exam_id", examId).eq("batch_id", batchId);
+    if (error) { toast.error(error.message); return load(); }
+    toast.success(
+      next.includes(batchId) ? "Retake unlocked for this batch" : "Retake locked for this batch"
+    );
   };
 
   const saveExam = async () => {
