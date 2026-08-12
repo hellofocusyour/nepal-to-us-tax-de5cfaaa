@@ -82,6 +82,7 @@ const App = () => (
               <Route path="video-materials" element={<AdminVideoMaterials />} />
               <Route path="team" element={<Team />} />
               <Route path="email-batch" element={<EmailBatch />} />
+              <Route path="exams" element={<AdminExams />} />
               <Route path="settings/integrations" element={<Integrations />} />
             </Route>
             <Route path="/portal/login" element={<StudentLogin />} />
