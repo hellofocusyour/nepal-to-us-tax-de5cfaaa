@@ -1332,6 +1332,17 @@ export type Database = {
           question_text: string
         }[]
       }
+      get_exam_review: {
+        Args: { _exam_id: string }
+        Returns: {
+          correct_index: number
+          display_order: number
+          id: string
+          marks: number
+          options: Json
+          question_text: string
+        }[]
+      }
       has_admin_section: {
         Args: {
           _section: Database["public"]["Enums"]["admin_section"]
