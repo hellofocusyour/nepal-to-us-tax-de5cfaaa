@@ -62,17 +62,17 @@ const StudentExams = () => {
   useEffect(() => { load(); }, [user]);
 
   useEffect(() => {
-    if (!active || secondsLeft <= 0) return;
-    const t = setInterval(() => setSecondsLeft(s => s - 1), 1000);
+    if (!active || !deadline) return;
+    const tick = () => {
+      const left = Math.max(0, Math.round((deadline - Date.now()) / 1000));
+      setSecondsLeft(left);
+      if (left === 0) submit(true);
+    };
+    tick();
+    const t = setInterval(tick, 1000);
     return () => clearInterval(t);
-  }, [active, secondsLeft]);
-
-  useEffect(() => {
-    if (active && secondsLeft === 0 && questions.length > 0) {
-      submit(true);
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [secondsLeft]);
+  }, [active, deadline]);
 
   const start = async (exam: Exam) => {
     const { data, error } = await supabase.rpc("get_exam_questions", { _exam_id: exam.id });
@@ -85,6 +85,7 @@ const StudentExams = () => {
     setAnswers({});
     setActive(exam);
     setSecondsLeft(exam.duration_minutes * 60);
+    setDeadline(Date.now() + exam.duration_minutes * 60 * 1000);
   };
 
   const submit = async (auto = false) => {
