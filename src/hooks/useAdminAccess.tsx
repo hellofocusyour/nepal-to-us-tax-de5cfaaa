@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 export type AdminSection =
   | "dashboard" | "inbox" | "students" | "inquiries" | "payments"
   | "batches" | "live_class" | "modules" | "video_materials"
-  | "my_courses" | "announcements" | "reports" | "integrations" | "team";
+  | "my_courses" | "announcements" | "reports" | "integrations" | "team" | "exams";
 
 export const ALL_SECTIONS: { key: AdminSection; label: string }[] = [
   { key: "dashboard", label: "Dashboard" },
