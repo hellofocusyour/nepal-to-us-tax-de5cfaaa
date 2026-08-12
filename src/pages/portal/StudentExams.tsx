@@ -1,0 +1,209 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
+import { FileQuestion, Clock, CheckCircle2, XCircle } from "lucide-react";
+
+interface Exam {
+  id: string;
+  title: string;
+  description: string | null;
+  duration_minutes: number;
+  pass_percentage: number;
+}
+
+interface Question {
+  id: string;
+  question_text: string;
+  options: string[];
+  marks: number;
+  display_order: number;
+}
+
+interface Attempt {
+  exam_id: string;
+  score: number;
+  total_marks: number;
+  passed: boolean;
+  submitted_at: string;
+}
+
+const StudentExams = () => {
+  const { user } = useAuth();
+  const [exams, setExams] = useState<Exam[]>([]);
+  const [attempts, setAttempts] = useState<Record<string, Attempt>>({});
+  const [loading, setLoading] = useState(true);
+
+  const [active, setActive] = useState<Exam | null>(null);
+  const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<Record<string, number>>({});
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+
+  const load = async () => {
+    if (!user) return;
+    setLoading(true);
+    const [{ data: ex }, { data: at }] = await Promise.all([
+      supabase.from("exams").select("id, title, description, duration_minutes, pass_percentage")
+        .eq("is_published", true).order("created_at", { ascending: false }),
+      supabase.from("exam_attempts").select("exam_id, score, total_marks, passed, submitted_at")
+        .eq("user_id", user.id),
+    ]);
+    setExams((ex as any) ?? []);
+    const map: Record<string, Attempt> = {};
+    ((at as any) ?? []).forEach((a: Attempt) => { map[a.exam_id] = a; });
+    setAttempts(map);
+    setLoading(false);
+  };
+
+  useEffect(() => { load(); }, [user]);
+
+  useEffect(() => {
+    if (!active || secondsLeft <= 0) return;
+    const t = setInterval(() => setSecondsLeft(s => s - 1), 1000);
+    return () => clearInterval(t);
+  }, [active, secondsLeft]);
+
+  useEffect(() => {
+    if (active && secondsLeft === 0 && questions.length > 0) {
+      submit(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [secondsLeft]);
+
+  const start = async (exam: Exam) => {
+    const { data, error } = await supabase.rpc("get_exam_questions", { _exam_id: exam.id });
+    if (error) return toast.error(error.message);
+    const qs = ((data as any) ?? []).map((q: any) => ({
+      ...q, options: Array.isArray(q.options) ? q.options : [],
+    }));
+    if (qs.length === 0) return toast.error("This exam has no questions yet.");
+    setQuestions(qs);
+    setAnswers({});
+    setActive(exam);
+    setSecondsLeft(exam.duration_minutes * 60);
+  };
+
+  const submit = async (auto = false) => {
+    if (!active || submitting) return;
+    if (!auto) {
+      const unanswered = questions.filter(q => answers[q.id] === undefined).length;
+      if (unanswered > 0 && !confirm(`${unanswered} question(s) unanswered. Submit anyway?`)) return;
+    }
+    setSubmitting(true);
+    const { error } = await supabase.rpc("submit_exam_attempt", {
+      _exam_id: active.id,
+      _answers: answers as any,
+    });
+    setSubmitting(false);
+    if (error) return toast.error(error.message);
+    toast.success(auto ? "Time is up — exam submitted" : "Exam submitted");
+    setActive(null);
+    setQuestions([]);
+    load();
+  };
+
+  const mmss = (s: number) =>
+    `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+
+  if (active) {
+    return (
+      <div className="space-y-4 max-w-3xl">
+        <div className="flex items-center justify-between sticky top-0 bg-background py-2 z-10">
+          <h1 className="text-xl font-display font-bold">{active.title}</h1>
+          <Badge variant={secondsLeft < 60 ? "destructive" : "secondary"} className="text-sm">
+            <Clock className="w-3 h-3 mr-1" /> {mmss(Math.max(secondsLeft, 0))}
+          </Badge>
+        </div>
+        {active.description && <p className="text-sm text-muted-foreground">{active.description}</p>}
+        {questions.map((q, idx) => (
+          <Card key={q.id} className="p-4 space-y-3">
+            <p className="font-medium">
+              {idx + 1}. {q.question_text}
+              <span className="text-xs text-muted-foreground ml-2">({q.marks} mark{q.marks > 1 ? "s" : ""})</span>
+            </p>
+            <div className="space-y-2">
+              {q.options.map((opt, i) => (
+                <label key={i} className="flex items-center gap-2 text-sm p-2 rounded hover:bg-accent cursor-pointer">
+                  <input
+                    type="radio"
+                    name={q.id}
+                    checked={answers[q.id] === i}
+                    onChange={() => setAnswers({ ...answers, [q.id]: i })}
+                  />
+                  {opt}
+                </label>
+              ))}
+            </div>
+          </Card>
+        ))}
+        <div className="flex gap-2">
+          <Button onClick={() => submit(false)} disabled={submitting}>
+            {submitting ? "Submitting…" : "Submit exam"}
+          </Button>
+          <Button variant="outline" onClick={() => { setActive(null); setQuestions([]); }}>
+            Cancel
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6 max-w-4xl">
+      <div>
+        <h1 className="text-2xl font-display font-bold flex items-center gap-2">
+          <FileQuestion className="w-6 h-6 text-primary" /> Exams
+        </h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          Take your course exams and view your results.
+        </p>
+      </div>
+
+      {loading ? (
+        <div>Loading exams…</div>
+      ) : exams.length === 0 ? (
+        <Card className="p-10 text-center text-muted-foreground">
+          No exams available right now.
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {exams.map((e) => {
+            const a = attempts[e.id];
+            return (
+              <Card key={e.id} className="p-4 flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="font-semibold">{e.title}</p>
+                  {e.description && <p className="text-sm text-muted-foreground mt-1">{e.description}</p>}
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {e.duration_minutes} minutes · pass mark {e.pass_percentage}%
+                  </p>
+                </div>
+                {a ? (
+                  <div className="text-right">
+                    <p className="text-sm font-semibold">{a.score}/{a.total_marks}</p>
+                    <Badge variant={a.passed ? "default" : "destructive"} className="mt-1">
+                      {a.passed
+                        ? <><CheckCircle2 className="w-3 h-3 mr-1" /> Passed</>
+                        : <><XCircle className="w-3 h-3 mr-1" /> Failed</>}
+                    </Badge>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {new Date(a.submitted_at).toLocaleDateString()}
+                    </p>
+                  </div>
+                ) : (
+                  <Button onClick={() => start(e)}>Start exam</Button>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default StudentExams;
