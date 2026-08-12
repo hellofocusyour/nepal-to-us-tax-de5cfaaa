@@ -133,18 +133,12 @@ const Exams = () => {
     load();
   };
 
-  const toggleBatchUnlock = async (exam: Exam, batchId: string, unlocked: boolean) => {
-    if (unlocked) {
-      const { error } = await supabase.from("exam_batches")
-        .delete().eq("exam_id", exam.id).eq("batch_id", batchId);
-      if (error) return toast.error(error.message);
-    } else {
-      const { error } = await supabase.from("exam_batches")
-        .insert({ exam_id: exam.id, batch_id: batchId });
-      if (error) return toast.error(error.message);
-    }
-    load();
+  const saveExamBatches = async (examId: string, ids: string[]) => {
+    setExamBatches(prev => ({ ...prev, [examId]: ids }));
+    await syncBatches(examId, ids);
+    toast.success(ids.length ? "Batch access updated" : "Unlocked for all batches");
   };
+
 
 
   const togglePublish = async (e: Exam) => {
