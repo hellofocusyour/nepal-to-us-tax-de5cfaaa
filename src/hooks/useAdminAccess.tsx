@@ -19,6 +19,7 @@ export const ALL_SECTIONS: { key: AdminSection; label: string }[] = [
   { key: "video_materials", label: "Video Materials" },
   { key: "my_courses", label: "My Courses" },
   { key: "announcements", label: "Announcements" },
+  { key: "exams", label: "Exams" },
   { key: "reports", label: "Reports" },
   { key: "integrations", label: "Integrations" },
 ];
