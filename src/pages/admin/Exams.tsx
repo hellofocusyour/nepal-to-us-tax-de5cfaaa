@@ -17,7 +17,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Trash2, ListChecks, BarChart3, Pencil, ClipboardCheck } from "lucide-react";
+import { Plus, Trash2, ListChecks, BarChart3, Pencil, ClipboardCheck, RotateCcw } from "lucide-react";
 
 interface Exam {
   id: string;
