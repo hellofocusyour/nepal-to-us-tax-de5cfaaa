@@ -76,15 +76,20 @@ const Exams = () => {
     const [{ data: ex }, { data: b }, { data: eb }] = await Promise.all([
       supabase.from("exams").select("*").order("created_at", { ascending: false }),
       supabase.from("batches").select("id, name").order("start_date", { ascending: false }),
-      supabase.from("exam_batches").select("exam_id, batch_id"),
+      supabase.from("exam_batches").select("exam_id, batch_id, allow_retakes"),
     ]);
     const map: Record<string, string[]> = {};
+    const retakeMap: Record<string, string[]> = {};
     ((eb as any) ?? []).forEach((r: any) => {
       map[r.exam_id] = [...(map[r.exam_id] ?? []), r.batch_id];
+      if (r.allow_retakes) {
+        retakeMap[r.exam_id] = [...(retakeMap[r.exam_id] ?? []), r.batch_id];
+      }
     });
     setExams((ex as any) ?? []);
     setBatches((b as any) ?? []);
     setExamBatches(map);
+    setExamRetakes(retakeMap);
     setLoading(false);
   };
 
