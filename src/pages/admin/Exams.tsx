@@ -41,7 +41,7 @@ interface Question {
 const emptyExam = {
   title: "",
   description: "",
-  batch_id: "all",
+  batches: [] as string[],
   duration_minutes: 30,
   pass_percentage: 50,
   is_published: false,
@@ -51,6 +51,7 @@ const Exams = () => {
   const { user } = useAuth();
   const [exams, setExams] = useState<Exam[]>([]);
   const [batches, setBatches] = useState<{ id: string; name: string }[]>([]);
+  const [examBatches, setExamBatches] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
 
   const [examDialog, setExamDialog] = useState(false);
@@ -65,12 +66,18 @@ const Exams = () => {
 
   const load = async () => {
     setLoading(true);
-    const [{ data: ex }, { data: b }] = await Promise.all([
+    const [{ data: ex }, { data: b }, { data: eb }] = await Promise.all([
       supabase.from("exams").select("*").order("created_at", { ascending: false }),
       supabase.from("batches").select("id, name").order("start_date", { ascending: false }),
+      supabase.from("exam_batches").select("exam_id, batch_id"),
     ]);
+    const map: Record<string, string[]> = {};
+    ((eb as any) ?? []).forEach((r: any) => {
+      map[r.exam_id] = [...(map[r.exam_id] ?? []), r.batch_id];
+    });
     setExams((ex as any) ?? []);
     setBatches((b as any) ?? []);
+    setExamBatches(map);
     setLoading(false);
   };
 
@@ -82,7 +89,7 @@ const Exams = () => {
     setForm({
       title: e.title,
       description: e.description ?? "",
-      batch_id: e.batch_id ?? "all",
+      batches: examBatches[e.id] ?? [],
       duration_minutes: e.duration_minutes,
       pass_percentage: e.pass_percentage,
       is_published: e.is_published,
@@ -90,24 +97,53 @@ const Exams = () => {
     setExamDialog(true);
   };
 
+  const syncBatches = async (examId: string, selected: string[]) => {
+    await supabase.from("exam_batches").delete().eq("exam_id", examId);
+    if (selected.length) {
+      await supabase.from("exam_batches")
+        .insert(selected.map((batch_id) => ({ exam_id: examId, batch_id })));
+    }
+  };
+
   const saveExam = async () => {
     if (!form.title.trim()) return toast.error("Title is required");
     const payload = {
       title: form.title.trim(),
       description: form.description?.trim() || null,
-      batch_id: form.batch_id === "all" ? null : form.batch_id,
+      batch_id: null,
       duration_minutes: Number(form.duration_minutes) || 30,
       pass_percentage: Number(form.pass_percentage) || 50,
       is_published: form.is_published,
     };
-    const { error } = editingId
-      ? await supabase.from("exams").update(payload).eq("id", editingId)
-      : await supabase.from("exams").insert({ ...payload, created_by: user?.id });
-    if (error) return toast.error(error.message);
+    let examId = editingId;
+    if (editingId) {
+      const { error } = await supabase.from("exams").update(payload).eq("id", editingId);
+      if (error) return toast.error(error.message);
+    } else {
+      const { data, error } = await supabase.from("exams")
+        .insert({ ...payload, created_by: user?.id }).select("id").single();
+      if (error) return toast.error(error.message);
+      examId = (data as any).id;
+    }
+    if (examId) await syncBatches(examId, form.batches);
     toast.success(editingId ? "Exam updated" : "Exam created");
     setExamDialog(false);
     load();
   };
+
+  const toggleBatchUnlock = async (exam: Exam, batchId: string, unlocked: boolean) => {
+    if (unlocked) {
+      const { error } = await supabase.from("exam_batches")
+        .delete().eq("exam_id", exam.id).eq("batch_id", batchId);
+      if (error) return toast.error(error.message);
+    } else {
+      const { error } = await supabase.from("exam_batches")
+        .insert({ exam_id: exam.id, batch_id: batchId });
+      if (error) return toast.error(error.message);
+    }
+    load();
+  };
+
 
   const togglePublish = async (e: Exam) => {
     const { error } = await supabase.from("exams").update({ is_published: !e.is_published }).eq("id", e.id);
