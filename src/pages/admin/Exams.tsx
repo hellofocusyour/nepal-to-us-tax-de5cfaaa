@@ -312,14 +312,29 @@ const Exams = () => {
               <Textarea value={form.description} onChange={(ev) => setForm({ ...form, description: ev.target.value })} />
             </div>
             <div>
-              <Label>Batch</Label>
-              <Select value={form.batch_id} onValueChange={(v) => setForm({ ...form, batch_id: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All batches</SelectItem>
-                  {batches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Label>Unlock for batches</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Select none to make it available to every batch.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {batches.map((b) => {
+                  const checked = (form.batches as string[]).includes(b.id);
+                  return (
+                    <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded hover:bg-accent">
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={() => setForm({
+                          ...form,
+                          batches: checked
+                            ? (form.batches as string[]).filter((id) => id !== b.id)
+                            : [...(form.batches as string[]), b.id],
+                        })}
+                      />
+                      {b.name}
+                    </label>
+                  );
+                })}
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
