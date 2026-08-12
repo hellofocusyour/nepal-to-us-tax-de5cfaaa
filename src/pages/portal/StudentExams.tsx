@@ -43,6 +43,10 @@ const StudentExams = () => {
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [deadline, setDeadline] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [review, setReview] = useState<Exam | null>(null);
+  const [reviewQuestions, setReviewQuestions] = useState<(Question & { correct_index: number })[]>([]);
+  const [reviewAnswers, setReviewAnswers] = useState<Record<string, number>>({});
+
 
   const load = async () => {
     if (!user) return;
@@ -89,6 +93,20 @@ const StudentExams = () => {
     setDeadline(Date.now() + exam.duration_minutes * 60 * 1000);
   };
 
+  const openReview = async (exam: Exam) => {
+    const [{ data: qs, error }, { data: at }] = await Promise.all([
+      supabase.rpc("get_exam_review", { _exam_id: exam.id }),
+      supabase.from("exam_attempts").select("answers, score, total_marks, passed, submitted_at")
+        .eq("exam_id", exam.id).eq("user_id", user!.id).maybeSingle(),
+    ]);
+    if (error) return toast.error(error.message);
+    setReviewQuestions(((qs as any) ?? []).map((q: any) => ({
+      ...q, options: Array.isArray(q.options) ? q.options : [],
+    })));
+    setReviewAnswers(((at as any)?.answers ?? {}) as Record<string, number>);
+    setReview(exam);
+  };
+
   const submit = async (auto = false) => {
     if (!active || submitting) return;
     if (!auto) {
@@ -96,6 +114,7 @@ const StudentExams = () => {
       if (unanswered > 0 && !confirm(`${unanswered} question(s) unanswered. Submit anyway?`)) return;
     }
     setSubmitting(true);
+    const examJustDone = active;
     const { error } = await supabase.rpc("submit_exam_attempt", {
       _exam_id: active.id,
       _answers: answers as any,
@@ -106,11 +125,74 @@ const StudentExams = () => {
     setActive(null);
     setDeadline(null);
     setQuestions([]);
-    load();
+    await load();
+    openReview(examJustDone);
   };
 
   const mmss = (s: number) =>
     `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+
+  if (review) {
+    const a = attempts[review.id];
+    return (
+      <div className="space-y-4 max-w-3xl">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-xl font-display font-bold">{review.title} — Review</h1>
+            {a && (
+              <p className="text-sm text-muted-foreground mt-1">
+                Score {a.score}/{a.total_marks} · {a.passed ? "Passed" : "Failed"}
+              </p>
+            )}
+          </div>
+          <Button variant="outline" onClick={() => setReview(null)}>Back to exams</Button>
+        </div>
+        {reviewQuestions.map((q, idx) => {
+          const chosen = reviewAnswers[q.id];
+          const correct = chosen === q.correct_index;
+          return (
+            <Card key={q.id} className="p-4 space-y-3">
+              <p className="font-medium flex items-start gap-2">
+                <span>{idx + 1}. {q.question_text}</span>
+                {chosen === undefined ? (
+                  <Badge variant="secondary">Skipped</Badge>
+                ) : correct ? (
+                  <Badge><CheckCircle2 className="w-3 h-3 mr-1" /> Correct</Badge>
+                ) : (
+                  <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" /> Wrong</Badge>
+                )}
+              </p>
+              <div className="space-y-2">
+                {q.options.map((opt, i) => {
+                  const isCorrect = i === q.correct_index;
+                  const isChosen = i === chosen;
+                  return (
+                    <div
+                      key={i}
+                      className={`flex items-center justify-between gap-2 text-sm p-2 rounded border ${
+                        isCorrect
+                          ? "border-primary bg-primary/10"
+                          : isChosen
+                            ? "border-destructive bg-destructive/10"
+                            : "border-border"
+                      }`}
+                    >
+                      <span>{opt}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {isCorrect && "Correct answer"}
+                        {isChosen && !isCorrect && "Your answer"}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+    );
+  }
+
 
   if (active) {
     return (
@@ -196,7 +278,11 @@ const StudentExams = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       {new Date(a.submitted_at).toLocaleDateString()}
                     </p>
+                    <Button variant="outline" size="sm" className="mt-2" onClick={() => openReview(e)}>
+                      Review answers
+                    </Button>
                   </div>
+
                 ) : (
                   <Button onClick={() => start(e)}>Start exam</Button>
                 )}

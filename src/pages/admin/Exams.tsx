@@ -65,6 +65,9 @@ const Exams = () => {
 
   const [resultsExam, setResultsExam] = useState<Exam | null>(null);
   const [results, setResults] = useState<any[]>([]);
+  const [resultQuestions, setResultQuestions] = useState<Question[]>([]);
+  const [expandedAttempt, setExpandedAttempt] = useState<string | null>(null);
+
 
   const load = async () => {
     setLoading(true);
@@ -193,8 +196,16 @@ const Exams = () => {
 
   const openResults = async (e: Exam) => {
     setResultsExam(e);
-    const { data: attempts } = await supabase.from("exam_attempts").select("*")
-      .eq("exam_id", e.id).order("submitted_at", { ascending: false });
+    setExpandedAttempt(null);
+    const [{ data: attempts }, { data: qs }] = await Promise.all([
+      supabase.from("exam_attempts").select("*")
+        .eq("exam_id", e.id).order("submitted_at", { ascending: false }),
+      supabase.from("exam_questions").select("*").eq("exam_id", e.id)
+        .order("display_order").order("created_at"),
+    ]);
+    setResultQuestions(((qs as any) ?? []).map((q: any) => ({
+      ...q, options: Array.isArray(q.options) ? q.options : [],
+    })));
     const ids = [...new Set(((attempts as any) ?? []).map((a: any) => a.user_id))];
     const { data: profiles } = ids.length
       ? await supabase.from("profiles").select("user_id, full_name, email").in("user_id", ids as string[])
@@ -203,6 +214,7 @@ const Exams = () => {
     ((profiles as any) ?? []).forEach((p: any) => { byUser[p.user_id] = p; });
     setResults(((attempts as any) ?? []).map((a: any) => ({ ...a, profile: byUser[a.user_id] })));
   };
+
 
   const unlockedLabel = (examId: string) => {
     const ids = examBatches[examId] ?? [];
@@ -400,19 +412,50 @@ const Exams = () => {
           ) : (
             <div className="space-y-2">
               {results.map((r) => (
-                <div key={r.id} className="flex items-center justify-between border border-border rounded-lg p-3">
-                  <div>
-                    <p className="text-sm font-medium">{r.profile?.full_name || r.profile?.email || "Student"}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {r.profile?.email} · {new Date(r.submitted_at).toLocaleString()}
-                    </p>
+                <div key={r.id} className="border border-border rounded-lg p-3 space-y-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-medium">{r.profile?.full_name || r.profile?.email || "Student"}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {r.profile?.email} · {new Date(r.submitted_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold">{r.score}/{r.total_marks}</span>
+                      <Badge variant={r.passed ? "default" : "destructive"}>{r.passed ? "Passed" : "Failed"}</Badge>
+                      <Button variant="outline" size="sm"
+                        onClick={() => setExpandedAttempt(expandedAttempt === r.id ? null : r.id)}>
+                        {expandedAttempt === r.id ? "Hide answers" : "View answers"}
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold">{r.score}/{r.total_marks}</span>
-                    <Badge variant={r.passed ? "default" : "destructive"}>{r.passed ? "Passed" : "Failed"}</Badge>
-                  </div>
+                  {expandedAttempt === r.id && (
+                    <div className="space-y-2 pt-2 border-t border-border">
+                      {resultQuestions.map((q, idx) => {
+                        const chosen = (r.answers ?? {})[q.id];
+                        const correct = chosen === q.correct_index;
+                        return (
+                          <div key={q.id} className="text-sm">
+                            <p className="font-medium flex items-start gap-2">
+                              <span>{idx + 1}. {q.question_text}</span>
+                              {chosen === undefined
+                                ? <Badge variant="secondary">Skipped</Badge>
+                                : correct
+                                  ? <Badge>Correct</Badge>
+                                  : <Badge variant="destructive">Wrong</Badge>}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              Marked: {chosen === undefined ? "—" : (q.options[chosen] ?? "—")}
+                              {" · "}Correct: {q.options[q.correct_index] ?? "—"}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               ))}
+
             </div>
           )}
         </DialogContent>
