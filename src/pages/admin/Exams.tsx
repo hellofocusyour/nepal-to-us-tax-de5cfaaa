@@ -65,6 +65,9 @@ const Exams = () => {
 
   const [resultsExam, setResultsExam] = useState<Exam | null>(null);
   const [results, setResults] = useState<any[]>([]);
+  const [resultQuestions, setResultQuestions] = useState<Question[]>([]);
+  const [expandedAttempt, setExpandedAttempt] = useState<string | null>(null);
+
 
   const load = async () => {
     setLoading(true);
