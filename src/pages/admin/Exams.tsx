@@ -208,8 +208,12 @@ const Exams = () => {
     setResults(((attempts as any) ?? []).map((a: any) => ({ ...a, profile: byUser[a.user_id] })));
   };
 
-  const batchName = (id: string | null) =>
-    id ? (batches.find(b => b.id === id)?.name ?? "Unknown batch") : "All batches";
+  const unlockedLabel = (examId: string) => {
+    const ids = examBatches[examId] ?? [];
+    if (ids.length === 0) return "All batches";
+    return ids.map(id => batches.find(b => b.id === id)?.name ?? "Unknown batch").join(", ");
+  };
+
 
   return (
     <div className="space-y-6 max-w-6xl">
