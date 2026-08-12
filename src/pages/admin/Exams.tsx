@@ -307,6 +307,49 @@ const Exams = () => {
                       onChange={(ids) => saveExamBatches(e.id, ids)}
                     />
                   </div>
+
+                  <div className="mt-4 max-w-md rounded-lg border border-border p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <RotateCcw className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-medium">Allow retakes for all students</span>
+                      </div>
+                      <Switch
+                        checked={e.allow_retakes}
+                        onCheckedChange={() => toggleGlobalRetake(e)}
+                      />
+                    </div>
+
+                    {(examBatches[e.id] ?? []).length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground">
+                          Or unlock a retake for specific batches
+                        </p>
+                        {(examBatches[e.id] ?? []).map((batchId) => (
+                          <label
+                            key={batchId}
+                            className={`flex items-center gap-2 text-sm cursor-pointer ${
+                              e.allow_retakes ? "opacity-50 pointer-events-none" : ""
+                            }`}
+                          >
+                            <Checkbox
+                              checked={(examRetakes[e.id] ?? []).includes(batchId)}
+                              onCheckedChange={() => toggleBatchRetake(e.id, batchId)}
+                            />
+                            {batches.find(b => b.id === batchId)?.name ?? "Unknown batch"}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+
+                    <p className="text-xs text-muted-foreground mt-3">
+                      {e.allow_retakes
+                        ? "Every student can retake this exam. Their new score replaces the old one."
+                        : (examRetakes[e.id] ?? []).length > 0
+                          ? "Only the ticked batches can retake this exam."
+                          : "Retakes are closed — each student can submit once."}
+                    </p>
+                  </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-2 mr-2">
