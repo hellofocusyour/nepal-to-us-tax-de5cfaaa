@@ -278,7 +278,11 @@ const StudentExams = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       {new Date(a.submitted_at).toLocaleDateString()}
                     </p>
+                    <Button variant="outline" size="sm" className="mt-2" onClick={() => openReview(e)}>
+                      Review answers
+                    </Button>
                   </div>
+
                 ) : (
                   <Button onClick={() => start(e)}>Start exam</Button>
                 )}
