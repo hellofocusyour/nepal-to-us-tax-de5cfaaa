@@ -24,6 +24,7 @@ const navItems: { label: string; href: string; icon: any; section: AdminSection 
   { label: "My Courses", href: "/admin/my-courses", icon: BookOpen, section: "my_courses" },
   { label: "Announcements", href: "/admin/announcements", icon: Megaphone, section: "announcements" },
   { label: "Email Batch", href: "/admin/email-batch", icon: InboxIcon, section: "announcements" },
+  { label: "Exams", href: "/admin/exams", icon: FileQuestion, section: "exams" },
   { label: "Reports", href: "/admin/reports", icon: BarChart3, section: "reports" },
   { label: "Integrations", href: "/admin/settings/integrations", icon: Settings, section: "integrations" },
 ];
