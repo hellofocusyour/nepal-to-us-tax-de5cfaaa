@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Users, CreditCard, MessageSquare, Calendar,
   Megaphone, BarChart3, LogOut, Menu, X, GraduationCap, BookOpen,
-  Inbox as InboxIcon, Settings, Video, Layers, Film, Shield
+  Inbox as InboxIcon, Settings, Video, Layers, Film, Shield, FileQuestion
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
