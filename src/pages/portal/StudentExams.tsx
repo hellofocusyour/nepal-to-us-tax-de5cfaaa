@@ -41,6 +41,7 @@ const StudentExams = () => {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [secondsLeft, setSecondsLeft] = useState(0);
+  const [deadline, setDeadline] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   const load = async () => {
