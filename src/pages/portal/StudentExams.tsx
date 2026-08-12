@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ClipboardCheck, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { ClipboardCheck, Clock, CheckCircle2, XCircle, RotateCcw } from "lucide-react";
 
 interface Exam {
   id: string;
