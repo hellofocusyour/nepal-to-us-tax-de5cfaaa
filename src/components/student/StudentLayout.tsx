@@ -15,6 +15,7 @@ const baseNavItems = [
   { label: "My Batch", href: "/portal/batch", icon: Users },
   { label: "My Courses", href: "/portal/my-courses", icon: BookOpen },
   { label: "Video Materials", href: "/portal/video-materials", icon: Film, paidOnly: true },
+  { label: "Exams", href: "/portal/exams", icon: FileQuestion },
   { label: "Inbox", href: "/portal/inbox", icon: InboxIcon, badgeKey: "inbox" },
   { label: "Announcements", href: "/portal/announcements", icon: Megaphone, badgeKey: "announcements" },
   { label: "Payments", href: "/portal/payments", icon: CreditCard },
