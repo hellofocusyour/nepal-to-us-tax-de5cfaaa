@@ -104,6 +104,7 @@ const StudentExams = () => {
     if (error) return toast.error(error.message);
     toast.success(auto ? "Time is up — exam submitted" : "Exam submitted");
     setActive(null);
+    setDeadline(null);
     setQuestions([]);
     load();
   };
@@ -146,7 +147,7 @@ const StudentExams = () => {
           <Button onClick={() => submit(false)} disabled={submitting}>
             {submitting ? "Submitting…" : "Submit exam"}
           </Button>
-          <Button variant="outline" onClick={() => { setActive(null); setQuestions([]); }}>
+          <Button variant="outline" onClick={() => { setActive(null); setDeadline(null); setQuestions([]); }}>
             Cancel
           </Button>
         </div>
