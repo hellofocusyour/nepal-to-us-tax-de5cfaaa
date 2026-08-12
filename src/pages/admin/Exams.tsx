@@ -249,8 +249,30 @@ const Exams = () => {
                   </div>
                   {e.description && <p className="text-sm text-muted-foreground mt-1">{e.description}</p>}
                   <p className="text-xs text-muted-foreground mt-2">
-                    {batchName(e.batch_id)} · {e.duration_minutes} min · pass {e.pass_percentage}%
+                    Unlocked for: {unlockedLabel(e.id)} · {e.duration_minutes} min · pass {e.pass_percentage}%
                   </p>
+                  {batches.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {batches.map((b) => {
+                        const unlocked = (examBatches[e.id] ?? []).includes(b.id);
+                        return (
+                          <button
+                            key={b.id}
+                            type="button"
+                            onClick={() => toggleBatchUnlock(e, b.id, unlocked)}
+                            className={
+                              "text-xs px-2 py-1 rounded-full border transition-colors " +
+                              (unlocked
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-background text-muted-foreground border-border hover:bg-accent")
+                            }
+                          >
+                            {unlocked ? "🔓 " : "🔒 "}{b.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-2 mr-2">
