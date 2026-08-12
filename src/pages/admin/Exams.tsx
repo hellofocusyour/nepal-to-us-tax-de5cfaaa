@@ -193,8 +193,16 @@ const Exams = () => {
 
   const openResults = async (e: Exam) => {
     setResultsExam(e);
-    const { data: attempts } = await supabase.from("exam_attempts").select("*")
-      .eq("exam_id", e.id).order("submitted_at", { ascending: false });
+    setExpandedAttempt(null);
+    const [{ data: attempts }, { data: qs }] = await Promise.all([
+      supabase.from("exam_attempts").select("*")
+        .eq("exam_id", e.id).order("submitted_at", { ascending: false }),
+      supabase.from("exam_questions").select("*").eq("exam_id", e.id)
+        .order("display_order").order("created_at"),
+    ]);
+    setResultQuestions(((qs as any) ?? []).map((q: any) => ({
+      ...q, options: Array.isArray(q.options) ? q.options : [],
+    })));
     const ids = [...new Set(((attempts as any) ?? []).map((a: any) => a.user_id))];
     const { data: profiles } = ids.length
       ? await supabase.from("profiles").select("user_id, full_name, email").in("user_id", ids as string[])
@@ -203,6 +211,7 @@ const Exams = () => {
     ((profiles as any) ?? []).forEach((p: any) => { byUser[p.user_id] = p; });
     setResults(((attempts as any) ?? []).map((a: any) => ({ ...a, profile: byUser[a.user_id] })));
   };
+
 
   const unlockedLabel = (examId: string) => {
     const ids = examBatches[examId] ?? [];
