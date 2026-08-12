@@ -17,7 +17,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Trash2, ListChecks, BarChart3, Pencil, ClipboardCheck } from "lucide-react";
+import { Plus, Trash2, ListChecks, BarChart3, Pencil, ClipboardCheck, RotateCcw } from "lucide-react";
 
 interface Exam {
   id: string;
@@ -27,6 +27,7 @@ interface Exam {
   duration_minutes: number;
   pass_percentage: number;
   is_published: boolean;
+  allow_retakes: boolean;
   created_at: string;
 }
 
@@ -54,6 +55,7 @@ const Exams = () => {
   const [exams, setExams] = useState<Exam[]>([]);
   const [batches, setBatches] = useState<{ id: string; name: string }[]>([]);
   const [examBatches, setExamBatches] = useState<Record<string, string[]>>({});
+  const [examRetakes, setExamRetakes] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
 
   const [examDialog, setExamDialog] = useState(false);
@@ -74,15 +76,20 @@ const Exams = () => {
     const [{ data: ex }, { data: b }, { data: eb }] = await Promise.all([
       supabase.from("exams").select("*").order("created_at", { ascending: false }),
       supabase.from("batches").select("id, name").order("start_date", { ascending: false }),
-      supabase.from("exam_batches").select("exam_id, batch_id"),
+      supabase.from("exam_batches").select("exam_id, batch_id, allow_retakes"),
     ]);
     const map: Record<string, string[]> = {};
+    const retakeMap: Record<string, string[]> = {};
     ((eb as any) ?? []).forEach((r: any) => {
       map[r.exam_id] = [...(map[r.exam_id] ?? []), r.batch_id];
+      if (r.allow_retakes) {
+        retakeMap[r.exam_id] = [...(retakeMap[r.exam_id] ?? []), r.batch_id];
+      }
     });
     setExams((ex as any) ?? []);
     setBatches((b as any) ?? []);
     setExamBatches(map);
+    setExamRetakes(retakeMap);
     setLoading(false);
   };
 
@@ -103,11 +110,44 @@ const Exams = () => {
   };
 
   const syncBatches = async (examId: string, selected: string[]) => {
+    const keepRetakes = examRetakes[examId] ?? [];
     await supabase.from("exam_batches").delete().eq("exam_id", examId);
     if (selected.length) {
-      await supabase.from("exam_batches")
-        .insert(selected.map((batch_id) => ({ exam_id: examId, batch_id })));
+      await supabase.from("exam_batches").insert(
+        selected.map((batch_id) => ({
+          exam_id: examId,
+          batch_id,
+          allow_retakes: keepRetakes.includes(batch_id),
+        }))
+      );
     }
+    setExamRetakes(prev => ({
+      ...prev,
+      [examId]: keepRetakes.filter(id => selected.includes(id)),
+    }));
+  };
+
+  const toggleGlobalRetake = async (e: Exam) => {
+    const next = !e.allow_retakes;
+    setExams(prev => prev.map(x => (x.id === e.id ? { ...x, allow_retakes: next } : x)));
+    const { error } = await supabase.from("exams").update({ allow_retakes: next }).eq("id", e.id);
+    if (error) { toast.error(error.message); return load(); }
+    toast.success(next ? "Retakes enabled for all students" : "Retakes closed");
+  };
+
+  const toggleBatchRetake = async (examId: string, batchId: string) => {
+    const current = examRetakes[examId] ?? [];
+    const next = current.includes(batchId)
+      ? current.filter(id => id !== batchId)
+      : [...current, batchId];
+    setExamRetakes(prev => ({ ...prev, [examId]: next }));
+    const { error } = await supabase.from("exam_batches")
+      .update({ allow_retakes: next.includes(batchId) })
+      .eq("exam_id", examId).eq("batch_id", batchId);
+    if (error) { toast.error(error.message); return load(); }
+    toast.success(
+      next.includes(batchId) ? "Retake unlocked for this batch" : "Retake locked for this batch"
+    );
   };
 
   const saveExam = async () => {
@@ -266,6 +306,49 @@ const Exams = () => {
                       value={examBatches[e.id] ?? []}
                       onChange={(ids) => saveExamBatches(e.id, ids)}
                     />
+                  </div>
+
+                  <div className="mt-4 max-w-md rounded-lg border border-border p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <RotateCcw className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-medium">Allow retakes for all students</span>
+                      </div>
+                      <Switch
+                        checked={e.allow_retakes}
+                        onCheckedChange={() => toggleGlobalRetake(e)}
+                      />
+                    </div>
+
+                    {(examBatches[e.id] ?? []).length > 0 && (
+                      <div className="mt-3 space-y-2">
+                        <p className="text-xs font-medium text-muted-foreground">
+                          Or unlock a retake for specific batches
+                        </p>
+                        {(examBatches[e.id] ?? []).map((batchId) => (
+                          <label
+                            key={batchId}
+                            className={`flex items-center gap-2 text-sm cursor-pointer ${
+                              e.allow_retakes ? "opacity-50 pointer-events-none" : ""
+                            }`}
+                          >
+                            <Checkbox
+                              checked={(examRetakes[e.id] ?? []).includes(batchId)}
+                              onCheckedChange={() => toggleBatchRetake(e.id, batchId)}
+                            />
+                            {batches.find(b => b.id === batchId)?.name ?? "Unknown batch"}
+                          </label>
+                        ))}
+                      </div>
+                    )}
+
+                    <p className="text-xs text-muted-foreground mt-3">
+                      {e.allow_retakes
+                        ? "Every student can retake this exam. Their new score replaces the old one."
+                        : (examRetakes[e.id] ?? []).length > 0
+                          ? "Only the ticked batches can retake this exam."
+                          : "Retakes are closed — each student can submit once."}
+                    </p>
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">

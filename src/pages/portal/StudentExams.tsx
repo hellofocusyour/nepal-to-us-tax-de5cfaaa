@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { ClipboardCheck, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { ClipboardCheck, Clock, CheckCircle2, XCircle, RotateCcw } from "lucide-react";
 
 interface Exam {
   id: string;
@@ -35,6 +35,7 @@ const StudentExams = () => {
   const { user } = useAuth();
   const [exams, setExams] = useState<Exam[]>([]);
   const [attempts, setAttempts] = useState<Record<string, Attempt>>({});
+  const [retakeable, setRetakeable] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
 
   const [active, setActive] = useState<Exam | null>(null);
@@ -57,10 +58,24 @@ const StudentExams = () => {
       supabase.from("exam_attempts").select("exam_id, score, total_marks, passed, submitted_at")
         .eq("user_id", user.id),
     ]);
-    setExams((ex as any) ?? []);
+    const list = ((ex as any) ?? []) as Exam[];
+    setExams(list);
     const map: Record<string, Attempt> = {};
     ((at as any) ?? []).forEach((a: Attempt) => { map[a.exam_id] = a; });
     setAttempts(map);
+
+    // Only exams the student already attempted need a retake check
+    const attemptedIds = list.filter(e => map[e.id]).map(e => e.id);
+    if (attemptedIds.length) {
+      const checks = await Promise.all(
+        attemptedIds.map(id => supabase.rpc("can_retake_exam", { _exam_id: id }))
+      );
+      const rmap: Record<string, boolean> = {};
+      attemptedIds.forEach((id, i) => { rmap[id] = checks[i].data === true; });
+      setRetakeable(rmap);
+    } else {
+      setRetakeable({});
+    }
     setLoading(false);
   };
 
@@ -278,9 +293,21 @@ const StudentExams = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       {new Date(a.submitted_at).toLocaleDateString()}
                     </p>
-                    <Button variant="outline" size="sm" className="mt-2" onClick={() => openReview(e)}>
-                      Review answers
-                    </Button>
+                    <div className="flex flex-wrap justify-end gap-2 mt-2">
+                      <Button variant="outline" size="sm" onClick={() => openReview(e)}>
+                        Review answers
+                      </Button>
+                      {retakeable[e.id] && (
+                        <Button size="sm" onClick={() => start(e)}>
+                          <RotateCcw className="w-3 h-3 mr-1" /> Retake exam
+                        </Button>
+                      )}
+                    </div>
+                    {retakeable[e.id] && (
+                      <p className="text-xs text-muted-foreground mt-2 max-w-[16rem]">
+                        A retake is open — your new score will replace this one.
+                      </p>
+                    )}
                   </div>
 
                 ) : (

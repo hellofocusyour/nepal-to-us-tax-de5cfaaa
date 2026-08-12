@@ -603,16 +603,19 @@ export type Database = {
       }
       exam_batches: {
         Row: {
+          allow_retakes: boolean
           batch_id: string
           created_at: string
           exam_id: string
         }
         Insert: {
+          allow_retakes?: boolean
           batch_id: string
           created_at?: string
           exam_id: string
         }
         Update: {
+          allow_retakes?: boolean
           batch_id?: string
           created_at?: string
           exam_id?: string
@@ -680,6 +683,7 @@ export type Database = {
       }
       exams: {
         Row: {
+          allow_retakes: boolean
           available_from: string | null
           available_until: string | null
           batch_id: string | null
@@ -694,6 +698,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          allow_retakes?: boolean
           available_from?: string | null
           available_until?: string | null
           batch_id?: string | null
@@ -708,6 +713,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          allow_retakes?: boolean
           available_from?: string | null
           available_until?: string | null
           batch_id?: string | null
@@ -1322,6 +1328,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_retake_exam: { Args: { _exam_id: string }; Returns: boolean }
       get_exam_questions: {
         Args: { _exam_id: string }
         Returns: {
