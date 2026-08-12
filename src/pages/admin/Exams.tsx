@@ -27,6 +27,7 @@ interface Exam {
   duration_minutes: number;
   pass_percentage: number;
   is_published: boolean;
+  allow_retakes: boolean;
   created_at: string;
 }
 
