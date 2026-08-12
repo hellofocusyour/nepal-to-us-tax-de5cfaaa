@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, CreditCard, Award, BookOpen, LogOut, Menu, X,
-  GraduationCap, User, Megaphone, Users, Inbox as InboxIcon, Film, FileQuestion
+  GraduationCap, User, Megaphone, Users, Inbox as InboxIcon, Film, ClipboardCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +15,7 @@ const baseNavItems = [
   { label: "My Batch", href: "/portal/batch", icon: Users },
   { label: "My Courses", href: "/portal/my-courses", icon: BookOpen },
   { label: "Video Materials", href: "/portal/video-materials", icon: Film, paidOnly: true },
-  { label: "Exams", href: "/portal/exams", icon: FileQuestion },
+  { label: "Exams", href: "/portal/exams", icon: ClipboardCheck },
   { label: "Inbox", href: "/portal/inbox", icon: InboxIcon, badgeKey: "inbox" },
   { label: "Announcements", href: "/portal/announcements", icon: Megaphone, badgeKey: "announcements" },
   { label: "Payments", href: "/portal/payments", icon: CreditCard },

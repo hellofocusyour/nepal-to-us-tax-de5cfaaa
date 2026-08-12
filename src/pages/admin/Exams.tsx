@@ -17,7 +17,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Trash2, ListChecks, BarChart3, Pencil, FileQuestion } from "lucide-react";
+import { Plus, Trash2, ListChecks, BarChart3, Pencil, ClipboardCheck } from "lucide-react";
 
 interface Exam {
   id: string;
@@ -228,7 +228,7 @@ const Exams = () => {
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-display font-bold flex items-center gap-2">
-            <FileQuestion className="w-6 h-6 text-primary" /> Exams
+            <ClipboardCheck className="w-6 h-6 text-primary" /> Exams
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Create online exams, add multiple-choice questions and review student results.

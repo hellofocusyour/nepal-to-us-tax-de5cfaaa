@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { FileQuestion, Clock, CheckCircle2, XCircle } from "lucide-react";
+import { ClipboardCheck, Clock, CheckCircle2, XCircle } from "lucide-react";
 
 interface Exam {
   id: string;
@@ -241,7 +241,7 @@ const StudentExams = () => {
     <div className="space-y-6 max-w-4xl">
       <div>
         <h1 className="text-2xl font-display font-bold flex items-center gap-2">
-          <FileQuestion className="w-6 h-6 text-primary" /> Exams
+          <ClipboardCheck className="w-6 h-6 text-primary" /> Exams
         </h1>
         <p className="text-sm text-muted-foreground mt-1">
           Take your course exams and view your results.
