@@ -35,6 +35,7 @@ const StudentExams = () => {
   const { user } = useAuth();
   const [exams, setExams] = useState<Exam[]>([]);
   const [attempts, setAttempts] = useState<Record<string, Attempt>>({});
+  const [retakeable, setRetakeable] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(true);
 
   const [active, setActive] = useState<Exam | null>(null);
