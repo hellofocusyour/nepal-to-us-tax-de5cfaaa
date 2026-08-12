@@ -65,7 +65,7 @@ const StudentProfile = () => {
   const requestPasswordReset = async () => {
     if (!user?.email) return;
     const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-      redirectTo: window.location.origin + "/portal/login",
+      redirectTo: window.location.origin + "/reset-password",
     });
     if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
     else toast({ title: "Check your email", description: "Password reset link sent." });
