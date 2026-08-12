@@ -50,6 +50,8 @@ const StudentLogin = () => {
   const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [forgotMode, setForgotMode] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
   const { signIn, signUp, user, isAdmin, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -112,6 +114,23 @@ const StudentLogin = () => {
     setLoading(false);
   };
 
+  const handleForgot = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const target = email.trim().toLowerCase();
+    if (!target) return;
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(target, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setLoading(false);
+    if (error) {
+      toast({ title: "Could not send reset email", description: error.message, variant: "destructive" });
+      return;
+    }
+    setResetSent(true);
+    toast({ title: "Reset link sent", description: "Check your email for the password reset link." });
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted p-4">
       <Card className="w-full max-w-md">
@@ -120,13 +139,41 @@ const StudentLogin = () => {
             <GraduationCap className="w-8 h-8 text-primary-foreground" />
           </div>
           <div>
-            <CardTitle className="text-2xl font-display">{isLogin ? "Student Login" : "Create Account"}</CardTitle>
+            <CardTitle className="text-2xl font-display">{forgotMode ? "Reset Password" : isLogin ? "Student Login" : "Create Account"}</CardTitle>
             <CardDescription>
-              {isLogin ? "Access your Focus Academy portal" : "Join Focus Academy today"}
+              {forgotMode
+                ? "We'll email you a secure link to set a new password"
+                : isLogin ? "Access your Focus Academy portal" : "Join Focus Academy today"}
             </CardDescription>
           </div>
         </CardHeader>
         <CardContent>
+          {forgotMode ? (
+            <div className="space-y-4">
+              {resetSent ? (
+                <p className="text-sm text-muted-foreground text-center">
+                  If an account exists for <span className="font-medium text-foreground">{email}</span>, a reset link is on its way. The link expires in 1 hour.
+                </p>
+              ) : (
+                <form onSubmit={handleForgot} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="reset-email">Email</Label>
+                    <Input id="reset-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com" required />
+                  </div>
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? "Sending..." : "Send reset link"}
+                  </Button>
+                </form>
+              )}
+              <div className="text-center text-sm">
+                <button type="button" onClick={() => { setForgotMode(false); setResetSent(false); }} className="text-primary hover:underline">
+                  ← Back to sign in
+                </button>
+              </div>
+            </div>
+          ) : (
+          <>
+
           <Button
             type="button"
             variant="outline"
@@ -190,6 +237,13 @@ const StudentLogin = () => {
                 </Button>
               </div>
             </div>
+            {isLogin && (
+              <div className="text-right">
+                <button type="button" onClick={() => { setForgotMode(true); setResetSent(false); }} className="text-xs text-primary hover:underline">
+                  Forgot password?
+                </button>
+              </div>
+            )}
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
             </Button>
@@ -202,6 +256,8 @@ const StudentLogin = () => {
           <div className="mt-4 text-center">
             <Link to="/" className="text-xs text-muted-foreground hover:underline">← Back to website</Link>
           </div>
+          </>
+          )}
         </CardContent>
       </Card>
     </div>

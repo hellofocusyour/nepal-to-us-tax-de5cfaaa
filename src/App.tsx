@@ -21,6 +21,7 @@ import BatchDetail from "./pages/admin/BatchDetail.tsx";
 import Announcements from "./pages/admin/Announcements.tsx";
 import Reports from "./pages/admin/Reports.tsx";
 import StudentLogin from "./pages/StudentLogin.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 import StudentLayout from "./components/student/StudentLayout.tsx";
 import StudentDashboard from "./pages/portal/StudentDashboard.tsx";
 
@@ -88,6 +89,7 @@ const App = () => (
             <Route path="/portal/login" element={<StudentLogin />} />
             <Route path="/login" element={<StudentLogin />} />
             <Route path="/signup" element={<StudentLogin />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/portal" element={<StudentLayout />}>
               <Route index element={<StudentDashboard />} />
               <Route path="batch" element={<StudentBatch />} />
