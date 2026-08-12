@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
@@ -41,7 +42,7 @@ interface Question {
 const emptyExam = {
   title: "",
   description: "",
-  batch_id: "all",
+  batches: [] as string[],
   duration_minutes: 30,
   pass_percentage: 50,
   is_published: false,
@@ -51,6 +52,7 @@ const Exams = () => {
   const { user } = useAuth();
   const [exams, setExams] = useState<Exam[]>([]);
   const [batches, setBatches] = useState<{ id: string; name: string }[]>([]);
+  const [examBatches, setExamBatches] = useState<Record<string, string[]>>({});
   const [loading, setLoading] = useState(true);
 
   const [examDialog, setExamDialog] = useState(false);
@@ -65,12 +67,18 @@ const Exams = () => {
 
   const load = async () => {
     setLoading(true);
-    const [{ data: ex }, { data: b }] = await Promise.all([
+    const [{ data: ex }, { data: b }, { data: eb }] = await Promise.all([
       supabase.from("exams").select("*").order("created_at", { ascending: false }),
       supabase.from("batches").select("id, name").order("start_date", { ascending: false }),
+      supabase.from("exam_batches").select("exam_id, batch_id"),
     ]);
+    const map: Record<string, string[]> = {};
+    ((eb as any) ?? []).forEach((r: any) => {
+      map[r.exam_id] = [...(map[r.exam_id] ?? []), r.batch_id];
+    });
     setExams((ex as any) ?? []);
     setBatches((b as any) ?? []);
+    setExamBatches(map);
     setLoading(false);
   };
 
@@ -82,7 +90,7 @@ const Exams = () => {
     setForm({
       title: e.title,
       description: e.description ?? "",
-      batch_id: e.batch_id ?? "all",
+      batches: examBatches[e.id] ?? [],
       duration_minutes: e.duration_minutes,
       pass_percentage: e.pass_percentage,
       is_published: e.is_published,
@@ -90,24 +98,53 @@ const Exams = () => {
     setExamDialog(true);
   };
 
+  const syncBatches = async (examId: string, selected: string[]) => {
+    await supabase.from("exam_batches").delete().eq("exam_id", examId);
+    if (selected.length) {
+      await supabase.from("exam_batches")
+        .insert(selected.map((batch_id) => ({ exam_id: examId, batch_id })));
+    }
+  };
+
   const saveExam = async () => {
     if (!form.title.trim()) return toast.error("Title is required");
     const payload = {
       title: form.title.trim(),
       description: form.description?.trim() || null,
-      batch_id: form.batch_id === "all" ? null : form.batch_id,
+      batch_id: null,
       duration_minutes: Number(form.duration_minutes) || 30,
       pass_percentage: Number(form.pass_percentage) || 50,
       is_published: form.is_published,
     };
-    const { error } = editingId
-      ? await supabase.from("exams").update(payload).eq("id", editingId)
-      : await supabase.from("exams").insert({ ...payload, created_by: user?.id });
-    if (error) return toast.error(error.message);
+    let examId = editingId;
+    if (editingId) {
+      const { error } = await supabase.from("exams").update(payload).eq("id", editingId);
+      if (error) return toast.error(error.message);
+    } else {
+      const { data, error } = await supabase.from("exams")
+        .insert({ ...payload, created_by: user?.id }).select("id").single();
+      if (error) return toast.error(error.message);
+      examId = (data as any).id;
+    }
+    if (examId) await syncBatches(examId, form.batches);
     toast.success(editingId ? "Exam updated" : "Exam created");
     setExamDialog(false);
     load();
   };
+
+  const toggleBatchUnlock = async (exam: Exam, batchId: string, unlocked: boolean) => {
+    if (unlocked) {
+      const { error } = await supabase.from("exam_batches")
+        .delete().eq("exam_id", exam.id).eq("batch_id", batchId);
+      if (error) return toast.error(error.message);
+    } else {
+      const { error } = await supabase.from("exam_batches")
+        .insert({ exam_id: exam.id, batch_id: batchId });
+      if (error) return toast.error(error.message);
+    }
+    load();
+  };
+
 
   const togglePublish = async (e: Exam) => {
     const { error } = await supabase.from("exams").update({ is_published: !e.is_published }).eq("id", e.id);
@@ -172,8 +209,12 @@ const Exams = () => {
     setResults(((attempts as any) ?? []).map((a: any) => ({ ...a, profile: byUser[a.user_id] })));
   };
 
-  const batchName = (id: string | null) =>
-    id ? (batches.find(b => b.id === id)?.name ?? "Unknown batch") : "All batches";
+  const unlockedLabel = (examId: string) => {
+    const ids = examBatches[examId] ?? [];
+    if (ids.length === 0) return "All batches";
+    return ids.map(id => batches.find(b => b.id === id)?.name ?? "Unknown batch").join(", ");
+  };
+
 
   return (
     <div className="space-y-6 max-w-6xl">
@@ -209,8 +250,30 @@ const Exams = () => {
                   </div>
                   {e.description && <p className="text-sm text-muted-foreground mt-1">{e.description}</p>}
                   <p className="text-xs text-muted-foreground mt-2">
-                    {batchName(e.batch_id)} · {e.duration_minutes} min · pass {e.pass_percentage}%
+                    Unlocked for: {unlockedLabel(e.id)} · {e.duration_minutes} min · pass {e.pass_percentage}%
                   </p>
+                  {batches.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {batches.map((b) => {
+                        const unlocked = (examBatches[e.id] ?? []).includes(b.id);
+                        return (
+                          <button
+                            key={b.id}
+                            type="button"
+                            onClick={() => toggleBatchUnlock(e, b.id, unlocked)}
+                            className={
+                              "text-xs px-2 py-1 rounded-full border transition-colors " +
+                              (unlocked
+                                ? "bg-primary text-primary-foreground border-primary"
+                                : "bg-background text-muted-foreground border-border hover:bg-accent")
+                            }
+                          >
+                            {unlocked ? "🔓 " : "🔒 "}{b.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="flex items-center gap-2 mr-2">
@@ -250,14 +313,29 @@ const Exams = () => {
               <Textarea value={form.description} onChange={(ev) => setForm({ ...form, description: ev.target.value })} />
             </div>
             <div>
-              <Label>Batch</Label>
-              <Select value={form.batch_id} onValueChange={(v) => setForm({ ...form, batch_id: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All batches</SelectItem>
-                  {batches.map(b => <SelectItem key={b.id} value={b.id}>{b.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <Label>Unlock for batches</Label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Select none to make it available to every batch.
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                {batches.map((b) => {
+                  const checked = (form.batches as string[]).includes(b.id);
+                  return (
+                    <label key={b.id} className="flex items-center gap-2 text-sm cursor-pointer p-2 rounded hover:bg-accent">
+                      <Checkbox
+                        checked={checked}
+                        onCheckedChange={() => setForm({
+                          ...form,
+                          batches: checked
+                            ? (form.batches as string[]).filter((id) => id !== b.id)
+                            : [...(form.batches as string[]), b.id],
+                        })}
+                      />
+                      {b.name}
+                    </label>
+                  );
+                })}
+              </div>
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>

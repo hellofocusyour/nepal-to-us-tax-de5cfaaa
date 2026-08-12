@@ -601,6 +601,39 @@ export type Database = {
           },
         ]
       }
+      exam_batches: {
+        Row: {
+          batch_id: string
+          created_at: string
+          exam_id: string
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          exam_id: string
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          exam_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exam_batches_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "exam_batches_exam_id_fkey"
+            columns: ["exam_id"]
+            isOneToOne: false
+            referencedRelation: "exams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exam_questions: {
         Row: {
           correct_index: number
