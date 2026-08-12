@@ -293,9 +293,21 @@ const StudentExams = () => {
                     <p className="text-xs text-muted-foreground mt-1">
                       {new Date(a.submitted_at).toLocaleDateString()}
                     </p>
-                    <Button variant="outline" size="sm" className="mt-2" onClick={() => openReview(e)}>
-                      Review answers
-                    </Button>
+                    <div className="flex flex-wrap justify-end gap-2 mt-2">
+                      <Button variant="outline" size="sm" onClick={() => openReview(e)}>
+                        Review answers
+                      </Button>
+                      {retakeable[e.id] && (
+                        <Button size="sm" onClick={() => start(e)}>
+                          <RotateCcw className="w-3 h-3 mr-1" /> Retake exam
+                        </Button>
+                      )}
+                    </div>
+                    {retakeable[e.id] && (
+                      <p className="text-xs text-muted-foreground mt-2 max-w-[16rem]">
+                        A retake is open — your new score will replace this one.
+                      </p>
+                    )}
                   </div>
 
                 ) : (
