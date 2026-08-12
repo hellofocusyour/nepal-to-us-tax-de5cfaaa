@@ -58,10 +58,24 @@ const StudentExams = () => {
       supabase.from("exam_attempts").select("exam_id, score, total_marks, passed, submitted_at")
         .eq("user_id", user.id),
     ]);
-    setExams((ex as any) ?? []);
+    const list = ((ex as any) ?? []) as Exam[];
+    setExams(list);
     const map: Record<string, Attempt> = {};
     ((at as any) ?? []).forEach((a: Attempt) => { map[a.exam_id] = a; });
     setAttempts(map);
+
+    // Only exams the student already attempted need a retake check
+    const attemptedIds = list.filter(e => map[e.id]).map(e => e.id);
+    if (attemptedIds.length) {
+      const checks = await Promise.all(
+        attemptedIds.map(id => supabase.rpc("can_retake_exam", { _exam_id: id }))
+      );
+      const rmap: Record<string, boolean> = {};
+      attemptedIds.forEach((id, i) => { rmap[id] = checks[i].data === true; });
+      setRetakeable(rmap);
+    } else {
+      setRetakeable({});
+    }
     setLoading(false);
   };
 
