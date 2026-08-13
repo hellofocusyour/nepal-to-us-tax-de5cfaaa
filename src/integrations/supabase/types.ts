@@ -1328,6 +1328,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_access_exam: { Args: { _exam_id: string }; Returns: boolean }
       can_retake_exam: { Args: { _exam_id: string }; Returns: boolean }
       get_exam_questions: {
         Args: { _exam_id: string }
