@@ -69,8 +69,8 @@ const StudentCertificates = () => {
     return <div className="flex items-center justify-center h-64"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   }
 
-  const isCertified = info?.studentStatus === "certified";
-  const isCompleted = info?.studentStatus === "completed" || isCertified;
+  const unlocked = !!info?.unlocked;
+  const isCompleted = info?.studentStatus === "completed" || info?.studentStatus === "certified";
 
   return (
     <div className="space-y-6">
@@ -90,7 +90,7 @@ const StudentCertificates = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {isCertified && certificateUrl ? (
+          {unlocked && certificateUrl ? (
             <div className="space-y-4">
               <div className="p-6 rounded-xl bg-gradient-to-br from-secondary/10 to-primary/10 border border-secondary/20 text-center space-y-4">
                 <Award className="w-16 h-16 mx-auto text-secondary" />
