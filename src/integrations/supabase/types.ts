@@ -1458,6 +1458,7 @@ export type Database = {
         | "integrations"
         | "team"
         | "exams"
+        | "certificates"
       app_role: "admin" | "student"
       inquiry_status: "new" | "contacted" | "converted" | "dropped"
       payment_method: "bank_transfer" | "fonepay" | "ips"
@@ -1619,6 +1620,7 @@ export const Constants = {
         "integrations",
         "team",
         "exams",
+        "certificates",
       ],
       app_role: ["admin", "student"],
       inquiry_status: ["new", "contacted", "converted", "dropped"],

@@ -1,0 +1,1 @@
+ALTER TYPE public.admin_section ADD VALUE IF NOT EXISTS 'certificates';
