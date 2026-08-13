@@ -307,6 +307,69 @@ export type Database = {
         }
         Relationships: []
       }
+      certificates: {
+        Row: {
+          batch_id: string | null
+          certificate_number: string
+          created_at: string
+          created_by: string | null
+          file_path: string | null
+          id: string
+          is_unlocked: boolean
+          issued_on: string | null
+          notes: string | null
+          student_id: string
+          unlocked_at: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          batch_id?: string | null
+          certificate_number: string
+          created_at?: string
+          created_by?: string | null
+          file_path?: string | null
+          id?: string
+          is_unlocked?: boolean
+          issued_on?: string | null
+          notes?: string | null
+          student_id: string
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          batch_id?: string | null
+          certificate_number?: string
+          created_at?: string
+          created_by?: string | null
+          file_path?: string | null
+          id?: string
+          is_unlocked?: boolean
+          issued_on?: string | null
+          notes?: string | null
+          student_id?: string
+          unlocked_at?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "certificates_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "certificates_student_id_fkey"
+            columns: ["student_id"]
+            isOneToOne: true
+            referencedRelation: "students"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_sessions: {
         Row: {
           batch_id: string
