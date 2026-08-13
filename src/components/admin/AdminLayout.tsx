@@ -4,7 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import {
   LayoutDashboard, Users, CreditCard, MessageSquare, Calendar,
   Megaphone, BarChart3, LogOut, Menu, X, GraduationCap, BookOpen,
-  Inbox as InboxIcon, Settings, Video, Layers, Film, Shield, ClipboardCheck
+  Inbox as InboxIcon, Settings, Video, Layers, Film, Shield, ClipboardCheck, Award
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +25,7 @@ const navItems: { label: string; href: string; icon: any; section: AdminSection 
   { label: "Announcements", href: "/admin/announcements", icon: Megaphone, section: "announcements" },
   { label: "Email Batch", href: "/admin/email-batch", icon: InboxIcon, section: "announcements" },
   { label: "Exams", href: "/admin/exams", icon: ClipboardCheck, section: "exams" },
+  { label: "Certificates", href: "/admin/certificates", icon: Award, section: "certificates" },
   { label: "Reports", href: "/admin/reports", icon: BarChart3, section: "reports" },
   { label: "Integrations", href: "/admin/settings/integrations", icon: Settings, section: "integrations" },
 ];
