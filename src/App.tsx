@@ -45,6 +45,7 @@ import StudentVideoMaterials from "./pages/portal/StudentVideoMaterials.tsx";
 import Team from "./pages/admin/Team.tsx";
 import EmailBatch from "./pages/admin/EmailBatch.tsx";
 import AdminExams from "./pages/admin/Exams.tsx";
+import AdminCertificates from "./pages/admin/Certificates.tsx";
 import StudentExams from "./pages/portal/StudentExams.tsx";
 
 const queryClient = new QueryClient();
@@ -84,6 +85,7 @@ const App = () => (
               <Route path="team" element={<Team />} />
               <Route path="email-batch" element={<EmailBatch />} />
               <Route path="exams" element={<AdminExams />} />
+              <Route path="certificates" element={<AdminCertificates />} />
               <Route path="settings/integrations" element={<Integrations />} />
             </Route>
             <Route path="/portal/login" element={<StudentLogin />} />
