@@ -99,19 +99,21 @@ const StudentCertificates = () => {
                   <p className="text-sm text-muted-foreground">You have successfully completed the course.</p>
                 </div>
                 <Badge className="bg-secondary text-secondary-foreground">Certified</Badge>
+                <div className="text-sm text-muted-foreground space-y-1">
+                  {info?.certificateNumber && (
+                    <p>Certificate ID: <span className="font-mono text-foreground">{info.certificateNumber}</span></p>
+                  )}
+                  {info?.issuedOn && (
+                    <p>Date issued: <span className="text-foreground">{new Date(info.issuedOn).toLocaleDateString()}</span></p>
+                  )}
+                </div>
               </div>
               <Button className="w-full" asChild>
                 <a href={certificateUrl} download>
                   <Download className="w-4 h-4 mr-2" />
-                  Download Certificate (PDF)
+                  Download Certificate
                 </a>
               </Button>
-            </div>
-          ) : isCertified ? (
-            <div className="text-center py-8 space-y-3">
-              <Award className="w-12 h-12 mx-auto text-secondary" />
-              <p className="text-foreground font-medium">Your certificate is being generated.</p>
-              <p className="text-sm text-muted-foreground">Please check back soon.</p>
             </div>
           ) : isCompleted ? (
             <div className="text-center py-8 space-y-3">
