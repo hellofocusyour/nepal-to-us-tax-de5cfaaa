@@ -10,6 +10,9 @@ interface CertificateInfo {
   studentStatus: string;
   studentName: string;
   batchName: string | null;
+  certificateNumber: string | null;
+  issuedOn: string | null;
+  unlocked: boolean;
 }
 
 const StudentCertificates = () => {
@@ -21,34 +24,40 @@ const StudentCertificates = () => {
   useEffect(() => {
     if (!user) return;
     const fetchData = async () => {
-      const { data: student } = await supabase
+      const { data: students } = await supabase
         .from("students")
         .select("id, full_name, status, batch_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+        .eq("user_id", user.id);
+      const student = students?.[0];
 
       if (!student) { setLoading(false); return; }
 
       let batchName: string | null = null;
       if (student.batch_id) {
-        const { data: batch } = await supabase.from("batches").select("name").eq("id", student.batch_id).single();
+        const { data: batch } = await supabase.from("batches").select("name").eq("id", student.batch_id).maybeSingle();
         batchName = batch?.name || null;
       }
 
-      setInfo({ studentStatus: student.status, studentName: student.full_name, batchName });
+      const { data: cert } = await supabase
+        .from("certificates")
+        .select("certificate_number, issued_on, file_path, is_unlocked")
+        .eq("student_id", student.id)
+        .maybeSingle();
 
-      // Check for certificate in storage
-      if (student.status === "certified") {
-        const { data: files } = await supabase.storage
+      setInfo({
+        studentStatus: student.status,
+        studentName: student.full_name,
+        batchName,
+        certificateNumber: cert?.certificate_number ?? null,
+        issuedOn: cert?.issued_on ?? null,
+        unlocked: !!cert?.is_unlocked,
+      });
+
+      if (cert?.is_unlocked && cert.file_path) {
+        const { data: urlData } = await supabase.storage
           .from("certificates")
-          .list(student.id, { limit: 1 });
-
-        if (files && files.length > 0) {
-          const { data: urlData } = await supabase.storage
-            .from("certificates")
-            .createSignedUrl(`${student.id}/${files[0].name}`, 3600);
-          if (urlData) setCertificateUrl(urlData.signedUrl);
-        }
+          .createSignedUrl(cert.file_path, 3600);
+        if (urlData) setCertificateUrl(urlData.signedUrl);
       }
 
       setLoading(false);
