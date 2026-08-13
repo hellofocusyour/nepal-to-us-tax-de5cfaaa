@@ -67,7 +67,7 @@ const AdminCertificates = () => {
     if (existing) return existing;
     const { data, error } = await supabase
       .from("certificates")
-      .insert({ student_id: student.id })
+      .insert({ student_id: student.id, certificate_number: "" } as any)
       .select()
       .single();
     if (error) { toast.error(error.message); return null; }
