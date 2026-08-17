@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Award, Download, Lock } from "lucide-react";
+import { Award, Download, Linkedin, Lock } from "lucide-react";
 
 interface CertificateInfo {
   studentStatus: string;
