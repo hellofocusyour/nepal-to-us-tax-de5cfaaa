@@ -88,6 +88,8 @@ const Payments = () => {
   const [deletingPayment, setDeletingPayment] = useState<PaymentWithStudent | null>(null);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [invoiceGroup, setInvoiceGroup] = useState<StudentGroup | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [uploadStudentId, setUploadStudentId] = useState<string | null>(null);
 
   const resolveProofUrl = async (rawUrl: string | null): Promise<string | null> => {
     if (!rawUrl) return null;
