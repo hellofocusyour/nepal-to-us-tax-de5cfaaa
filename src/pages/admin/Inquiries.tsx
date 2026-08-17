@@ -215,7 +215,9 @@ const Inquiries = () => {
 
       <Card className="border border-border">
         <CardContent className="p-0">
+          <div className="w-full overflow-x-auto">
           <Table>
+
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10">
@@ -316,6 +318,8 @@ const Inquiries = () => {
               )}
             </TableBody>
           </Table>
+          </div>
+
         </CardContent>
       </Card>
         </TabsContent>
