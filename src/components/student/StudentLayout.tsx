@@ -61,9 +61,11 @@ const StudentLayout = () => {
       const isActive = student?.status === "active_student";
       const { data } = await supabase
         .from("announcements")
-        .select("id, target_audience")
+        .select("id, target_audience, expires_at")
         .order("created_at", { ascending: false });
+      const now = Date.now();
       const visible = (data || []).filter((a: any) => {
+        if (a.expires_at && new Date(a.expires_at).getTime() < now) return false;
         const aud = (a.target_audience || "all").toLowerCase();
         if (aud === "all") return true;
         if (aud === "active") return isActive;
