@@ -190,13 +190,20 @@ const StudentDashboard = () => {
 
       const { data: ann } = await supabase
         .from("announcements")
-        .select("id, title, content")
+        .select("id, title, content, created_at, expires_at")
         .order("created_at", { ascending: false })
         .limit(5);
       const readIds: string[] = JSON.parse(localStorage.getItem(READ_KEY) || "[]");
       const dismissed: string[] = JSON.parse(sessionStorage.getItem(DISMISS_KEY) || "[]");
-      const unread = (ann || []).find((a) => !readIds.includes(a.id) && !dismissed.includes(a.id));
+      const now = Date.now();
+      const unread = (ann || []).find((a: any) => {
+        if (readIds.includes(a.id) || dismissed.includes(a.id)) return false;
+        if (a.expires_at && new Date(a.expires_at).getTime() < now) return false;
+        // Only surface announcements posted within the last 24 hours
+        return now - new Date(a.created_at).getTime() <= 24 * 60 * 60 * 1000;
+      });
       if (unread) setBanner(unread);
+
 
       setLoading(false);
     })();
