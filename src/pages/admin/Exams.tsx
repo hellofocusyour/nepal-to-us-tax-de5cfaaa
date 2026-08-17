@@ -69,6 +69,11 @@ const Exams = () => {
   const [examDialog, setExamDialog] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<any>(emptyExam);
+  const [drafts, setDrafts] = useState<DraftQuestion[]>([]);
+  const [parsing, setParsing] = useState(false);
+  const [pdfName, setPdfName] = useState<string | null>(null);
+
+
 
   const [qExam, setQExam] = useState<Exam | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
