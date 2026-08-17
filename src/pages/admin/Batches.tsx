@@ -78,6 +78,18 @@ const Batches = () => {
   };
 
 
+  const toggleComplete = async (batch: Batch) => {
+    const next = !(batch as any).is_completed;
+    const { error } = await supabase
+      .from("batches")
+      .update({ is_completed: next, completed_at: next ? new Date().toISOString() : null } as any)
+      .eq("id", batch.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(next ? "Batch marked complete" : "Batch reopened");
+    fetchBatches();
+  };
+
+
   const getBatchStatus = (batch: Batch) => {
     const now = new Date();
     const start = new Date(batch.start_date);
