@@ -11,7 +11,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Search, CheckCircle, XCircle, Eye, Trash2, ChevronDown, ChevronRight,
-  AlertTriangle, FileText,
+  AlertTriangle, FileText, Upload,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
@@ -22,6 +22,7 @@ import {
   expectedTotal, expectedPerInstallment, FULL_TOTAL,
 } from "@/lib/pricing";
 import InvoiceDialog from "@/components/admin/InvoiceDialog";
+import UploadPaymentDialog from "@/components/admin/UploadPaymentDialog";
 
 interface PaymentWithStudent {
   id: string;
@@ -87,6 +88,8 @@ const Payments = () => {
   const [deletingPayment, setDeletingPayment] = useState<PaymentWithStudent | null>(null);
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
   const [invoiceGroup, setInvoiceGroup] = useState<StudentGroup | null>(null);
+  const [uploadOpen, setUploadOpen] = useState(false);
+  const [uploadStudentId, setUploadStudentId] = useState<string | null>(null);
 
   const resolveProofUrl = async (rawUrl: string | null): Promise<string | null> => {
     if (!rawUrl) return null;
@@ -279,9 +282,14 @@ const Payments = () => {
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground">Payments</h1>
-          <p className="text-muted-foreground">Grouped by student — review, approve and invoice in one place.</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground">Payments</h1>
+            <p className="text-muted-foreground">Grouped by student — review, approve and invoice in one place.</p>
+          </div>
+          <Button onClick={() => { setUploadStudentId(null); setUploadOpen(true); }}>
+            <Upload className="w-4 h-4 mr-2" /> Upload Payment
+          </Button>
         </div>
 
         <Card className="border border-border">
@@ -351,6 +359,9 @@ const Payments = () => {
                           <div className="mt-2"><Progress value={progress} className="h-1.5" /></div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0" onClick={e => e.stopPropagation()}>
+                          <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setUploadStudentId(group.studentId); setUploadOpen(true); }}>
+                            <Upload className="w-4 h-4 mr-1.5" /> Upload
+                          </Button>
                           <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setInvoiceGroup(group); }}>
                             <FileText className="w-4 h-4 mr-1.5" /> Invoice
                           </Button>
@@ -541,6 +552,14 @@ const Payments = () => {
           plan={invoiceGroup?.plan || "full"}
           payments={invoiceGroup?.payments || []}
           totalPaid={invoiceGroup?.totalPaid || 0}
+        />
+
+        {/* Upload Payment Dialog */}
+        <UploadPaymentDialog
+          open={uploadOpen}
+          onOpenChange={setUploadOpen}
+          defaultStudentId={uploadStudentId}
+          onSaved={fetchPayments}
         />
       </div>
     </TooltipProvider>

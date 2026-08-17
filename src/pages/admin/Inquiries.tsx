@@ -25,6 +25,20 @@ const statusColors: Record<string, "default" | "secondary" | "destructive" | "ou
   dropped: "destructive",
 };
 
+const BACKGROUND_LABELS: Record<string, string> = {
+  fresher: "Fresher / Student",
+  professional: "Working Professional",
+  ca: "CA / ACCA Student",
+  freelancer: "Freelancer",
+  entrepreneur: "Entrepreneur",
+  other: "Other",
+};
+
+const backgroundLabel = (value: string | null) => {
+  if (!value) return "—";
+  return BACKGROUND_LABELS[value.toLowerCase()] || value;
+};
+
 const Inquiries = () => {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [search, setSearch] = useState("");
@@ -215,6 +229,7 @@ const Inquiries = () => {
                 <TableHead className="hidden md:table-cell">Email</TableHead>
                 <TableHead className="hidden lg:table-cell">Phone</TableHead>
                 <TableHead className="hidden lg:table-cell">Background</TableHead>
+                <TableHead className="hidden xl:table-cell">Message</TableHead>
                 <TableHead>Source</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="hidden md:table-cell whitespace-nowrap">Date</TableHead>
@@ -223,9 +238,9 @@ const Inquiries = () => {
             </TableHeader>
             <TableBody>
               {loading ? (
-                <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">Loading...</TableCell></TableRow>
               ) : filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">No inquiries found</TableCell></TableRow>
+                <TableRow><TableCell colSpan={10} className="text-center py-8 text-muted-foreground">No inquiries found</TableCell></TableRow>
               ) : (
                 filtered.map((inquiry) => (
                   <TableRow key={inquiry.id} data-state={selectedIds.has(inquiry.id) ? "selected" : undefined}>
@@ -239,7 +254,12 @@ const Inquiries = () => {
                     <TableCell className="font-medium">{inquiry.full_name}</TableCell>
                     <TableCell className="hidden md:table-cell">{inquiry.email}</TableCell>
                     <TableCell className="hidden lg:table-cell">{inquiry.phone || "—"}</TableCell>
-                    <TableCell className="hidden lg:table-cell capitalize">{inquiry.background || "—"}</TableCell>
+                    <TableCell className="hidden lg:table-cell">{backgroundLabel(inquiry.background)}</TableCell>
+                    <TableCell className="hidden xl:table-cell max-w-[220px]">
+                      <span className="block truncate text-sm text-muted-foreground" title={inquiry.message || ""}>
+                        {inquiry.message?.trim() || "—"}
+                      </span>
+                    </TableCell>
                     <TableCell>
                       {(() => {
                         const src = (inquiry as any).source || "website";

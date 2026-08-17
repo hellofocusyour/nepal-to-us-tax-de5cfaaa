@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
     const isAdmin = (roles || []).some((r: any) => r.role === "admin");
 
     const { data: mod } = await admin.from("course_modules")
-      .select("id, module_number, title, slide_count, is_unlocked")
+      .select("id, module_number, title, slide_count, is_unlocked, file_path")
       .eq("module_number", module_number).maybeSingle();
     if (!mod) return json({ error: "module not found" }, 404);
 
@@ -55,8 +55,9 @@ Deno.serve(async (req) => {
       if (!mod.is_unlocked) return json({ error: "module locked" }, 403);
     }
 
+    const filePath = (mod as any).file_path || `module-${mod.module_number}.pdf`;
     const { data: signed, error } = await admin.storage.from("module-pdfs")
-      .createSignedUrl(`module-${mod.module_number}.pdf`, 60 * 60);
+      .createSignedUrl(filePath, 60 * 60);
     if (error) return json({ error: error.message }, 500);
 
     return json({ module: mod, pdf_url: signed.signedUrl });

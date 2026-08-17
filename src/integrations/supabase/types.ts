@@ -488,6 +488,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           description: string | null
+          file_path: string | null
           id: string
           is_unlocked: boolean
           module_number: number
@@ -499,6 +500,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           description?: string | null
+          file_path?: string | null
           id?: string
           is_unlocked?: boolean
           module_number: number
@@ -510,6 +512,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           description?: string | null
+          file_path?: string | null
           id?: string
           is_unlocked?: boolean
           module_number?: number
@@ -997,6 +1000,53 @@ export type Database = {
           },
           {
             foreignKeyName: "module_batches_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      module_versions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          file_path: string | null
+          id: string
+          module_id: string
+          notes: string | null
+          slide_count: number
+          title: string
+          version_number: number
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_path?: string | null
+          id?: string
+          module_id: string
+          notes?: string | null
+          slide_count?: number
+          title: string
+          version_number: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          file_path?: string | null
+          id?: string
+          module_id?: string
+          notes?: string | null
+          slide_count?: number
+          title?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "module_versions_module_id_fkey"
             columns: ["module_id"]
             isOneToOne: false
             referencedRelation: "course_modules"
