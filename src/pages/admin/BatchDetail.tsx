@@ -303,6 +303,7 @@ const BatchDetail = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {batch.is_completed && <Badge variant="secondary">Completed</Badge>}
               {status && <Badge variant={status.variant}>{status.label}</Badge>}
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Users className="w-4 h-4" /> {roster.length}/{batch.max_seats}
