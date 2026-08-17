@@ -10,7 +10,7 @@ interface CertificateInfo {
   studentStatus: string;
   studentName: string;
   batchName: string | null;
-  certificateNumber: string | null;
+  batchCompleted: boolean;
   issuedOn: string | null;
   unlocked: boolean;
 }
@@ -33,14 +33,16 @@ const StudentCertificates = () => {
       if (!student) { setLoading(false); return; }
 
       let batchName: string | null = null;
+      let batchCompleted = false;
       if (student.batch_id) {
-        const { data: batch } = await supabase.from("batches").select("name").eq("id", student.batch_id).maybeSingle();
+        const { data: batch } = await supabase.from("batches").select("name, is_completed").eq("id", student.batch_id).maybeSingle();
         batchName = batch?.name || null;
+        batchCompleted = !!(batch as any)?.is_completed;
       }
 
       const { data: cert } = await supabase
         .from("certificates")
-        .select("certificate_number, issued_on, file_path, is_unlocked")
+        .select("issued_on, file_path, is_unlocked")
         .eq("student_id", student.id)
         .maybeSingle();
 
@@ -48,12 +50,12 @@ const StudentCertificates = () => {
         studentStatus: student.status,
         studentName: student.full_name,
         batchName,
-        certificateNumber: cert?.certificate_number ?? null,
+        batchCompleted,
         issuedOn: cert?.issued_on ?? null,
         unlocked: !!cert?.is_unlocked,
       });
 
-      if (cert?.is_unlocked && cert.file_path) {
+      if (batchCompleted && cert?.is_unlocked && cert.file_path) {
         const { data: urlData } = await supabase.storage
           .from("certificates")
           .createSignedUrl(cert.file_path, 3600);
@@ -69,7 +71,7 @@ const StudentCertificates = () => {
     return <div className="flex items-center justify-center h-64"><div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full" /></div>;
   }
 
-  const unlocked = !!info?.unlocked;
+  const unlocked = !!info?.unlocked && !!info?.batchCompleted;
   const isCompleted = info?.studentStatus === "completed" || info?.studentStatus === "certified";
 
   return (
@@ -100,9 +102,6 @@ const StudentCertificates = () => {
                 </div>
                 <Badge className="bg-secondary text-secondary-foreground">Certified</Badge>
                 <div className="text-sm text-muted-foreground space-y-1">
-                  {info?.certificateNumber && (
-                    <p>Certificate ID: <span className="font-mono text-foreground">{info.certificateNumber}</span></p>
-                  )}
                   {info?.issuedOn && (
                     <p>Date issued: <span className="text-foreground">{new Date(info.issuedOn).toLocaleDateString()}</span></p>
                   )}
@@ -148,14 +147,20 @@ const StudentCertificates = () => {
             <div className="text-center py-8 space-y-3">
               <Award className="w-12 h-12 mx-auto text-muted-foreground" />
               <p className="text-foreground font-medium">Course completed!</p>
-              <p className="text-sm text-muted-foreground">Your certificate will be issued soon by the admin.</p>
+              <p className="text-sm text-muted-foreground">
+                {info?.batchCompleted
+                  ? "Your certificate will be issued soon by the admin."
+                  : "Certificates are released once your batch is marked complete."}
+              </p>
             </div>
           ) : (
             <div className="text-center py-8 space-y-3">
               <Lock className="w-12 h-12 mx-auto text-muted-foreground" />
               <p className="text-foreground font-medium">Certificate Locked</p>
               <p className="text-sm text-muted-foreground">
-                Complete all course requirements to earn your certificate.
+                {info?.batchCompleted
+                  ? "Complete all course requirements to earn your certificate."
+                  : "Your certificate unlocks after your batch is marked complete."}
               </p>
               <Badge variant="outline">{info?.studentStatus?.replace(/_/g, " ") || "In Progress"}</Badge>
             </div>
