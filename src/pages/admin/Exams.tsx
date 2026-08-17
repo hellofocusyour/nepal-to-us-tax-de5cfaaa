@@ -458,7 +458,7 @@ const Exams = () => {
 
       {/* Exam form */}
       <Dialog open={examDialog} onOpenChange={setExamDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-3xl max-h-[88vh] overflow-y-auto">
           <DialogHeader><DialogTitle>{editingId ? "Edit exam" : "New exam"}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             <div>
@@ -489,6 +489,70 @@ const Exams = () => {
                   onChange={(ev) => setForm({ ...form, pass_percentage: ev.target.value })} />
               </div>
             </div>
+
+            {/* PDF import */}
+            <div className="rounded-lg border border-border p-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <FileUp className="w-4 h-4 text-primary" />
+                <Label className="mb-0">Upload question PDF (optional)</Label>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Upload a text-based PDF of questions (with the answer key if available). Questions are
+                converted into MCQs automatically — review and edit them below before saving. Scoring,
+                percentage and pass/fail results work exactly like manually added questions.
+              </p>
+              <Input type="file" accept="application/pdf" disabled={parsing}
+                onChange={(ev) => handlePdf(ev.target.files?.[0] ?? null)} />
+              {parsing && (
+                <p className="text-xs flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="w-3 h-3 animate-spin" /> Reading {pdfName} and generating questions…
+                </p>
+              )}
+              {!parsing && drafts.length > 0 && (
+                <p className="text-xs flex items-center gap-2 text-primary">
+                  <Sparkles className="w-3 h-3" /> {drafts.length} question(s) ready from {pdfName}
+                </p>
+              )}
+            </div>
+
+            {drafts.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-medium">Review generated questions</p>
+                  <Button variant="ghost" size="sm" onClick={resetDrafts}>Discard all</Button>
+                </div>
+                {drafts.map((d, i) => (
+                  <Card key={i} className="p-3 space-y-2">
+                    <div className="flex items-start gap-2">
+                      <span className="text-sm font-medium mt-2">{i + 1}.</span>
+                      <Textarea rows={2} value={d.question_text}
+                        onChange={(ev) => patchDraft(i, { question_text: ev.target.value })} />
+                      <Button variant="ghost" size="sm" onClick={() => removeDraft(i)}>
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                    <div className="space-y-2 pl-6">
+                      {d.options.map((opt, oi) => (
+                        <label key={oi} className="flex items-center gap-2">
+                          <input type="radio" name={`draft-${i}`} checked={d.correct_index === oi}
+                            onChange={() => patchDraft(i, { correct_index: oi })} />
+                          <Input value={opt} onChange={(ev) => patchDraftOption(i, oi, ev.target.value)} />
+                        </label>
+                      ))}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-muted-foreground">Marks</span>
+                        <Input type="number" min={1} className="w-20" value={d.marks}
+                          onChange={(ev) => patchDraft(i, { marks: Number(ev.target.value) || 1 })} />
+                        <span className="text-xs text-muted-foreground">
+                          Correct answer: option {d.correct_index + 1}
+                        </span>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+
             <div className="flex items-center gap-2">
               <Switch checked={form.is_published} onCheckedChange={(v) => setForm({ ...form, is_published: v })} />
               <span className="text-sm">Publish to students</span>
@@ -496,8 +560,11 @@ const Exams = () => {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setExamDialog(false)}>Cancel</Button>
-            <Button onClick={saveExam}>{editingId ? "Save" : "Create"}</Button>
+            <Button onClick={saveExam} disabled={parsing}>
+              {editingId ? "Save" : "Create"}{drafts.length ? ` + ${drafts.length} questions` : ""}
+            </Button>
           </DialogFooter>
+
         </DialogContent>
       </Dialog>
 
