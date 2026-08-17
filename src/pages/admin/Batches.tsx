@@ -78,6 +78,18 @@ const Batches = () => {
   };
 
 
+  const toggleComplete = async (batch: Batch) => {
+    const next = !(batch as any).is_completed;
+    const { error } = await supabase
+      .from("batches")
+      .update({ is_completed: next, completed_at: next ? new Date().toISOString() : null } as any)
+      .eq("id", batch.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success(next ? "Batch marked complete" : "Batch reopened");
+    fetchBatches();
+  };
+
+
   const getBatchStatus = (batch: Batch) => {
     const now = new Date();
     const start = new Date(batch.start_date);
@@ -138,11 +150,19 @@ const Batches = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
+                      {(batch as any).is_completed && <Badge variant="secondary">Completed</Badge>}
                       <Badge variant={status.variant}>{status.label}</Badge>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Users className="w-4 h-4" />
                         {batch.enrolled_count}/{batch.max_seats}
                       </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleComplete(batch); }}
+                      >
+                        {(batch as any).is_completed ? "Reopen" : "Complete Batch"}
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"

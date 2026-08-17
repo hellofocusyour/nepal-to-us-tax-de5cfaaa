@@ -22,7 +22,6 @@ interface CertRow {
   id: string;
   student_id: string;
   batch_id: string | null;
-  certificate_number: string;
   issued_on: string | null;
   file_path: string | null;
   is_unlocked: boolean;
@@ -30,7 +29,7 @@ interface CertRow {
 
 const AdminCertificates = () => {
   const [students, setStudents] = useState<StudentRow[]>([]);
-  const [batches, setBatches] = useState<{ id: string; name: string; end_date: string }[]>([]);
+  const [batches, setBatches] = useState<{ id: string; name: string; end_date: string; is_completed?: boolean }[]>([]);
   const [certs, setCerts] = useState<Record<string, CertRow>>({});
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -40,7 +39,7 @@ const AdminCertificates = () => {
   const load = async () => {
     const [{ data: st }, { data: b }, { data: c }] = await Promise.all([
       supabase.from("students").select("id, full_name, email, status, batch_id").order("full_name"),
-      supabase.from("batches").select("id, name, end_date").order("start_date", { ascending: false }),
+      supabase.from("batches").select("id, name, end_date, is_completed").order("start_date", { ascending: false }),
       supabase.from("certificates").select("*"),
     ]);
     setStudents((st ?? []) as StudentRow[]);
@@ -67,7 +66,7 @@ const AdminCertificates = () => {
     if (existing) return existing;
     const { data, error } = await supabase
       .from("certificates")
-      .insert({ student_id: student.id, certificate_number: "" } as any)
+      .insert({ student_id: student.id } as any)
       .select()
       .single();
     if (error) { toast.error(error.message); return null; }
@@ -92,7 +91,7 @@ const AdminCertificates = () => {
       const cert = await ensureCert(student);
       if (!cert) return;
       const ext = file.name.split(".").pop() || "pdf";
-      const path = `${student.id}/${cert.certificate_number}.${ext}`;
+      const path = `${student.id}/certificate.${ext}`;
       const { error } = await supabase.storage.from("certificates").upload(path, file, { upsert: true });
       if (error) { toast.error(error.message); return; }
       await updateCert(cert, { file_path: path });
@@ -109,6 +108,11 @@ const AdminCertificates = () => {
       if (!cert) return;
       if (unlocked && !cert.file_path) {
         toast.error("Upload the certificate file first");
+        return;
+      }
+      const batch = batches.find(b => b.id === student.batch_id);
+      if (unlocked && !batch?.is_completed) {
+        toast.error("Mark the student's batch as Complete before releasing certificates");
         return;
       }
       await updateCert(cert, { is_unlocked: unlocked });
@@ -200,10 +204,6 @@ const AdminCertificates = () => {
               <CardContent className="space-y-3">
                 {cert && (
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Certificate ID: </span>
-                      <span className="font-mono font-medium text-foreground">{cert.certificate_number}</span>
-                    </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Label htmlFor={`d-${cert.id}`} className="text-muted-foreground">Date issued</Label>
                       <Input
@@ -215,6 +215,11 @@ const AdminCertificates = () => {
                       />
                     </div>
                   </div>
+                )}
+                {!batch?.is_completed && (
+                  <p className="text-xs text-muted-foreground">
+                    Certificates stay hidden until this student's batch is marked Complete in Batches.
+                  </p>
                 )}
 
                 <div className="flex flex-wrap items-center gap-3">

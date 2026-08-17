@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ArrowLeft, Plus, Users, Calendar, Trash2, Search, ShieldCheck, Mail } from "lucide-react";
+import { ArrowLeft, Plus, Users, Calendar, Trash2, Search, ShieldCheck, Mail, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 
 function SponsorAccessCard({ batch, onSaved }: { batch: any; onSaved: () => void }) {
@@ -111,14 +111,52 @@ function BatchDetailsCard({ batch, onSaved }: { batch: any; onSaved: () => void 
     </Card>
   );
 }
+function CompletionCard({ batch, onSaved }: { batch: any; onSaved: () => void }) {
+  const [saving, setSaving] = useState(false);
+  const completed = !!batch.is_completed;
 
+  const toggle = async () => {
+    setSaving(true);
+    const { error } = await supabase.from("batches").update({
+      is_completed: !completed,
+      completed_at: !completed ? new Date().toISOString() : null,
+    } as any).eq("id", batch.id);
+    setSaving(false);
+    if (error) return toast.error(error.message);
+    toast.success(!completed ? "Batch marked complete — certificates can now be released" : "Batch reopened — certificates are locked again");
+    onSaved();
+  };
 
-
+  return (
+    <Card className="border border-border">
+      <CardContent className="p-5 space-y-4">
+        <div className="flex items-center gap-2">
+          <CheckCircle2 className="w-5 h-5 text-primary" />
+          <h2 className="font-display font-bold text-foreground">Batch completion</h2>
+        </div>
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          <div>
+            <Label className="text-sm font-medium">
+              {completed ? "This batch is marked complete" : "Batch not completed yet"}
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Students can only see their certificate once the batch is complete and their certificate is unlocked.
+            </p>
+          </div>
+          <Button variant={completed ? "outline" : "default"} onClick={toggle} disabled={saving}>
+            {saving ? "Saving…" : completed ? "Reopen batch" : "Complete Batch"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
 
 interface Batch {
   id: string; name: string; start_date: string; end_date: string;
   max_seats: number; enrolled_count: number;
   access_granted?: boolean; is_partner?: boolean; sponsor_organization?: string | null;
+  is_completed?: boolean; completed_at?: string | null;
 }
 interface Student {
   id: string; full_name: string; email: string; phone: string | null; status: string;
@@ -265,6 +303,7 @@ const BatchDetail = () => {
               </div>
             </div>
             <div className="flex items-center gap-3">
+              {batch.is_completed && <Badge variant="secondary">Completed</Badge>}
               {status && <Badge variant={status.variant}>{status.label}</Badge>}
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Users className="w-4 h-4" /> {roster.length}/{batch.max_seats}
@@ -274,6 +313,7 @@ const BatchDetail = () => {
         </CardContent>
       </Card>
       <BatchDetailsCard batch={batch} onSaved={fetchAll} />
+      <CompletionCard batch={batch} onSaved={fetchAll} />
       <SponsorAccessCard batch={batch} onSaved={fetchAll} />
 
 
