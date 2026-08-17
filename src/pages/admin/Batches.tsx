@@ -138,11 +138,19 @@ const Batches = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
+                      {(batch as any).is_completed && <Badge variant="secondary">Completed</Badge>}
                       <Badge variant={status.variant}>{status.label}</Badge>
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Users className="w-4 h-4" />
                         {batch.enrolled_count}/{batch.max_seats}
                       </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleComplete(batch); }}
+                      >
+                        {(batch as any).is_completed ? "Reopen" : "Complete Batch"}
+                      </Button>
                       <Button
                         variant="ghost"
                         size="icon"
