@@ -108,7 +108,9 @@ const Exams = () => {
 
   useEffect(() => { load(); }, []);
 
-  const openNew = () => { setEditingId(null); setForm(emptyExam); setExamDialog(true); };
+  const resetDrafts = () => { setDrafts([]); setPdfName(null); setParsing(false); };
+
+  const openNew = () => { setEditingId(null); setForm(emptyExam); resetDrafts(); setExamDialog(true); };
   const openEdit = (e: Exam) => {
     setEditingId(e.id);
     setForm({
@@ -119,8 +121,50 @@ const Exams = () => {
       pass_percentage: e.pass_percentage,
       is_published: e.is_published,
     });
+    resetDrafts();
     setExamDialog(true);
   };
+
+  const handlePdf = async (file: File | null) => {
+    if (!file) return;
+    if (file.size > 15 * 1024 * 1024) return toast.error("PDF must be under 15MB");
+    setParsing(true);
+    setPdfName(file.name);
+    try {
+      const text = await extractPdfText(file);
+      if (text.trim().length < 40) {
+        throw new Error("No readable text found — this PDF looks scanned. Upload a text-based PDF.");
+      }
+      const { data, error } = await supabase.functions.invoke("parse-exam-pdf", { body: { text } });
+      if (error) {
+        const msg = (data as any)?.error || error.message;
+        throw new Error(msg);
+      }
+      if ((data as any)?.error) throw new Error((data as any).error);
+      const qs = ((data as any)?.questions ?? []) as DraftQuestion[];
+      if (!qs.length) throw new Error("No questions were extracted from this PDF.");
+      setDrafts(qs);
+      if (!form.title.trim()) {
+        setForm((p: any) => ({ ...p, title: file.name.replace(/\.pdf$/i, "").slice(0, 120) }));
+      }
+      toast.success(`${qs.length} question(s) extracted — review before publishing`);
+    } catch (e: any) {
+      setPdfName(null);
+      toast.error(e.message || "Could not read this PDF");
+    } finally {
+      setParsing(false);
+    }
+  };
+
+  const patchDraft = (i: number, patch: Partial<DraftQuestion>) =>
+    setDrafts(prev => prev.map((d, idx) => (idx === i ? { ...d, ...patch } : d)));
+
+  const patchDraftOption = (i: number, oi: number, value: string) =>
+    setDrafts(prev => prev.map((d, idx) =>
+      idx === i ? { ...d, options: d.options.map((o, k) => (k === oi ? value : o)) } : d));
+
+  const removeDraft = (i: number) => setDrafts(prev => prev.filter((_, idx) => idx !== i));
+
 
   const syncBatches = async (examId: string, selected: string[]) => {
     const keepRetakes = examRetakes[examId] ?? [];
