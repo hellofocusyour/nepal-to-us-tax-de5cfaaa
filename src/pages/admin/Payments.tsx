@@ -359,6 +359,9 @@ const Payments = () => {
                           <div className="mt-2"><Progress value={progress} className="h-1.5" /></div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0" onClick={e => e.stopPropagation()}>
+                          <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setUploadStudentId(group.studentId); setUploadOpen(true); }}>
+                            <Upload className="w-4 h-4 mr-1.5" /> Upload
+                          </Button>
                           <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setInvoiceGroup(group); }}>
                             <FileText className="w-4 h-4 mr-1.5" /> Invoice
                           </Button>
