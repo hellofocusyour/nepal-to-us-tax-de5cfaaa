@@ -553,6 +553,14 @@ const Payments = () => {
           payments={invoiceGroup?.payments || []}
           totalPaid={invoiceGroup?.totalPaid || 0}
         />
+
+        {/* Upload Payment Dialog */}
+        <UploadPaymentDialog
+          open={uploadOpen}
+          onOpenChange={setUploadOpen}
+          defaultStudentId={uploadStudentId}
+          onSaved={fetchPayments}
+        />
       </div>
     </TooltipProvider>
   );
