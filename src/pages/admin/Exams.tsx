@@ -17,7 +17,15 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Trash2, ListChecks, BarChart3, Pencil, ClipboardCheck, RotateCcw } from "lucide-react";
+import { extractPdfText } from "@/lib/pdfText";
+import { Plus, Trash2, ListChecks, BarChart3, Pencil, ClipboardCheck, RotateCcw, FileUp, Loader2, Sparkles } from "lucide-react";
+
+interface DraftQuestion {
+  question_text: string;
+  options: string[];
+  correct_index: number;
+  marks: number;
+}
 
 interface Exam {
   id: string;
