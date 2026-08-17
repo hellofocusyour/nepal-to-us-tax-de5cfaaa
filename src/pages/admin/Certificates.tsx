@@ -200,10 +200,6 @@ const AdminCertificates = () => {
               <CardContent className="space-y-3">
                 {cert && (
                   <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="text-sm">
-                      <span className="text-muted-foreground">Certificate ID: </span>
-                      <span className="font-mono font-medium text-foreground">{cert.certificate_number}</span>
-                    </div>
                     <div className="flex items-center gap-2 text-sm">
                       <Label htmlFor={`d-${cert.id}`} className="text-muted-foreground">Date issued</Label>
                       <Input
@@ -215,6 +211,11 @@ const AdminCertificates = () => {
                       />
                     </div>
                   </div>
+                )}
+                {!batch?.is_completed && (
+                  <p className="text-xs text-muted-foreground">
+                    Certificates stay hidden until this student's batch is marked Complete in Batches.
+                  </p>
                 )}
 
                 <div className="flex flex-wrap items-center gap-3">
