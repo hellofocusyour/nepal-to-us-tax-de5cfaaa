@@ -282,9 +282,14 @@ const Payments = () => {
   return (
     <TooltipProvider delayDuration={150}>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground">Payments</h1>
-          <p className="text-muted-foreground">Grouped by student — review, approve and invoice in one place.</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-2xl lg:text-3xl font-display font-bold text-foreground">Payments</h1>
+            <p className="text-muted-foreground">Grouped by student — review, approve and invoice in one place.</p>
+          </div>
+          <Button onClick={() => { setUploadStudentId(null); setUploadOpen(true); }}>
+            <Upload className="w-4 h-4 mr-2" /> Upload Payment
+          </Button>
         </div>
 
         <Card className="border border-border">
