@@ -265,11 +265,13 @@ export type Database = {
       batches: {
         Row: {
           access_granted: boolean
+          completed_at: string | null
           created_at: string
           end_date: string
           enrolled_count: number
           id: string
           instructor_name: string | null
+          is_completed: boolean
           is_partner: boolean
           max_seats: number
           name: string
@@ -279,11 +281,13 @@ export type Database = {
         }
         Insert: {
           access_granted?: boolean
+          completed_at?: string | null
           created_at?: string
           end_date: string
           enrolled_count?: number
           id?: string
           instructor_name?: string | null
+          is_completed?: boolean
           is_partner?: boolean
           max_seats?: number
           name: string
@@ -293,11 +297,13 @@ export type Database = {
         }
         Update: {
           access_granted?: boolean
+          completed_at?: string | null
           created_at?: string
           end_date?: string
           enrolled_count?: number
           id?: string
           instructor_name?: string | null
+          is_completed?: boolean
           is_partner?: boolean
           max_seats?: number
           name?: string
