@@ -55,8 +55,9 @@ Deno.serve(async (req) => {
       if (!mod.is_unlocked) return json({ error: "module locked" }, 403);
     }
 
+    const filePath = (mod as any).file_path || `module-${mod.module_number}.pdf`;
     const { data: signed, error } = await admin.storage.from("module-pdfs")
-      .createSignedUrl(`module-${mod.module_number}.pdf`, 60 * 60);
+      .createSignedUrl(filePath, 60 * 60);
     if (error) return json({ error: error.message }, 500);
 
     return json({ module: mod, pdf_url: signed.signedUrl });
