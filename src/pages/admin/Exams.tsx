@@ -228,10 +228,34 @@ const Exams = () => {
       examId = (data as any).id;
     }
     if (examId) await syncBatches(examId, form.batches);
-    toast.success(editingId ? "Exam updated" : "Exam created");
+
+    if (examId && drafts.length) {
+      const { count } = await supabase.from("exam_questions")
+        .select("id", { count: "exact", head: true }).eq("exam_id", examId);
+      const offset = count ?? 0;
+      const { error: qErr } = await supabase.from("exam_questions").insert(
+        drafts.map((d, i) => ({
+          exam_id: examId,
+          question_text: d.question_text.trim(),
+          options: d.options.map(o => o.trim()).filter(Boolean) as any,
+          correct_index: d.correct_index,
+          marks: d.marks > 0 ? d.marks : 1,
+          display_order: offset + i,
+        }))
+      );
+      if (qErr) return toast.error(qErr.message);
+    }
+
+    toast.success(
+      drafts.length
+        ? `${editingId ? "Exam updated" : "Exam created"} with ${drafts.length} question(s)`
+        : editingId ? "Exam updated" : "Exam created"
+    );
     setExamDialog(false);
+    resetDrafts();
     load();
   };
+
 
   const saveExamBatches = async (examId: string, ids: string[]) => {
     setExamBatches(prev => ({ ...prev, [examId]: ids }));
