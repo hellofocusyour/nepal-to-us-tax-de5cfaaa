@@ -313,6 +313,7 @@ const BatchDetail = () => {
         </CardContent>
       </Card>
       <BatchDetailsCard batch={batch} onSaved={fetchAll} />
+      <CompletionCard batch={batch} onSaved={fetchAll} />
       <SponsorAccessCard batch={batch} onSaved={fetchAll} />
 
 
