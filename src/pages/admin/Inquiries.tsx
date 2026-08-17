@@ -25,6 +25,20 @@ const statusColors: Record<string, "default" | "secondary" | "destructive" | "ou
   dropped: "destructive",
 };
 
+const BACKGROUND_LABELS: Record<string, string> = {
+  fresher: "Fresher / Student",
+  professional: "Working Professional",
+  ca: "CA / ACCA Student",
+  freelancer: "Freelancer",
+  entrepreneur: "Entrepreneur",
+  other: "Other",
+};
+
+const backgroundLabel = (value: string | null) => {
+  if (!value) return "—";
+  return BACKGROUND_LABELS[value.toLowerCase()] || value;
+};
+
 const Inquiries = () => {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [search, setSearch] = useState("");
