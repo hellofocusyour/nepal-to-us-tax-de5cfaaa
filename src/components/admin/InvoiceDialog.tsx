@@ -38,6 +38,8 @@ const COMPANY_NAME = "Elysian Capital PVT. LTD.";
 const COMPANY_TAGLINE = "US Tax Course";
 const SUPPORT_EMAIL = "academy@focusyourfinance.com";
 const SUPPORT_PHONE = "+977 970-9139754";
+const COMPANY_WEBSITE = "academy.focusyourfinance.com";
+const VAT_NUMBER = "622375005";
 const VAT_RATE = 0.13;
 
 const fmt = (n: number) => `NPR ${Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
