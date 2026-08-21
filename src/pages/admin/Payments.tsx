@@ -389,7 +389,10 @@ const Payments = () => {
                           </div>
                           <div className="mt-2"><Progress value={progress} className="h-1.5" /></div>
                         </div>
-                        <div className="flex items-center gap-2 shrink-0" onClick={e => e.stopPropagation()}>
+                        <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end" onClick={e => e.stopPropagation()}>
+                          <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); openFeeDialog(group); }}>
+                            <Pencil className="w-4 h-4 mr-1.5" /> Adjust Fee
+                          </Button>
                           <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); setUploadStudentId(group.studentId); setUploadOpen(true); }}>
                             <Upload className="w-4 h-4 mr-1.5" /> Upload
                           </Button>
