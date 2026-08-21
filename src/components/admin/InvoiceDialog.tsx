@@ -156,7 +156,7 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
   </div>
 
   <div style="border-top:1px solid #e5e7eb;padding-top:10px;text-align:center;font-size:11px;color:#64748b;line-height:1.5;">
-    Remarks: Original Tax Invoice will be shared separately after the completion of the course.
+    Remarks: Original Tax Invoice will be shared separately.
   </div>
 </div>`;
   };
