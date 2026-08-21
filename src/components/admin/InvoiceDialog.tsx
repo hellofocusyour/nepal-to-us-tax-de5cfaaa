@@ -86,11 +86,18 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
     <div>
       <div style="font-size:19px;font-weight:700;color:#0c4a6e;">${COMPANY_NAME}</div>
       <div style="font-size:12px;color:#475569;margin-top:2px;">${COMPANY_TAGLINE}</div>
-      <div style="font-size:11px;color:#64748b;margin-top:6px;line-height:1.45;">
-        ${SUPPORT_EMAIL}<br/>
-        ${SUPPORT_PHONE}<br/>
-        academy.focusyourfinance.com
+      <div style="font-size:11px;color:#64748b;margin-top:8px;line-height:1.55;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="color:#0c4a6e;">✉</span><span>${SUPPORT_EMAIL}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="color:#0c4a6e;">📞</span><span>${SUPPORT_PHONE}</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span style="color:#0c4a6e;">🌐</span><span>${COMPANY_WEBSITE}</span>
+        </div>
       </div>
+      <div style="display:inline-block;margin-top:6px;padding:2px 8px;border:1px solid #cbd5e1;border-radius:4px;font-size:10px;font-weight:600;color:#475569;letter-spacing:0.5px;">VAT No.: ${VAT_NUMBER}</div>
     </div>
     <div style="text-align:right;">
       <div style="font-size:17px;font-weight:700;color:#0c4a6e;letter-spacing:1px;">INVOICE</div>
