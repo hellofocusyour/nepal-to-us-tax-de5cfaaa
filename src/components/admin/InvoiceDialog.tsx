@@ -4,9 +4,7 @@ import { Download, Mail, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import {
-  BASE_PRICE, VAT_AMOUNT, INSTALLMENT_SURCHARGE, expectedTotal,
-} from "@/lib/pricing";
+import { expectedTotal } from "@/lib/pricing";
 
 export interface InvoicePayment {
   id: string;
@@ -32,38 +30,38 @@ interface Props {
   plan: "full" | "installment";
   payments: InvoicePayment[];
   totalPaid: number;
+  /** Total fee for this student (may be manually adjusted by an admin). */
+  expected?: number;
 }
 
+const COMPANY_NAME = "Elysian Capital PVT. LTD.";
+const COMPANY_TAGLINE = "US Tax Course";
 const SUPPORT_EMAIL = "academy@focusyourfinance.com";
 const SUPPORT_PHONE = "+977 970-9139754";
+const VAT_RATE = 0.13;
 
-const fmt = (n: number) => `NPR ${Number(n).toLocaleString()}`;
+const fmt = (n: number) => `NPR ${Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 const fmtDate = (d: string | null) =>
   d ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
-const invoiceNumberFor = (studentId: string) => {
-  // Stable per-student invoice number derived from id.
-  const hex = studentId.replace(/[^a-f0-9]/gi, "").slice(0, 6).toUpperCase().padEnd(6, "0");
-  const year = new Date().getFullYear();
-  return `INV-${year}-${hex}`;
-};
-
-const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid }: Props) => {
+const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid, expected: expectedProp }: Props) => {
   const [emailing, setEmailing] = useState(false);
 
   const data = useMemo(() => {
     if (!student) return null;
-    const expected = expectedTotal(plan);
+    const base = expectedProp ?? expectedTotal(plan);
+    const vat = Math.round(base * VAT_RATE * 100) / 100;
+    const expected = Math.round((base + vat) * 100) / 100;
     const balance = Math.max(0, expected - totalPaid);
     const status =
       totalPaid >= expected ? "Fully Paid" :
       totalPaid > 0 ? "Partially Paid" : "Unpaid";
     return {
-      invoiceNo: invoiceNumberFor(student.id),
       issueDate: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
-      expected, balance, status,
+      base, vat, expected, balance, status,
     };
-  }, [student, plan, totalPaid]);
+  }, [student, plan, totalPaid, expectedProp]);
+
 
   const buildHtml = () => {
     if (!student || !data) return "";
@@ -83,8 +81,8 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid 
 <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#0f172a;max-width:760px;margin:0 auto;padding:32px;background:#fff;">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0c4a6e;padding-bottom:18px;margin-bottom:24px;">
     <div>
-      <div style="font-size:24px;font-weight:700;color:#0c4a6e;">Focus Academy</div>
-      <div style="font-size:13px;color:#475569;margin-top:4px;">Bridging Nepal to US Tax Careers</div>
+      <div style="font-size:24px;font-weight:700;color:#0c4a6e;">${COMPANY_NAME}</div>
+      <div style="font-size:13px;color:#475569;margin-top:4px;">${COMPANY_TAGLINE}</div>
       <div style="font-size:12px;color:#64748b;margin-top:10px;line-height:1.6;">
         ${SUPPORT_EMAIL}<br/>
         ${SUPPORT_PHONE}<br/>
@@ -93,8 +91,7 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid 
     </div>
     <div style="text-align:right;">
       <div style="font-size:20px;font-weight:700;color:#0c4a6e;letter-spacing:1px;">INVOICE</div>
-      <div style="font-size:13px;color:#475569;margin-top:6px;"># ${data.invoiceNo}</div>
-      <div style="font-size:12px;color:#64748b;margin-top:4px;">Issued: ${data.issueDate}</div>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Issued: ${data.issueDate}</div>
     </div>
   </div>
 
@@ -113,11 +110,10 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid 
       </tr>
     </thead>
     <tbody>
-      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">Course Fee — Stock Market Pro</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(BASE_PRICE)}</td></tr>
-      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">VAT (13%)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(VAT_AMOUNT)}</td></tr>
-      ${plan === "installment" ? `<tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">Installment Fee</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(INSTALLMENT_SURCHARGE)}</td></tr>` : ""}
+      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">Course Fee — ${COMPANY_TAGLINE}</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(data.base)}</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">VAT (13%)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(data.vat)}</td></tr>
       <tr style="background:#f8fafc;">
-        <td style="padding:12px 10px;font-weight:700;">Total Expected</td>
+        <td style="padding:12px 10px;font-weight:700;">Final Amount (incl. VAT)</td>
         <td style="padding:12px 10px;text-align:right;font-weight:700;">${fmt(data.expected)}</td>
       </tr>
     </tbody>
@@ -139,7 +135,9 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid 
 
   <div style="display:flex;justify-content:flex-end;margin-bottom:30px;">
     <table style="font-size:14px;min-width:280px;">
-      <tr><td style="padding:6px 12px;color:#475569;">Total Expected</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.expected)}</td></tr>
+      <tr><td style="padding:6px 12px;color:#475569;">Subtotal</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.base)}</td></tr>
+      <tr><td style="padding:6px 12px;color:#475569;">VAT (13%)</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.vat)}</td></tr>
+      <tr><td style="padding:6px 12px;color:#475569;">Final Amount</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.expected)}</td></tr>
       <tr><td style="padding:6px 12px;color:#475569;">Amount Paid</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#059669;">${fmt(totalPaid)}</td></tr>
       <tr style="border-top:2px solid #0c4a6e;"><td style="padding:10px 12px;font-weight:700;">Balance Due</td><td style="padding:10px 0;text-align:right;font-weight:700;color:${data.balance > 0 ? "#dc2626" : "#059669"};">${fmt(data.balance)}</td></tr>
       <tr><td style="padding:6px 12px;color:#475569;">Status</td><td style="padding:6px 0;text-align:right;font-weight:600;">${data.status}</td></tr>
@@ -147,7 +145,7 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid 
   </div>
 
   <div style="border-top:1px solid #e5e7eb;padding-top:18px;text-align:center;font-size:12px;color:#64748b;line-height:1.6;">
-    Thank you for choosing Focus Academy. For any questions about this invoice, contact us at ${SUPPORT_EMAIL}.
+    Thank you for choosing ${COMPANY_NAME}. For any questions about this invoice, contact us at ${SUPPORT_EMAIL}.
   </div>
 </div>`;
   };
@@ -156,7 +154,7 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid 
     const html = buildHtml();
     const win = window.open("", "_blank", "width=900,height=1000");
     if (!win) { toast.error("Pop-up blocked. Allow pop-ups and try again."); return; }
-    win.document.write(`<!doctype html><html><head><title>${data?.invoiceNo || "Invoice"}</title>
+    win.document.write(`<!doctype html><html><head><title>Invoice — ${student?.full_name || ""}</title>
       <style>@media print { body { margin: 0; } } body { background:#fff; margin:0; }</style>
       </head><body>${html}
       <script>window.onload = () => { window.print(); };</script>
@@ -172,7 +170,7 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid 
       const { error } = await supabase.functions.invoke("send-email", {
         body: {
           to: [{ name: student.full_name, email: student.email }],
-          subject: `Invoice ${data?.invoiceNo} — Focus Academy`,
+          subject: `Invoice — ${COMPANY_NAME}`,
           body: html,
         },
       });
