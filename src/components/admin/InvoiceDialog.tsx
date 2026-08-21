@@ -197,19 +197,6 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
         </DialogHeader>
         {student && data && (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {[
-                { label: "Excl. VAT", value: fmt(data.base) },
-                { label: "VAT 13%", value: fmt(data.vat) },
-                { label: "Total payable", value: fmt(data.expected) },
-                { label: "Balance due", value: fmt(data.balance) },
-              ].map((s) => (
-                <div key={s.label} className="rounded-lg border border-border bg-muted/40 px-3 py-2">
-                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.label}</div>
-                  <div className="text-sm font-semibold tabular-nums">{s.value}</div>
-                </div>
-              ))}
-            </div>
             <div
               className="border border-border rounded-lg bg-white overflow-hidden"
               dangerouslySetInnerHTML={{ __html: buildHtml() }}
