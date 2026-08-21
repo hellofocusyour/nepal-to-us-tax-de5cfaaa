@@ -608,19 +608,29 @@ const Payments = () => {
         {/* Adjust Fee Dialog */}
         <Dialog open={!!feeGroup} onOpenChange={(o) => !o && setFeeGroup(null)}>
           <DialogContent className="max-w-md">
-            <DialogHeader><DialogTitle>Adjust fee — {feeGroup?.name}</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Standard fee is {fmt(FULL_TOTAL)}. Setting a custom amount overrides the expected total for this student only.
-              </p>
-              <div>
-                <label className="text-sm font-medium">Total fee (NPR)</label>
+            <DialogHeader>
+              <DialogTitle>Adjust fee</DialogTitle>
+              <DialogDescription>{feeGroup?.name} — {feeGroup?.email}</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Total fee, VAT inclusive (NPR)</label>
                 <Input
                   type="number" min={0} step={100}
                   value={feeValue}
                   onChange={e => setFeeValue(e.target.value)}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Standard fee is {fmt(FULL_TOTAL)}. A custom amount applies to this student only.
+                </p>
               </div>
+              {Number.isFinite(Number(feeValue)) && Number(feeValue) > 0 && (
+                <div className="rounded-lg border border-border bg-muted/40 p-3 space-y-1.5 text-sm">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Amount excl. VAT</span><span className="font-medium tabular-nums">{fmt(exVatOf(Number(feeValue)))}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">VAT 13% (included)</span><span className="font-medium tabular-nums">{fmt(vatOf(Number(feeValue)))}</span></div>
+                  <div className="flex justify-between border-t border-border pt-1.5"><span className="font-medium">Total payable</span><span className="font-semibold tabular-nums">{fmt(Number(feeValue))}</span></div>
+                </div>
+              )}
             </div>
             <DialogFooter className="gap-2">
               {feeGroup?.customFee !== null && (
