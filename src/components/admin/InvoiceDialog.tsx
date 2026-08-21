@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Download, Mail, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -49,9 +49,10 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
 
   const data = useMemo(() => {
     if (!student) return null;
-    const base = expectedProp ?? expectedTotal(plan);
-    const vat = Math.round(base * VAT_RATE * 100) / 100;
-    const expected = Math.round((base + vat) * 100) / 100;
+    // The fee is VAT-inclusive: VAT is extracted from the total, not added on top.
+    const expected = expectedProp ?? expectedTotal(plan);
+    const vat = Math.round(expected * (VAT_RATE / (1 + VAT_RATE)) * 100) / 100;
+    const base = Math.round((expected - vat) * 100) / 100;
     const balance = Math.max(0, expected - totalPaid);
     const status =
       totalPaid >= expected ? "Fully Paid" :
@@ -110,10 +111,11 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
       </tr>
     </thead>
     <tbody>
-      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">Course Fee — ${COMPANY_TAGLINE}</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(data.base)}</td></tr>
-      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">VAT (13%)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(data.vat)}</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">Course Fee — ${COMPANY_TAGLINE} <span style="color:#94a3b8;font-size:12px;">(VAT inclusive)</span></td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(data.expected)}</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#475569;">Amount excluding VAT</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;color:#475569;">${fmt(data.base)}</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#475569;">VAT (13%, included)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;color:#475569;">${fmt(data.vat)}</td></tr>
       <tr style="background:#f8fafc;">
-        <td style="padding:12px 10px;font-weight:700;">Final Amount (incl. VAT)</td>
+        <td style="padding:12px 10px;font-weight:700;">Total Payable</td>
         <td style="padding:12px 10px;text-align:right;font-weight:700;">${fmt(data.expected)}</td>
       </tr>
     </tbody>
@@ -134,10 +136,10 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
   </table>
 
   <div style="display:flex;justify-content:flex-end;margin-bottom:30px;">
-    <table style="font-size:14px;min-width:280px;">
-      <tr><td style="padding:6px 12px;color:#475569;">Subtotal</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.base)}</td></tr>
-      <tr><td style="padding:6px 12px;color:#475569;">VAT (13%)</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.vat)}</td></tr>
-      <tr><td style="padding:6px 12px;color:#475569;">Final Amount</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.expected)}</td></tr>
+    <table style="font-size:14px;min-width:300px;">
+      <tr><td style="padding:6px 12px;color:#475569;">Amount excl. VAT</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.base)}</td></tr>
+      <tr><td style="padding:6px 12px;color:#475569;">VAT 13% (included)</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.vat)}</td></tr>
+      <tr><td style="padding:6px 12px;color:#475569;">Total Payable</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.expected)}</td></tr>
       <tr><td style="padding:6px 12px;color:#475569;">Amount Paid</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#059669;">${fmt(totalPaid)}</td></tr>
       <tr style="border-top:2px solid #0c4a6e;"><td style="padding:10px 12px;font-weight:700;">Balance Due</td><td style="padding:10px 0;text-align:right;font-weight:700;color:${data.balance > 0 ? "#dc2626" : "#059669"};">${fmt(data.balance)}</td></tr>
       <tr><td style="padding:6px 12px;color:#475569;">Status</td><td style="padding:6px 0;text-align:right;font-weight:600;">${data.status}</td></tr>
@@ -187,12 +189,32 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>Invoice Preview</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Invoice preview</DialogTitle>
+          <DialogDescription>
+            {student ? `${student.full_name} — ${student.email}` : "Select a student"}
+          </DialogDescription>
+        </DialogHeader>
         {student && data && (
-          <div
-            className="border border-border rounded-md bg-white"
-            dangerouslySetInnerHTML={{ __html: buildHtml() }}
-          />
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {[
+                { label: "Excl. VAT", value: fmt(data.base) },
+                { label: "VAT 13%", value: fmt(data.vat) },
+                { label: "Total payable", value: fmt(data.expected) },
+                { label: "Balance due", value: fmt(data.balance) },
+              ].map((s) => (
+                <div key={s.label} className="rounded-lg border border-border bg-muted/40 px-3 py-2">
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.label}</div>
+                  <div className="text-sm font-semibold tabular-nums">{s.value}</div>
+                </div>
+              ))}
+            </div>
+            <div
+              className="border border-border rounded-lg bg-white overflow-hidden"
+              dangerouslySetInnerHTML={{ __html: buildHtml() }}
+            />
+          </>
         )}
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={handleEmail} disabled={emailing || !student}>

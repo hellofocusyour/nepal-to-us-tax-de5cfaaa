@@ -13,7 +13,7 @@ import {
   Search, CheckCircle, XCircle, Eye, Trash2, ChevronDown, ChevronRight,
   AlertTriangle, FileText, Upload, Pencil,
 } from "lucide-react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
@@ -74,7 +74,10 @@ const overallBadge = (s: StudentGroup["overallStatus"]) => {
   }
 };
 
-const fmt = (n: number) => `NPR ${Number(n).toLocaleString()}`;
+const fmt = (n: number) => `NPR ${Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+// Fees are VAT-inclusive: VAT is extracted out of the total (13/113), never added on top.
+const vatOf = (total: number) => Math.round(total * (13 / 113) * 100) / 100;
+const exVatOf = (total: number) => Math.round((total - vatOf(total)) * 100) / 100;
 
 const Payments = () => {
   const [payments, setPayments] = useState<PaymentWithStudent[]>([]);
@@ -379,15 +382,28 @@ const Payments = () => {
                             <div className="font-semibold truncate">{group.name}</div>
                             <Badge className={cn("border-0", oBadge.className)}>{oBadge.label}</Badge>
                             <Badge variant="outline" className="text-xs">{group.plan === "installment" ? `Installment · ${group.installmentCount}x` : "Full Payment"}</Badge>
+                            {group.customFee !== null && <Badge variant="outline" className="text-xs">Custom fee</Badge>}
                           </div>
                           <div className="text-xs text-muted-foreground truncate">{group.email}</div>
-                          <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                            <div><div className="text-xs text-muted-foreground">Expected</div><div className="font-medium">{fmt(group.expected)}</div></div>
-                            <div><div className="text-xs text-muted-foreground">Paid</div><div className="font-medium text-emerald-600">{fmt(group.totalPaid)}</div></div>
-                            <div><div className="text-xs text-muted-foreground">Pending</div><div className="font-medium text-amber-600">{fmt(group.pendingTotal)}</div></div>
-                            <div><div className="text-xs text-muted-foreground">Balance Due</div><div className={cn("font-medium", group.balance > 0 ? "text-destructive" : "text-emerald-600")}>{fmt(group.balance)}</div></div>
+                          <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {[
+                              { label: "Expected (incl. VAT)", value: fmt(group.expected), cls: "" },
+                              { label: "Paid", value: fmt(group.totalPaid), cls: "text-emerald-600" },
+                              { label: "Pending", value: fmt(group.pendingTotal), cls: "text-amber-600" },
+                              { label: "Balance due", value: fmt(group.balance), cls: group.balance > 0 ? "text-destructive" : "text-emerald-600" },
+                            ].map(m => (
+                              <div key={m.label} className="rounded-lg border border-border/70 bg-muted/30 px-3 py-2">
+                                <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{m.label}</div>
+                                <div className={cn("text-sm font-semibold tabular-nums", m.cls)}>{m.value}</div>
+                              </div>
+                            ))}
                           </div>
-                          <div className="mt-2"><Progress value={progress} className="h-1.5" /></div>
+                          <div className="mt-2 flex items-center gap-3">
+                            <Progress value={progress} className="h-1.5 flex-1" />
+                            <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                              VAT 13% incl. {fmt(vatOf(group.expected))}
+                            </span>
+                          </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end" onClick={e => e.stopPropagation()}>
                           <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); openFeeDialog(group); }}>
@@ -592,19 +608,29 @@ const Payments = () => {
         {/* Adjust Fee Dialog */}
         <Dialog open={!!feeGroup} onOpenChange={(o) => !o && setFeeGroup(null)}>
           <DialogContent className="max-w-md">
-            <DialogHeader><DialogTitle>Adjust fee — {feeGroup?.name}</DialogTitle></DialogHeader>
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                Standard fee is {fmt(FULL_TOTAL)}. Setting a custom amount overrides the expected total for this student only.
-              </p>
-              <div>
-                <label className="text-sm font-medium">Total fee (NPR)</label>
+            <DialogHeader>
+              <DialogTitle>Adjust fee</DialogTitle>
+              <DialogDescription>{feeGroup?.name} — {feeGroup?.email}</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-sm font-medium">Total fee, VAT inclusive (NPR)</label>
                 <Input
                   type="number" min={0} step={100}
                   value={feeValue}
                   onChange={e => setFeeValue(e.target.value)}
                 />
+                <p className="text-xs text-muted-foreground">
+                  Standard fee is {fmt(FULL_TOTAL)}. A custom amount applies to this student only.
+                </p>
               </div>
+              {Number.isFinite(Number(feeValue)) && Number(feeValue) > 0 && (
+                <div className="rounded-lg border border-border bg-muted/40 p-3 space-y-1.5 text-sm">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Amount excl. VAT</span><span className="font-medium tabular-nums">{fmt(exVatOf(Number(feeValue)))}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">VAT 13% (included)</span><span className="font-medium tabular-nums">{fmt(vatOf(Number(feeValue)))}</span></div>
+                  <div className="flex justify-between border-t border-border pt-1.5"><span className="font-medium">Total payable</span><span className="font-semibold tabular-nums">{fmt(Number(feeValue))}</span></div>
+                </div>
+              )}
             </div>
             <DialogFooter className="gap-2">
               {feeGroup?.customFee !== null && (
