@@ -135,7 +135,9 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
 
   <div style="display:flex;justify-content:flex-end;margin-bottom:30px;">
     <table style="font-size:14px;min-width:280px;">
-      <tr><td style="padding:6px 12px;color:#475569;">Total Expected</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.expected)}</td></tr>
+      <tr><td style="padding:6px 12px;color:#475569;">Subtotal</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.base)}</td></tr>
+      <tr><td style="padding:6px 12px;color:#475569;">VAT (13%)</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.vat)}</td></tr>
+      <tr><td style="padding:6px 12px;color:#475569;">Final Amount</td><td style="padding:6px 0;text-align:right;font-weight:600;">${fmt(data.expected)}</td></tr>
       <tr><td style="padding:6px 12px;color:#475569;">Amount Paid</td><td style="padding:6px 0;text-align:right;font-weight:600;color:#059669;">${fmt(totalPaid)}</td></tr>
       <tr style="border-top:2px solid #0c4a6e;"><td style="padding:10px 12px;font-weight:700;">Balance Due</td><td style="padding:10px 0;text-align:right;font-weight:700;color:${data.balance > 0 ? "#dc2626" : "#059669"};">${fmt(data.balance)}</td></tr>
       <tr><td style="padding:6px 12px;color:#475569;">Status</td><td style="padding:6px 0;text-align:right;font-weight:600;">${data.status}</td></tr>
