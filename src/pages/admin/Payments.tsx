@@ -586,7 +586,34 @@ const Payments = () => {
           plan={invoiceGroup?.plan || "full"}
           payments={invoiceGroup?.payments || []}
           totalPaid={invoiceGroup?.totalPaid || 0}
+          expected={invoiceGroup?.expected}
         />
+
+        {/* Adjust Fee Dialog */}
+        <Dialog open={!!feeGroup} onOpenChange={(o) => !o && setFeeGroup(null)}>
+          <DialogContent className="max-w-md">
+            <DialogHeader><DialogTitle>Adjust fee — {feeGroup?.name}</DialogTitle></DialogHeader>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Standard fee is {fmt(FULL_TOTAL)}. Setting a custom amount overrides the expected total for this student only.
+              </p>
+              <div>
+                <label className="text-sm font-medium">Total fee (NPR)</label>
+                <Input
+                  type="number" min={0} step={100}
+                  value={feeValue}
+                  onChange={e => setFeeValue(e.target.value)}
+                />
+              </div>
+            </div>
+            <DialogFooter className="gap-2">
+              {feeGroup?.customFee !== null && (
+                <Button variant="outline" disabled={savingFee} onClick={() => saveFee(true)}>Reset to standard</Button>
+              )}
+              <Button disabled={savingFee} onClick={() => saveFee(false)}>Save fee</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Upload Payment Dialog */}
         <UploadPaymentDialog
