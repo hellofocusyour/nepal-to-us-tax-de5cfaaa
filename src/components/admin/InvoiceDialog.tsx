@@ -81,8 +81,8 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
 <div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;color:#0f172a;max-width:760px;margin:0 auto;padding:32px;background:#fff;">
   <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:3px solid #0c4a6e;padding-bottom:18px;margin-bottom:24px;">
     <div>
-      <div style="font-size:24px;font-weight:700;color:#0c4a6e;">Focus Academy</div>
-      <div style="font-size:13px;color:#475569;margin-top:4px;">Bridging Nepal to US Tax Careers</div>
+      <div style="font-size:24px;font-weight:700;color:#0c4a6e;">${COMPANY_NAME}</div>
+      <div style="font-size:13px;color:#475569;margin-top:4px;">${COMPANY_TAGLINE}</div>
       <div style="font-size:12px;color:#64748b;margin-top:10px;line-height:1.6;">
         ${SUPPORT_EMAIL}<br/>
         ${SUPPORT_PHONE}<br/>
@@ -91,8 +91,7 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
     </div>
     <div style="text-align:right;">
       <div style="font-size:20px;font-weight:700;color:#0c4a6e;letter-spacing:1px;">INVOICE</div>
-      <div style="font-size:13px;color:#475569;margin-top:6px;"># ${data.invoiceNo}</div>
-      <div style="font-size:12px;color:#64748b;margin-top:4px;">Issued: ${data.issueDate}</div>
+      <div style="font-size:12px;color:#64748b;margin-top:6px;">Issued: ${data.issueDate}</div>
     </div>
   </div>
 
