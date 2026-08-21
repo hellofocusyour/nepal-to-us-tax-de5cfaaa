@@ -170,7 +170,7 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
       const { error } = await supabase.functions.invoke("send-email", {
         body: {
           to: [{ name: student.full_name, email: student.email }],
-          subject: `Invoice ${data?.invoiceNo} — Focus Academy`,
+          subject: `Invoice — ${COMPANY_NAME}`,
           body: html,
         },
       });
