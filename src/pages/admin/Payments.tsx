@@ -74,7 +74,10 @@ const overallBadge = (s: StudentGroup["overallStatus"]) => {
   }
 };
 
-const fmt = (n: number) => `NPR ${Number(n).toLocaleString()}`;
+const fmt = (n: number) => `NPR ${Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+// Fees are VAT-inclusive: VAT is extracted out of the total (13/113), never added on top.
+const vatOf = (total: number) => Math.round(total * (13 / 113) * 100) / 100;
+const exVatOf = (total: number) => Math.round((total - vatOf(total)) * 100) / 100;
 
 const Payments = () => {
   const [payments, setPayments] = useState<PaymentWithStudent[]>([]);
