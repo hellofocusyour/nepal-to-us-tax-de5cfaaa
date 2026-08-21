@@ -49,9 +49,10 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
 
   const data = useMemo(() => {
     if (!student) return null;
-    const base = expectedProp ?? expectedTotal(plan);
-    const vat = Math.round(base * VAT_RATE * 100) / 100;
-    const expected = Math.round((base + vat) * 100) / 100;
+    // The fee is VAT-inclusive: VAT is extracted from the total, not added on top.
+    const expected = expectedProp ?? expectedTotal(plan);
+    const vat = Math.round(expected * (VAT_RATE / (1 + VAT_RATE)) * 100) / 100;
+    const base = Math.round((expected - vat) * 100) / 100;
     const balance = Math.max(0, expected - totalPaid);
     const status =
       totalPaid >= expected ? "Fully Paid" :
