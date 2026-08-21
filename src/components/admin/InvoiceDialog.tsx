@@ -152,7 +152,7 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
     const html = buildHtml();
     const win = window.open("", "_blank", "width=900,height=1000");
     if (!win) { toast.error("Pop-up blocked. Allow pop-ups and try again."); return; }
-    win.document.write(`<!doctype html><html><head><title>${data?.invoiceNo || "Invoice"}</title>
+    win.document.write(`<!doctype html><html><head><title>Invoice — ${student?.full_name || ""}</title>
       <style>@media print { body { margin: 0; } } body { background:#fff; margin:0; }</style>
       </head><body>${html}
       <script>window.onload = () => { window.print(); };</script>
