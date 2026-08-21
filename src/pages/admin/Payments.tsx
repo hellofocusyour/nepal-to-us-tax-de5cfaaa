@@ -91,6 +91,31 @@ const Payments = () => {
   const [invoiceGroup, setInvoiceGroup] = useState<StudentGroup | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
   const [uploadStudentId, setUploadStudentId] = useState<string | null>(null);
+  const [feeGroup, setFeeGroup] = useState<StudentGroup | null>(null);
+  const [feeValue, setFeeValue] = useState("");
+  const [savingFee, setSavingFee] = useState(false);
+
+  const openFeeDialog = (g: StudentGroup) => {
+    setFeeGroup(g);
+    setFeeValue(g.customFee !== null ? String(g.customFee) : String(g.expected));
+  };
+
+  const saveFee = async (reset = false) => {
+    if (!feeGroup) return;
+    const value = reset ? null : Number(feeValue);
+    if (!reset && (!Number.isFinite(value as number) || (value as number) < 0)) {
+      toast.error("Enter a valid amount"); return;
+    }
+    setSavingFee(true);
+    const { error } = await supabase.from("students")
+      .update({ custom_fee: value })
+      .eq("id", feeGroup.studentId);
+    setSavingFee(false);
+    if (error) { toast.error("Failed to update fee"); return; }
+    toast.success(reset ? "Fee reset to standard" : "Fee updated");
+    setFeeGroup(null);
+    fetchPayments();
+  };
 
   const resolveProofUrl = async (rawUrl: string | null): Promise<string | null> => {
     if (!rawUrl) return null;
