@@ -100,8 +100,9 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
       <div style="display:inline-block;margin-top:6px;padding:2px 8px;border:1px solid #cbd5e1;border-radius:4px;font-size:10px;font-weight:600;color:#475569;letter-spacing:0.5px;">VAT No.: ${VAT_NUMBER}</div>
     </div>
     <div style="text-align:right;">
-      <div style="font-size:17px;font-weight:700;color:#0c4a6e;letter-spacing:1px;">INVOICE</div>
+      <div style="font-size:17px;font-weight:700;color:#0c4a6e;letter-spacing:1px;">PROFORMA INVOICE</div>
       <div style="font-size:11px;color:#64748b;margin-top:4px;">Issued: ${data.issueDate}</div>
+      <div style="font-size:10px;color:#64748b;margin-top:4px;">Original VAT bill will be shared separately.</div>
     </div>
   </div>
 
@@ -156,7 +157,7 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
   </div>
 
   <div style="border-top:1px solid #e5e7eb;padding-top:10px;text-align:center;font-size:11px;color:#64748b;line-height:1.5;">
-    Thank you for choosing ${COMPANY_NAME}. For any questions about this invoice, contact us at ${SUPPORT_EMAIL}.
+    Remarks: Original Tax Invoice will be shared separately.
   </div>
 </div>`;
   };
