@@ -111,10 +111,11 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
       </tr>
     </thead>
     <tbody>
-      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">Course Fee — ${COMPANY_TAGLINE}</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(data.base)}</td></tr>
-      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">VAT (13%)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(data.vat)}</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">Course Fee — ${COMPANY_TAGLINE} <span style="color:#94a3b8;font-size:12px;">(VAT inclusive)</span></td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(data.expected)}</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#475569;">Amount excluding VAT</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;color:#475569;">${fmt(data.base)}</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;color:#475569;">VAT (13%, included)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;color:#475569;">${fmt(data.vat)}</td></tr>
       <tr style="background:#f8fafc;">
-        <td style="padding:12px 10px;font-weight:700;">Final Amount (incl. VAT)</td>
+        <td style="padding:12px 10px;font-weight:700;">Total Payable</td>
         <td style="padding:12px 10px;text-align:right;font-weight:700;">${fmt(data.expected)}</td>
       </tr>
     </tbody>
