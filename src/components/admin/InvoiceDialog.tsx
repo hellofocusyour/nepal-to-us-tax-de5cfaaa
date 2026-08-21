@@ -4,9 +4,7 @@ import { Download, Mail, Loader2 } from "lucide-react";
 import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import {
-  BASE_PRICE, VAT_AMOUNT, INSTALLMENT_SURCHARGE, expectedTotal,
-} from "@/lib/pricing";
+import { expectedTotal } from "@/lib/pricing";
 
 export interface InvoicePayment {
   id: string;
@@ -32,38 +30,38 @@ interface Props {
   plan: "full" | "installment";
   payments: InvoicePayment[];
   totalPaid: number;
+  /** Total fee for this student (may be manually adjusted by an admin). */
+  expected?: number;
 }
 
+const COMPANY_NAME = "Elysian Capital PVT. LTD.";
+const COMPANY_TAGLINE = "US Tax Course";
 const SUPPORT_EMAIL = "academy@focusyourfinance.com";
 const SUPPORT_PHONE = "+977 970-9139754";
+const VAT_RATE = 0.13;
 
-const fmt = (n: number) => `NPR ${Number(n).toLocaleString()}`;
+const fmt = (n: number) => `NPR ${Number(n).toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 const fmtDate = (d: string | null) =>
   d ? new Date(d).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }) : "—";
 
-const invoiceNumberFor = (studentId: string) => {
-  // Stable per-student invoice number derived from id.
-  const hex = studentId.replace(/[^a-f0-9]/gi, "").slice(0, 6).toUpperCase().padEnd(6, "0");
-  const year = new Date().getFullYear();
-  return `INV-${year}-${hex}`;
-};
-
-const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid }: Props) => {
+const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid, expected: expectedProp }: Props) => {
   const [emailing, setEmailing] = useState(false);
 
   const data = useMemo(() => {
     if (!student) return null;
-    const expected = expectedTotal(plan);
+    const base = expectedProp ?? expectedTotal(plan);
+    const vat = Math.round(base * VAT_RATE * 100) / 100;
+    const expected = Math.round((base + vat) * 100) / 100;
     const balance = Math.max(0, expected - totalPaid);
     const status =
       totalPaid >= expected ? "Fully Paid" :
       totalPaid > 0 ? "Partially Paid" : "Unpaid";
     return {
-      invoiceNo: invoiceNumberFor(student.id),
       issueDate: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
-      expected, balance, status,
+      base, vat, expected, balance, status,
     };
-  }, [student, plan, totalPaid]);
+  }, [student, plan, totalPaid, expectedProp]);
+
 
   const buildHtml = () => {
     if (!student || !data) return "";
