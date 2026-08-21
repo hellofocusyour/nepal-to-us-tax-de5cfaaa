@@ -149,8 +149,12 @@ const Payments = () => {
         studentPlan === "full" ? "full" :
         (sorted.length > 1 || maxInstallment > 1 ? "installment" : "full");
       const installmentCount = plan === "installment" ? Math.max(2, maxInstallment) : 1;
-      const expected = expectedTotal(plan);
-      const expectedPer = expectedPerInstallment(plan, installmentCount);
+      const rawCustomFee = first.students?.custom_fee;
+      const customFee = rawCustomFee === null || rawCustomFee === undefined ? null : Number(rawCustomFee);
+      const expected = customFee !== null ? customFee : expectedTotal(plan);
+      const expectedPer = customFee !== null
+        ? Math.round((customFee / Math.max(1, installmentCount)) * 100) / 100
+        : expectedPerInstallment(plan, installmentCount);
       const totalPaid = sorted
         .filter(p => p.status === "verified")
         .reduce((s, p) => s + Number(p.amount), 0);
