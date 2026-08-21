@@ -168,12 +168,12 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
     win.document.write(`<!doctype html><html><head><title>Invoice — ${student?.full_name || ""}</title>
       <style>
         body { background:#fff; margin:0; }
-        @page { size: A4 portrait; margin: 10mm; }
+        @page { size: A4 portrait; margin: 0; }
         @media print {
           body { margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .fa-invoice {
             max-width: none !important;
-            padding: 0 !important;
+            padding: 10mm !important;
             width: 190mm;
             transform-origin: top left;
           }
