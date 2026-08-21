@@ -145,7 +145,7 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
   </div>
 
   <div style="border-top:1px solid #e5e7eb;padding-top:18px;text-align:center;font-size:12px;color:#64748b;line-height:1.6;">
-    Thank you for choosing Focus Academy. For any questions about this invoice, contact us at ${SUPPORT_EMAIL}.
+    Thank you for choosing ${COMPANY_NAME}. For any questions about this invoice, contact us at ${SUPPORT_EMAIL}.
   </div>
 </div>`;
   };
