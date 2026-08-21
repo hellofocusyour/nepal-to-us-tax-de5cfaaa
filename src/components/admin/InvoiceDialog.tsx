@@ -110,9 +110,8 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
       </tr>
     </thead>
     <tbody>
-      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">Course Fee — Stock Market Pro</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(BASE_PRICE)}</td></tr>
-      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">VAT (13%)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(VAT_AMOUNT)}</td></tr>
-      ${plan === "installment" ? `<tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">Installment Fee</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(INSTALLMENT_SURCHARGE)}</td></tr>` : ""}
+      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">Course Fee — ${COMPANY_TAGLINE}</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(data.base)}</td></tr>
+      <tr><td style="padding:10px;border-bottom:1px solid #e5e7eb;">VAT (13%)</td><td style="padding:10px;border-bottom:1px solid #e5e7eb;text-align:right;">${fmt(data.vat)}</td></tr>
       <tr style="background:#f8fafc;">
         <td style="padding:12px 10px;font-weight:700;">Total Expected</td>
         <td style="padding:12px 10px;text-align:right;font-weight:700;">${fmt(data.expected)}</td>
