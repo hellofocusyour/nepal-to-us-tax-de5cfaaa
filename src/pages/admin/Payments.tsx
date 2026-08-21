@@ -379,15 +379,28 @@ const Payments = () => {
                             <div className="font-semibold truncate">{group.name}</div>
                             <Badge className={cn("border-0", oBadge.className)}>{oBadge.label}</Badge>
                             <Badge variant="outline" className="text-xs">{group.plan === "installment" ? `Installment · ${group.installmentCount}x` : "Full Payment"}</Badge>
+                            {group.customFee !== null && <Badge variant="outline" className="text-xs">Custom fee</Badge>}
                           </div>
                           <div className="text-xs text-muted-foreground truncate">{group.email}</div>
-                          <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                            <div><div className="text-xs text-muted-foreground">Expected</div><div className="font-medium">{fmt(group.expected)}</div></div>
-                            <div><div className="text-xs text-muted-foreground">Paid</div><div className="font-medium text-emerald-600">{fmt(group.totalPaid)}</div></div>
-                            <div><div className="text-xs text-muted-foreground">Pending</div><div className="font-medium text-amber-600">{fmt(group.pendingTotal)}</div></div>
-                            <div><div className="text-xs text-muted-foreground">Balance Due</div><div className={cn("font-medium", group.balance > 0 ? "text-destructive" : "text-emerald-600")}>{fmt(group.balance)}</div></div>
+                          <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
+                            {[
+                              { label: "Expected (incl. VAT)", value: fmt(group.expected), cls: "" },
+                              { label: "Paid", value: fmt(group.totalPaid), cls: "text-emerald-600" },
+                              { label: "Pending", value: fmt(group.pendingTotal), cls: "text-amber-600" },
+                              { label: "Balance due", value: fmt(group.balance), cls: group.balance > 0 ? "text-destructive" : "text-emerald-600" },
+                            ].map(m => (
+                              <div key={m.label} className="rounded-lg border border-border/70 bg-muted/30 px-3 py-2">
+                                <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{m.label}</div>
+                                <div className={cn("text-sm font-semibold tabular-nums", m.cls)}>{m.value}</div>
+                              </div>
+                            ))}
                           </div>
-                          <div className="mt-2"><Progress value={progress} className="h-1.5" /></div>
+                          <div className="mt-2 flex items-center gap-3">
+                            <Progress value={progress} className="h-1.5 flex-1" />
+                            <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
+                              VAT 13% incl. {fmt(vatOf(group.expected))}
+                            </span>
+                          </div>
                         </div>
                         <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end" onClick={e => e.stopPropagation()}>
                           <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); openFeeDialog(group); }}>
