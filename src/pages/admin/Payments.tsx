@@ -55,6 +55,7 @@ interface StudentGroup {
   balance: number;
   overallStatus: "fully_paid" | "partially_paid" | "pending" | "rejected";
   batchId: string | null;
+  customFee: number | null;
 }
 
 const statusBadge: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
