@@ -178,6 +178,7 @@ const Payments = () => {
         plan, installmentCount, expected, expectedPer,
         totalPaid, pendingTotal, balance, overallStatus,
         batchId: first.students?.batch_id || null,
+        customFee,
       });
     }
     // Most-recently-active groups first
