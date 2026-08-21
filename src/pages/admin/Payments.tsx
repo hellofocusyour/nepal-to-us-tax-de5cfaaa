@@ -385,25 +385,13 @@ const Payments = () => {
                             {group.customFee !== null && <Badge variant="outline" className="text-xs">Custom fee</Badge>}
                           </div>
                           <div className="text-xs text-muted-foreground truncate">{group.email}</div>
-                          <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-2">
-                            {[
-                              { label: "Expected (incl. VAT)", value: fmt(group.expected), cls: "" },
-                              { label: "Paid", value: fmt(group.totalPaid), cls: "text-emerald-600" },
-                              { label: "Pending", value: fmt(group.pendingTotal), cls: "text-amber-600" },
-                              { label: "Balance due", value: fmt(group.balance), cls: group.balance > 0 ? "text-destructive" : "text-emerald-600" },
-                            ].map(m => (
-                              <div key={m.label} className="rounded-lg border border-border/70 bg-muted/30 px-3 py-2">
-                                <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{m.label}</div>
-                                <div className={cn("text-sm font-semibold tabular-nums", m.cls)}>{m.value}</div>
-                              </div>
-                            ))}
+                          <div className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+                            <span className="text-muted-foreground">Expected: <span className="font-semibold text-foreground">{fmt(group.expected)}</span></span>
+                            <span className="text-muted-foreground">Paid: <span className="font-semibold text-emerald-600">{fmt(group.totalPaid)}</span></span>
+                            <span className="text-muted-foreground">Pending: <span className="font-semibold text-amber-600">{fmt(group.pendingTotal)}</span></span>
+                            <span className="text-muted-foreground">Balance: <span className={cn("font-semibold", group.balance > 0 ? "text-destructive" : "text-emerald-600")}>{fmt(group.balance)}</span></span>
                           </div>
-                          <div className="mt-2 flex items-center gap-3">
-                            <Progress value={progress} className="h-1.5 flex-1" />
-                            <span className="text-[11px] text-muted-foreground tabular-nums shrink-0">
-                              VAT 13% incl. {fmt(vatOf(group.expected))}
-                            </span>
-                          </div>
+                          <Progress value={progress} className="h-1.5 mt-2" />
                         </div>
                         <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end" onClick={e => e.stopPropagation()}>
                           <Button size="sm" variant="outline" onClick={(e) => { e.stopPropagation(); openFeeDialog(group); }}>
