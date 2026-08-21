@@ -182,7 +182,6 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
             if (h > pageHeightPx) {
               var scale = Math.max(0.5, (pageHeightPx - 4) / h);
               el.style.transform = 'scale(' + scale + ')';
-              el.style.width = (100 / scale) + '%';
             }
           } catch (e) {}
           window.print();
