@@ -189,12 +189,32 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle>Invoice Preview</DialogTitle></DialogHeader>
+        <DialogHeader>
+          <DialogTitle>Invoice preview</DialogTitle>
+          <DialogDescription>
+            {student ? `${student.full_name} — ${student.email}` : "Select a student"}
+          </DialogDescription>
+        </DialogHeader>
         {student && data && (
-          <div
-            className="border border-border rounded-md bg-white"
-            dangerouslySetInnerHTML={{ __html: buildHtml() }}
-          />
+          <>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {[
+                { label: "Excl. VAT", value: fmt(data.base) },
+                { label: "VAT 13%", value: fmt(data.vat) },
+                { label: "Total payable", value: fmt(data.expected) },
+                { label: "Balance due", value: fmt(data.balance) },
+              ].map((s) => (
+                <div key={s.label} className="rounded-lg border border-border bg-muted/40 px-3 py-2">
+                  <div className="text-[11px] uppercase tracking-wide text-muted-foreground">{s.label}</div>
+                  <div className="text-sm font-semibold tabular-nums">{s.value}</div>
+                </div>
+              ))}
+            </div>
+            <div
+              className="border border-border rounded-lg bg-white overflow-hidden"
+              dangerouslySetInnerHTML={{ __html: buildHtml() }}
+            />
+          </>
         )}
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={handleEmail} disabled={emailing || !student}>
