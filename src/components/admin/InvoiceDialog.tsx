@@ -102,7 +102,6 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
     <div style="text-align:right;">
       <div style="font-size:17px;font-weight:700;color:#0c4a6e;letter-spacing:1px;">PROFORMA INVOICE</div>
       <div style="font-size:11px;color:#64748b;margin-top:4px;">Issued: ${data.issueDate}</div>
-      <div style="font-size:10px;color:#64748b;margin-top:4px;">Original VAT bill will be shared separately.</div>
     </div>
   </div>
 
@@ -157,7 +156,7 @@ const InvoiceDialog = ({ open, onOpenChange, student, plan, payments, totalPaid,
   </div>
 
   <div style="border-top:1px solid #e5e7eb;padding-top:10px;text-align:center;font-size:11px;color:#64748b;line-height:1.5;">
-    Remarks: Original Tax Invoice will be shared separately.
+    Remarks: Original Tax Invoice will be shared separately after the completion of the course.
   </div>
 </div>`;
   };
